@@ -19,12 +19,13 @@ setup(
     url = 'http://www.math.uic.edu/~jan/download.html' ,
     version = '0.2.9' ,
     packages = ['phcpy'] ,
+    package_dir = {'phcpy': 'phcpy'} ,
+    package_data = {'phcpy': ['phcpy2c.so']} ,
     py_modules = ['phcpy/interface', 'phcpy/solver', 'phcpy/solutions', \
                   'phcpy/trackers', 'phcpy/sets', 'phcpy/maps', \
                   'phcpy/schubert' , 'phcpy/polytopes', \
                   'phcpy/examples', 'phcpy/families' ] ,
     license = 'GNU GENERAL PUBLIC LICENSE version 2 or higher' ,
-    data_files = [(get_python_lib()+'/phcpy', ['phcpy/phcpy2c.so'])] ,
     platforms = ['linux2'] ,
     long_description=open('README.txt').read()
 )
