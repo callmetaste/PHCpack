@@ -1,3 +1,89 @@
+Thu 22 Oct 2015 : adding standard_ in front of bracket_polynomials changed
+  symbolic_schubert_conditions.ads and numeric_schubert_conditions
+  Silent version of resolve in resolve_schubert_problems, with adjusted
+  prompting for level of output in drivers_for_schubert_induction.
+  Added extra boolean parameter in moving_flag_continuation, which
+  changed checker_poset_deformations, resolve_schubert_problems,
+  and drivers_for_schubert_induction.
+
+Wed 21 Oct 2015 : updated ts_flagcond.adb with tests in double double
+  and quad double precision.
+
+Tue 20 Oct 2015 : new package checker_poset_deformations with code out of
+  moving_flag_continuation, which changed resolve_schubert_problems.adb
+  and drivers_for_schubert_induction.adb.  Added procedues for double
+  double and quad double precision to checker_poset_deformations.
+  Renamed intersection_solution_posets into standard_solution_posets
+  for the new packages {dobldobl,quaddobl}_solution_posets.
+  This led to changes in checker_poset_deformations.ads,
+  resolve_schubert_problems, and drivers_for_schubert_induction.ads.
+  Also ts_lrhom.adb changed.  Added versions for double doubles and
+  quad double in resolve_schubert_problems and flag_transformations.
+  Changed drivers_for_schubert_induction, ready to start runs in
+  double double and quad double precision ...
+
+Mon 19 Oct 2015 : upgraded moving_flag_homotopies with procedures to make
+  equations for homotopies in double double and quad double precision.
+  Extensions in moving_flag_continuation for double double and quad doubles.
+
+Sun 18 Oct 2015 : numeric_schubert_conditions supports the expansion of
+  minors in double double and quad double precision.
+  Moved code from moving_flag_homotopies.adb to setup_flag_homotopies.
+
+Sat 17 Oct 2015 : mapping in double double and quad double precision added
+  to checker_localization_patterns.  In checker_homotopies, added procedures
+  in double double and quad double precision.
+
+Fri 16 Oct 2015 : symbolic_schubert_conditions and remember_symbolic_minors
+  are extended to return matrices of polynomials with coefficients in
+  double double and quad double precision.  Prepared the numerical versions
+  in numeric_schubert_conditions for similar extensions.  The refactoring
+  changed the test programs ts_induce, ts_lrhom, and ts_flagcond.
+  Extended remember_numeric_minors with remember tables for minors in
+  double double and quad double precision, used in numeric_schubert_conditions
+  and in moving_flag_homotopies.  The specifications for the procedures in
+  wrapped_path_trackers.ads were incomplete.  Tracking of paths in double
+  double and quad double precision called in moving_flag_continuation.
+
+Thu 15 Oct 2015 : moving_flag_continuation and resolve_schubrt_problems
+  have the option of using a more efficient problem formulation, deterimined
+  in drivers_for_schubert_induction.adb.  Improved driver procedures in
+  drivers_for_schubert_induction.adb.  In ts_flagcond.adb, the generic
+  point test for the efficient problem formulation is harder to compute...
+  Update in ts_lrhom.adb for the extra option in resolve.
+  Extended flag_transformations for double doubles and quad doubles,
+  which required changes in moving_flag_homotopies, tested by ts_induce.
+  New package wrapped_path_trackers with code factored out of the package
+  moving_flag_continuation, for extension to double doubles and quad doubles.
+  This refactoring changed moving_flag_continuation and the body of
+  drivers_for_schubert_induction.  New packages start_flag_homotopies
+  and setup_flag_homotopies, factored from moving_flag_homotopies.
+  This changed resolve_schubert_problems.adb and
+  drivers_for_schubert_induction.adb.  Updated numeric_schubert_conditions.adb
+  to prepare for double double and quad double precision.
+
+Wed 14 Oct 2015 : extended symbolic_schubert_conditions with a procedure
+  and a function to enumerate and count all brackets not above a bracket,
+  tested in ts_checkers and ts_flagcond.  Added a minimal_expand to
+  numeric_schubert_conditions, for use in moving_flag_homotopies, and
+  tested by ts_flagcond.adb.
+
+Tue 13 Oct 2015 : drivers_for_schubert_condition changed so the user can
+  enter values for the generic flags.
+
+Mon 12 Oct 2015 : updated checker_posets_io and intersection_posets_io
+  with procedures to write to file, in addition to standard output.
+  Added Write_Expansion in drivers_for_schubert_induction.adb when
+  resolving a general Schubert problem.  Separated generation of the random
+  flags off into a separate procedure in drivers_for_schubert_induction.
+
+Sun 11 Oct 2015 : the random seed is written at the end of the output file
+  in drivers_for_schubert_induction.adb.  Improved the documentation of
+  Set_Parameters in moving_flag_continuation.ads.  An extra parameter in the
+  Resolve in resolve_schubert_problems to make the path trackers reporting,
+  which then also changed ts_lrhom.  In drivers_for_schubert_induction.adb,
+  written the random flags at the start as well as the fixed flags at the end.
+
 Fri 31 Oct 2014 : used Random_Flags in the Resolve_Schubert_Problem
   in drivers_for_schubert_induction.adb.
 

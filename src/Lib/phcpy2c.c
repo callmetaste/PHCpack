@@ -661,6 +661,32 @@ static PyObject *py2c_autotune_continuation_parameters
    return Py_BuildValue("i",fail);
 }
 
+static PyObject *py2c_get_value_of_continuation_parameter
+ ( PyObject *self, PyObject *args )
+{
+   int fail,idx;
+   double val;
+
+   initialize();
+   if(!PyArg_ParseTuple(args,"i",&idx)) return NULL;   
+   fail = get_value_of_continuation_parameter(idx,&val);
+   
+   return Py_BuildValue("d",val);
+}
+
+static PyObject *py2c_set_value_of_continuation_parameter
+ ( PyObject *self, PyObject *args )
+{
+   int fail,idx;
+   double val;
+
+   initialize();
+   if(!PyArg_ParseTuple(args,"id",&idx,&val)) return NULL;   
+   fail = set_value_of_continuation_parameter(idx,&val);
+   
+   return Py_BuildValue("i",fail);
+}
+
 static PyObject *py2c_determine_output_during_continuation
  ( PyObject *self, PyObject *args )
 {
@@ -911,6 +937,26 @@ static PyObject *py2c_solve_system ( PyObject *self, PyObject *args )
    return Py_BuildValue("i",rc);
 }
 
+static PyObject *py2c_solve_dobldobl_system ( PyObject *self, PyObject *args )
+{
+   int fail,rc,nbtasks = 0;
+
+   initialize();
+   if(!PyArg_ParseTuple(args,"i",&nbtasks)) return NULL;
+   fail = solve_dobldobl_system(&rc,nbtasks);
+   return Py_BuildValue("i",rc);
+}
+
+static PyObject *py2c_solve_quaddobl_system ( PyObject *self, PyObject *args )
+{
+   int fail,rc,nbtasks = 0;
+
+   initialize();
+   if(!PyArg_ParseTuple(args,"i",&nbtasks)) return NULL;
+   fail = solve_quaddobl_system(&rc,nbtasks);
+   return Py_BuildValue("i",rc);
+}
+
 static PyObject *py2c_solve_Laurent_system ( PyObject *self, PyObject *args )
 {
    int silent,fail,rc,nbtasks = 0;
@@ -918,6 +964,28 @@ static PyObject *py2c_solve_Laurent_system ( PyObject *self, PyObject *args )
    initialize();
    if (!PyArg_ParseTuple(args,"ii",&silent,&nbtasks)) return NULL;
    fail = solve_Laurent_system(&rc,silent,nbtasks);
+   return Py_BuildValue("i",rc);
+}
+
+static PyObject *py2c_solve_dobldobl_Laurent_system
+ ( PyObject *self, PyObject *args )
+{
+   int silent,fail,rc,nbtasks = 0;
+
+   initialize();
+   if (!PyArg_ParseTuple(args,"ii",&silent,&nbtasks)) return NULL;
+   fail = solve_dobldobl_Laurent_system(&rc,silent,nbtasks);
+   return Py_BuildValue("i",rc);
+}
+
+static PyObject *py2c_solve_quaddobl_Laurent_system
+ ( PyObject *self, PyObject *args )
+{
+   int silent,fail,rc,nbtasks = 0;
+
+   initialize();
+   if (!PyArg_ParseTuple(args,"ii",&silent,&nbtasks)) return NULL;
+   fail = solve_quaddobl_Laurent_system(&rc,silent,nbtasks);
    return Py_BuildValue("i",rc);
 }
 
@@ -1273,7 +1341,7 @@ static PyObject *py2c_syscon_read_standard_system
 
    initialize();
    if(!PyArg_ParseTuple(args,"")) return NULL;   
-   fail = syscon_read_system();
+   fail = syscon_read_standard_system();
               
    return Py_BuildValue("i",fail);
 }
@@ -1285,7 +1353,7 @@ static PyObject *py2c_syscon_read_standard_Laurent_system
 
    initialize();
    if(!PyArg_ParseTuple(args,"")) return NULL;   
-   fail = syscon_read_Laurent_system();
+   fail = syscon_read_standard_Laurent_system();
               
    return Py_BuildValue("i",fail);
 }
@@ -1380,7 +1448,7 @@ static PyObject *py2c_syscon_write_standard_system
 
    initialize();
    if(!PyArg_ParseTuple(args,"")) return NULL;   
-   fail = syscon_write_system();
+   fail = syscon_write_standard_system();
               
    return Py_BuildValue("i",fail);
 }
@@ -1392,7 +1460,7 @@ static PyObject *py2c_syscon_write_standard_Laurent_system
 
    initialize();
    if(!PyArg_ParseTuple(args,"")) return NULL;   
-   fail = syscon_write_Laurent_system();
+   fail = syscon_write_standard_Laurent_system();
               
    return Py_BuildValue("i",fail);
 }
@@ -1476,7 +1544,7 @@ static PyObject *py2c_syscon_clear_standard_system
 
    initialize();
    if(!PyArg_ParseTuple(args,"")) return NULL;   
-   fail = syscon_clear_system();
+   fail = syscon_clear_standard_system();
               
    return Py_BuildValue("i",fail);
 }
@@ -1488,7 +1556,7 @@ static PyObject *py2c_syscon_clear_standard_Laurent_system
 
    initialize();
    if(!PyArg_ParseTuple(args,"")) return NULL;   
-   fail = syscon_clear_Laurent_system();
+   fail = syscon_clear_standard_Laurent_system();
               
    return Py_BuildValue("i",fail);
 }
@@ -1637,7 +1705,7 @@ static PyObject *py2c_syscon_number_of_standard_polynomials
 
    initialize();
    if (!PyArg_ParseTuple(args,"")) return NULL;
-   fail = syscon_number_of_polynomials(&number);
+   fail = syscon_number_of_standard_polynomials(&number);
 
    return Py_BuildValue("i",number);
 }
@@ -1687,7 +1755,7 @@ static PyObject *py2c_syscon_number_of_standard_Laurentials
    initialize();
    /* if (!PyArg_ParseTuple(args,"i",&number)) return NULL; */
    if (!PyArg_ParseTuple(args,"")) return NULL;
-   fail = syscon_number_of_Laurentials(&number);
+   fail = syscon_number_of_standard_Laurentials(&number);
 
    /* a = Py_BuildValue("{i:i}",fail,number);	 
    return a; */
@@ -1738,7 +1806,7 @@ static PyObject *py2c_syscon_initialize_number_of_standard_polynomials
 
    if(!PyArg_ParseTuple(args,"i",&dim)) return NULL;
    initialize();
-   fail = syscon_initialize_number(dim);
+   fail = syscon_initialize_number_of_standard_polynomials(dim);
                  
    return Py_BuildValue("i",fail);
 }
@@ -1786,7 +1854,7 @@ static PyObject *py2c_syscon_initialize_number_of_standard_Laurentials
 
    if(!PyArg_ParseTuple(args,"i",&dim)) return NULL;
    initialize();
-   fail = syscon_initialize_number_of_Laurentials(dim);
+   fail = syscon_initialize_number_of_standard_Laurentials(dim);
                  
    return Py_BuildValue("i",fail);
 }
@@ -1834,7 +1902,7 @@ static PyObject *py2c_syscon_degree_of_standard_polynomial
 
    if(!PyArg_ParseTuple(args,"i",&equ)) return NULL;
    initialize();
-   fail = syscon_degree_of_polynomial(equ,&deg);
+   fail = syscon_degree_of_standard_polynomial(equ,&deg);
                  
    return Py_BuildValue("i",deg);
 }
@@ -1882,7 +1950,7 @@ static PyObject *py2c_syscon_number_of_terms ( PyObject *self, PyObject *args )
    initialize();
    /* if (!PyArg_ParseTuple(args,"ii",&i,&number)) return NULL; */
    if (!PyArg_ParseTuple(args,"i",&i)) return NULL;
-   fail = syscon_number_of_terms(i,&number);
+   fail = syscon_number_of_standard_terms(i,&number);
 
    return Py_BuildValue("i",number);
 }
@@ -1895,7 +1963,7 @@ static PyObject *py2c_syscon_number_of_Laurent_terms
    initialize();
    /* if (!PyArg_ParseTuple(args,"ii",&i,&number)) return NULL; */
    if (!PyArg_ParseTuple(args,"i",&i)) return NULL;
-   fail = syscon_number_of_Laurent_terms(i,&number);
+   fail = syscon_number_of_standard_Laurent_terms(i,&number);
 
    return Py_BuildValue("i",number);
 }
@@ -1913,7 +1981,7 @@ static PyObject *py2c_syscon_retrieve_term ( PyObject *self, PyObject *args )
    exp = (int *)malloc(n * sizeof(int));
    c   = (double *)malloc(2*sizeof(double));
 
-   fail = syscon_retrieve_term(i,j,n,exp,c);
+   fail = syscon_retrieve_standard_term(i,j,n,exp,c);
      
    a = Py_BuildValue("i", fail);	 
    
@@ -1931,7 +1999,7 @@ static PyObject *py2c_syscon_store_standard_polynomial
                  
    initialize();
    if(!PyArg_ParseTuple(args,"iiis",&nc,&n,&k,&p)) return NULL;
-   fail = syscon_store_polynomial(nc,n,k,p);
+   fail = syscon_store_standard_polynomial(nc,n,k,p);
 
    if(fail != 0) printf("Failed to store %s.\n",p);
 
@@ -1986,53 +2054,69 @@ static PyObject *py2c_syscon_store_multprec_polynomial
 static PyObject *py2c_syscon_load_standard_polynomial
  ( PyObject *self, PyObject *args )
 {      
-   int fail,nc,k;
-   char p[25600];  /* must be computed or retrieved !!!! */
-                 
+   int fail,nc,k,szl;
+   
    initialize();
    if(!PyArg_ParseTuple(args,"i",&k)) return NULL;
-   fail = syscon_load_polynomial(k,&nc,p);
+   fail = syscon_standard_size_limit(k,&szl);
+   {
+      char p[szl];
+
+      fail = syscon_load_standard_polynomial(k,&nc,p);
                  
-   return Py_BuildValue("s",p);
+      return Py_BuildValue("s",p);
+   }
 }
 
 static PyObject *py2c_syscon_load_dobldobl_polynomial
  ( PyObject *self, PyObject *args )
 {      
-   int fail,nc,k;
-   char p[51200];  /* must be computed or retrieved !!!! */
+   int fail,nc,k,szl;
                  
    initialize();
    if(!PyArg_ParseTuple(args,"i",&k)) return NULL;
-   fail = syscon_load_dobldobl_polynomial(k,&nc,p);
+   fail = syscon_dobldobl_size_limit(k,&szl);
+   {
+      char p[szl];
+
+      fail = syscon_load_dobldobl_polynomial(k,&nc,p);
                  
-   return Py_BuildValue("s",p);
+      return Py_BuildValue("s",p);
+   }
 }
 
 static PyObject *py2c_syscon_load_quaddobl_polynomial
  ( PyObject *self, PyObject *args )
 {      
-   int fail,nc,k;
-   char p[102400];  /* must be computed or retrieved !!!! */
+   int fail,nc,k,szl;
                  
    initialize();
    if(!PyArg_ParseTuple(args,"i",&k)) return NULL;
-   fail = syscon_load_quaddobl_polynomial(k,&nc,p);
+   fail = syscon_quaddobl_size_limit(k,&szl);
+   {
+      char p[szl];
+
+      fail = syscon_load_quaddobl_polynomial(k,&nc,p);
                  
-   return Py_BuildValue("s",p);
+      return Py_BuildValue("s",p);
+   }
 }
 
 static PyObject *py2c_syscon_load_multprec_polynomial
  ( PyObject *self, PyObject *args )
 {      
-   int fail,nc,k;
-   char p[102400];  /* must be computed or retrieved !!!! */
+   int fail,nc,k,szl;
                  
    initialize();
    if(!PyArg_ParseTuple(args,"i",&k)) return NULL;
-   fail = syscon_load_multprec_polynomial(k,&nc,p);
+   fail = syscon_multprec_size_limit(k,&szl);
+   {
+      char p[szl];
+
+      fail = syscon_load_multprec_polynomial(k,&nc,p);
                  
-   return Py_BuildValue("s",p);
+      return Py_BuildValue("s",p);
+   }
 }
 
 static PyObject *py2c_syscon_store_standard_Laurential
@@ -2043,7 +2127,7 @@ static PyObject *py2c_syscon_store_standard_Laurential
                  
    initialize();
    if(!PyArg_ParseTuple(args,"iiis",&nc,&n,&k,&p)) return NULL;
-   fail = syscon_store_Laurential(nc,n,k,p);
+   fail = syscon_store_standard_Laurential(nc,n,k,p);
                  
    return Py_BuildValue("i",fail);
 }
@@ -2090,53 +2174,69 @@ static PyObject *py2c_syscon_store_multprec_Laurential
 static PyObject *py2c_syscon_load_standard_Laurential
  ( PyObject *self, PyObject *args )
 {      
-   int fail,nc,k;
-   char p[25600];  /* must be computed or retrieved !!!! */
+   int fail,nc,k,szl;
                  
    initialize();
    if(!PyArg_ParseTuple(args,"i",&k)) return NULL;
-   fail = syscon_load_standard_Laurential(k,&nc,p);
+   fail = syscon_standard_Laurent_size_limit(k,&szl);
+   {
+      char p[szl];
+
+      fail = syscon_load_standard_Laurential(k,&nc,p);
                  
-   return Py_BuildValue("s",p);
+      return Py_BuildValue("s",p);
+   }
 }
 
 static PyObject *py2c_syscon_load_dobldobl_Laurential
  ( PyObject *self, PyObject *args )
 {      
-   int fail,nc,k;
-   char p[51200];  /* must be computed or retrieved !!!! */
+   int fail,nc,k,szl;
                  
    initialize();
    if(!PyArg_ParseTuple(args,"i",&k)) return NULL;
-   fail = syscon_load_dobldobl_Laurential(k,&nc,p);
+   fail = syscon_dobldobl_Laurent_size_limit(k,&szl);
+   {
+      char p[szl];
+
+      fail = syscon_load_dobldobl_Laurential(k,&nc,p);
                  
-   return Py_BuildValue("s",p);
+      return Py_BuildValue("s",p);
+   }
 }
 
 static PyObject *py2c_syscon_load_quaddobl_Laurential
  ( PyObject *self, PyObject *args )
 {      
-   int fail,nc,k;
-   char p[102400];  /* must be computed or retrieved !!!! */
+   int fail,nc,k,szl;
                  
    initialize();
    if(!PyArg_ParseTuple(args,"i",&k)) return NULL;
-   fail = syscon_load_quaddobl_Laurential(k,&nc,p);
-                 
-   return Py_BuildValue("s",p);
+   fail = syscon_quaddobl_Laurent_size_limit(k,&szl);
+   {
+      char p[szl];
+
+      fail = syscon_load_quaddobl_Laurential(k,&nc,p);
+
+      return Py_BuildValue("s",p);
+   }
 }
 
 static PyObject *py2c_syscon_load_multprec_Laurential
  ( PyObject *self, PyObject *args )
 {      
-   int fail,nc,k;
-   char p[102400];  /* must be computed or retrieved !!!! */
+   int fail,nc,k,szl;
                  
    initialize();
    if(!PyArg_ParseTuple(args,"i",&k)) return NULL;
-   fail = syscon_load_multprec_Laurential(k,&nc,p);
+   fail = syscon_multprec_Laurent_size_limit(k,&szl);
+   {
+      char p[szl];
+
+      fail = syscon_load_multprec_Laurential(k,&nc,p);
                  
-   return Py_BuildValue("s",p);
+      return Py_BuildValue("s",p);
+   }
 }
 
 static PyObject *py2c_syscon_total_degree ( PyObject *self, PyObject *args )
@@ -3462,7 +3562,7 @@ static PyObject *py2c_scale_standard_system ( PyObject *self, PyObject *args )
 
    initialize();
    if(!PyArg_ParseTuple(args,"i",&mode)) return NULL;
-   fail = syscon_number_of_polynomials(&dim);
+   fail = syscon_number_of_standard_polynomials(&dim);
    if((fail == 0) && (dim > 0))
    {
       double cff[4*dim+2];  
@@ -4044,16 +4144,17 @@ static PyObject *py2c_schubert_resolve_conditions
    return Py_BuildValue("i",r);
 }
 
-static PyObject *py2c_schubert_littlewood_richardson_homotopies
+static PyObject *py2c_schubert_standard_littlewood_richardson_homotopies
  ( PyObject *self, PyObject *args )
 {
-   int i,n,k,nbc,nc,fail,r,vrb,szn;
+   int i,n,k,nbc,nc,fail,r,vrb,vrf,szn;
    char *cond;
    char *name;
 
    initialize();
    if(!PyArg_ParseTuple
-         (args,"iiiisiis",&n,&k,&nbc,&nc,&cond,&vrb,&szn,&name)) return NULL;
+         (args,"iiiisiiis",&n,&k,&nbc,&nc,&cond,&vrb,&vrf,&szn,&name))
+      return NULL;
 /*
    printf("name of the output file : %s\n", name);
    printf("the number of characters : %d\n", nc);
@@ -4082,7 +4183,120 @@ static PyObject *py2c_schubert_littlewood_richardson_homotopies
       const int fgsize = 2*(nbc-2)*n*n;
       double fg[fgsize];
       char stfg[fgsize*24+2];
-      fail = Littlewood_Richardson_homotopies(n,k,nbc,cds,vrb,szn,name,&r,fg);
+      fail = standard_Littlewood_Richardson_homotopies
+               (n,k,nbc,cds,vrb,vrf,szn,name,&r,fg);
+      stfg[0] = '[';
+      idx = 1;
+      for(i=0; i<fgsize; i++)
+      {
+         sprintf(&stfg[idx],"%+.16e",fg[i]); idx = idx + 23;
+         stfg[idx] = ','; idx = idx + 1;
+      }
+      stfg[idx-1] = ']';
+      stfg[idx] = '\0';
+      /* printf("The string with flag coefficients :\n%s\n", stfg); */
+
+      return Py_BuildValue("(i,s)",r,stfg);
+   }
+}
+
+static PyObject *py2c_schubert_dobldobl_littlewood_richardson_homotopies
+ ( PyObject *self, PyObject *args )
+{
+   int i,n,k,nbc,nc,fail,r,vrb,vrf,szn;
+   char *cond;
+   char *name;
+
+   initialize();
+   if(!PyArg_ParseTuple
+         (args,"iiiisiiis",&n,&k,&nbc,&nc,&cond,&vrb,&vrf,&szn,&name))
+      return NULL;
+/*
+   printf("name of the output file : %s\n", name);
+   printf("the number of characters : %d\n", nc);
+   printf("the conditions : %s\n", cond);
+   printf("the conditions parsed : ");
+*/
+   {
+      int cds[k*nbc];
+      int pos = 0;
+      int idx = 0;
+      while((idx < k*nbc) && (pos < nc))
+      {
+         while(cond[pos] == ' ' && pos < nc) pos++;
+         if(pos > nc) break;
+         cds[idx] = 0;
+         while(cond[pos] != ' ')
+         {
+            if(cond[pos] == '\0') break;
+            cds[idx] = cds[idx]*10 + (cond[pos] - '0');
+            pos = pos + 1;
+            if(pos >= nc) break;
+         }
+         /* printf(" %d", cds[idx]); */
+         idx = idx + 1;
+      }
+      const int fgsize = 4*(nbc-2)*n*n;
+      double fg[fgsize];
+      char stfg[fgsize*24+2];
+      fail = dobldobl_Littlewood_Richardson_homotopies
+               (n,k,nbc,cds,vrb,vrf,szn,name,&r,fg);
+      stfg[0] = '[';
+      idx = 1;
+      for(i=0; i<fgsize; i++)
+      {
+         sprintf(&stfg[idx],"%+.16e",fg[i]); idx = idx + 23;
+         stfg[idx] = ','; idx = idx + 1;
+      }
+      stfg[idx-1] = ']';
+      stfg[idx] = '\0';
+      /* printf("The string with flag coefficients :\n%s\n", stfg); */
+
+      return Py_BuildValue("(i,s)",r,stfg);
+   }
+}
+
+static PyObject *py2c_schubert_quaddobl_littlewood_richardson_homotopies
+ ( PyObject *self, PyObject *args )
+{
+   int i,n,k,nbc,nc,fail,r,vrb,vrf,szn;
+   char *cond;
+   char *name;
+
+   initialize();
+   if(!PyArg_ParseTuple
+         (args,"iiiisiiis",&n,&k,&nbc,&nc,&cond,&vrb,&vrf,&szn,&name))
+      return NULL;
+/*
+   printf("name of the output file : %s\n", name);
+   printf("the number of characters : %d\n", nc);
+   printf("the conditions : %s\n", cond);
+   printf("the conditions parsed : ");
+*/
+   {
+      int cds[k*nbc];
+      int pos = 0;
+      int idx = 0;
+      while((idx < k*nbc) && (pos < nc))
+      {
+         while(cond[pos] == ' ' && pos < nc) pos++;
+         if(pos > nc) break;
+         cds[idx] = 0;
+         while(cond[pos] != ' ')
+         {
+            if(cond[pos] == '\0') break;
+            cds[idx] = cds[idx]*10 + (cond[pos] - '0');
+            pos = pos + 1;
+            if(pos >= nc) break;
+         }
+         /* printf(" %d", cds[idx]); */
+         idx = idx + 1;
+      }
+      const int fgsize = 8*(nbc-2)*n*n;
+      double fg[fgsize];
+      char stfg[fgsize*24+2];
+      fail = quaddobl_Littlewood_Richardson_homotopies
+               (n,k,nbc,cds,vrb,vrf,szn,name,&r,fg);
       stfg[0] = '[';
       idx = 1;
       for(i=0; i<fgsize; i++)
@@ -4664,6 +4878,12 @@ static PyMethodDef phcpy2c_methods[] =
    {"py2c_autotune_continuation_parameters",
      py2c_autotune_continuation_parameters, METH_VARARGS, 
     "Tunes the values of the continuation parameters.\n On input are two integers:\n 1) the difficulty level of the solution paths; and\n 2) the number of decimal places in the precision."},
+   {"py2c_get_value_of_continuation_parameter",
+     py2c_get_value_of_continuation_parameter, METH_VARARGS,
+   "Returns the value of a continuation parameter.\n On input is the index of this continuation parameter, an integer ranging from 1 to 34.\n On return is a double with the value of the corresponding parameter."},
+   {"py2c_set_value_of_continuation_parameter",
+     py2c_set_value_of_continuation_parameter, METH_VARARGS,
+   "Sets the value of a continuation parameter.\n On input is the index of this continuation parameter, an integer ranging from 1 to 34;\n and the new value for the continuation parameter.\n On return is a double with the value of the corresponding parameter."},
    {"py2c_determine_output_during_continuation", 
      py2c_determine_output_during_continuation, METH_VARARGS, 
     "Interactive procedure to determine the level of output during the path tracking."},
@@ -4729,8 +4949,18 @@ static PyMethodDef phcpy2c_methods[] =
     "Copies the solutions in arbitrary multiprecision from the\n container to the start solutions in arbitrary multiprecision."},
    {"py2c_solve_system", py2c_solve_system, METH_VARARGS,
     "Calls the blackbox solver on the system stored in the container for\n systems with coefficients in standard double precision.\n One integer is expected on input: the number of tasks.\n If that number is zero, then no multitasking is applied.\n On return, the container for solutions in standard double precision\n contains the solutions to the system in the standard systems container."},
+   {"py2c_solve_dobldobl_system", py2c_solve_dobldobl_system, METH_VARARGS,
+    "Calls the blackbox solver on the system stored in the container for\n systems with coefficients in double double precision.\n One integer is expected on input: the number of tasks.\n If that number is zero, then no multitasking is applied.\n On return, the container for solutions in double double precision\n contains the solutions to the system in the dobldobl systems container."},
+   {"py2c_solve_quaddobl_system", py2c_solve_quaddobl_system, METH_VARARGS,
+    "Calls the blackbox solver on the system stored in the container for\n systems with coefficients in quad double precision.\n One integer is expected on input: the number of tasks.\n If that number is zero, then no multitasking is applied.\n On return, the container for solutions in quad double precision\n contains the solutions to the system in the quaddobl systems container."},
    {"py2c_solve_Laurent_system", py2c_solve_Laurent_system, METH_VARARGS,
     "Calls the blackbox solver on the system stored in the container for\n Laurent systems with coefficients in standard double precision.\n Two integers are expected on input:\n 1) a boolean flag silent: if 1, then no intermediate output about\n the root counts is printed, if 0, then the solver is verbose; and \n 2) the number of tasks: if 0, then no multitasking is applied,\n otherwise as many tasks as the number will run.\n On return, the container for solutions in standard double precision\n contains the solutions to the system in the standard Laurent systems\n container."},
+   {"py2c_solve_dobldobl_Laurent_system",
+     py2c_solve_dobldobl_Laurent_system, METH_VARARGS,
+    "Calls the blackbox solver on the system stored in the container for\n Laurent systems with coefficients in double double precision.\n Two integers are expected on input:\n 1) a boolean flag silent: if 1, then no intermediate output about\n the root counts is printed, if 0, then the solver is verbose; and \n 2) the number of tasks: if 0, then no multitasking is applied,\n otherwise as many tasks as the number will run.\n On return, the container for solutions in double double precision\n contains the solutions to the system in the double double Laurent systems\n container."},
+   {"py2c_solve_quaddobl_Laurent_system",
+     py2c_solve_quaddobl_Laurent_system, METH_VARARGS,
+    "Calls the blackbox solver on the system stored in the container for\n Laurent systems with coefficients in quad double precision.\n Two integers are expected on input:\n 1) a boolean flag silent: if 1, then no intermediate output about\n the root counts is printed, if 0, then the solver is verbose; and \n 2) the number of tasks: if 0, then no multitasking is applied,\n otherwise as many tasks as the number will run.\n On return, the container for solutions in quad double precision\n contains the solutions to the system in the quad double Laurent systems\n container."},
    {"py2c_mixed_volume", py2c_mixed_volume, METH_VARARGS,
     "Computes the mixed volume, and the stable mixed volume as well if\n the input parameter equals 1.  On return is the mixed volume, or\n a tuple with the mixed volume and the stable mixed volume."},
    {"py2c_standard_deflate", py2c_standard_deflate, METH_VARARGS,
@@ -5387,9 +5617,15 @@ static PyMethodDef phcpy2c_methods[] =
    {"py2c_schubert_resolve_conditions", py2c_schubert_resolve_conditions,
      METH_VARARGS,
     "Resolves a general Schubert intersection condition in n-space\n for k-planes subject to conditions defined by brackers.\n On return is the root count, the number of k-planes that satisfy\n the intersection conditions imposed by the brackets for general flags.\n On entry are five integers and one string:\n 1) n, the ambient dimension, where the k-planes live;\n 2) k, the dimension of the solution planes;\n 3) c, the number of intersection conditions;\n 4) nc, the number of characters in the string brackets;\n 5) brackets is a string representation of c brackets, where the numbers\n in each bracket are separated by spaces;\n 6) the flag verbose: when 0, no intermediate output is written,\n when 1, then the resolution is dispayed on screen."},
-   {"py2c_schubert_littlewood_richardson_homotopies",
-     py2c_schubert_littlewood_richardson_homotopies, METH_VARARGS,
-    "Runs the Littlewood-Richardson homotopies to resolve a number of\n general Schubert intersection conditions on k-planes in n-space.\n The polynomial system that was solved is in the container for\n systems with coefficients in standard double precision and the\n corresponding solutions are in the standard solutions container.\n On entry are six integers and two strings, in the following order:\n 1) n, the ambient dimension, where the k-planes live;\n 2) k, the dimension of the solution planes;\n 3) c,the number of intersection conditions;\n 4) nc, the number of characters in the string brackets;\n 5) brackets is a string representation of c brackets, where the numbers\n in each bracket are separated by spaces;\n 6) the flag verbose: when 0, no intermediate output is written,\n when 1, then the resolution is dispayed on screen;\n 7) nbchar, the number of characters in the string filename;\n 8) filename is the name of the output file.\n The function returns a tuple of an integer and a string:\n 0) r is the formal root count as the number of k-planes\n for conditions imposed by the brackets for general flags;\n 1) flags, a string with the coefficients of the general flags."},
+   {"py2c_schubert_standard_littlewood_richardson_homotopies",
+     py2c_schubert_standard_littlewood_richardson_homotopies, METH_VARARGS,
+    "Runs the Littlewood-Richardson homotopies to resolve a number of\n general Schubert intersection conditions on k-planes in n-space,\n in standard double precision.\n The polynomial system that was solved is in the container for\n systems with coefficients in standard double precision and the\n corresponding solutions are in the standard solutions container.\n On entry are six integers and two strings, in the following order:\n 1) n, the ambient dimension, where the k-planes live;\n 2) k, the dimension of the solution planes;\n 3) c,the number of intersection conditions;\n 4) nc, the number of characters in the string brackets;\n 5) brackets is a string representation of c brackets, where the numbers\n in each bracket are separated by spaces;\n 6) the flag verbose: when 0, no intermediate output is written,\n when 1, then the resolution is dispayed on screen;\n 7) the flag verify: when 0, no diagnostic verification is done,\n when 1, then diagnostic verification is written to file;\n 8) nbchar, the number of characters in the string filename;\n 9) filename is the name of the output file.\n The function returns a tuple of an integer and a string:\n 0) r is the formal root count as the number of k-planes\n for conditions imposed by the brackets for general flags;\n 1) flags, a string with the coefficients of the general flags."},
+   {"py2c_schubert_dobldobl_littlewood_richardson_homotopies",
+     py2c_schubert_dobldobl_littlewood_richardson_homotopies, METH_VARARGS,
+    "Runs the Littlewood-Richardson homotopies to resolve a number of\n general Schubert intersection conditions on k-planes in n-space,\n in double double precision.\n The polynomial system that was solved is in the container for\n systems with coefficients in double double precision and the\n corresponding solutions are in the dobldobl solutions container.\n On entry are six integers and two strings, in the following order:\n 1) n, the ambient dimension, where the k-planes live;\n 2) k, the dimension of the solution planes;\n 3) c,the number of intersection conditions;\n 4) nc, the number of characters in the string brackets;\n 5) brackets is a string representation of c brackets, where the numbers\n in each bracket are separated by spaces;\n 6) the flag verbose: when 0, no intermediate output is written,\n when 1, then the resolution is dispayed on screen;\n 7) the flag verify: when 0, no diagnostic verification is done,\n when 1, then diagnostic verification is written to file;\n 8) nbchar, the number of characters in the string filename;\n 9) filename is the name of the output file.\n The function returns a tuple of an integer and a string:\n 0) r is the formal root count as the number of k-planes\n for conditions imposed by the brackets for general flags;\n 1) flags, a string with the coefficients of the general flags."},
+   {"py2c_schubert_quaddobl_littlewood_richardson_homotopies",
+     py2c_schubert_quaddobl_littlewood_richardson_homotopies, METH_VARARGS,
+    "Runs the Littlewood-Richardson homotopies to resolve a number of\n general Schubert intersection conditions on k-planes in n-space,\n in quad double precision.\n The polynomial system that was solved is in the container for\n systems with coefficients in quad double precision and the\n corresponding solutions are in the quaddobl solutions container.\n On entry are six integers and two strings, in the following order:\n 1) n, the ambient dimension, where the k-planes live;\n 2) k, the dimension of the solution planes;\n 3) c,the number of intersection conditions;\n 4) nc, the number of characters in the string brackets;\n 5) brackets is a string representation of c brackets, where the numbers\n in each bracket are separated by spaces;\n 6) the flag verbose: when 0, no intermediate output is written,\n when 1, then the resolution is dispayed on screen;\n 7) the flag verify: when 0, no diagnostic verification is done,\n when 1, then diagnostic verification is written to file;\n 8) nbchar, the number of characters in the string filename;\n 9) filename is the name of the output file.\n The function returns a tuple of an integer and a string:\n 0) r is the formal root count as the number of k-planes\n for conditions imposed by the brackets for general flags;\n 1) flags, a string with the coefficients of the general flags."},
    {"py2c_schubert_localization_poset", py2c_schubert_localization_poset,
      METH_VARARGS,
     "Returns the string representation of the localization poset for the\n Pieri root count for m, p, and q.  The input parameters are the\n integer values for m, p, and q:\n 1) m, the dimension of the input planes;\n 2) p, the dimension of the output planes;\n 3) q, the degree of the curves that produce p-planes."},

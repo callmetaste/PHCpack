@@ -1,3 +1,21 @@
+Thu 1 Oct 2015 : changed {dobldob,quaddobl}_sampling_machine.adb for
+  changed type of tolerances in the root refiners.
+
+Wed 16 Sep 2015 : new packages {dobldobl,quaddobl}_gridded_hypersurfaces for
+  storing grids of points sampled from hypersurfaces in double double and
+  quad double precision, compiled via a with clause in ts_hypsam.
+
+Tue 15 Sep 2015 : new packages {dobldobl,quaddobl}_lined_hypersurfaces for
+  sampling points on hypersurfaces in double double and quad double precision,
+  with tests added to ts_hypsam.adb.
+
+Mon 14 Sep 2015 : new package standard_lined_hypersurfaces with code refactored
+  from hypersurface_samplers.  This refactoring changed also ts_hypsam.adb and
+  hypersurface_sample_grids.
+
+Sun 13 Sep 2015 : reformatted hypersurface_samplers to make room for versions
+  in double double and quad double precision.
+
 Thu 28 Aug 2014 : reformatting in witness_sets_formats.
 
 Wed 27 Aug 2014 : extended mainsam.adb with routines to sample in

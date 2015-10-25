@@ -1,3 +1,33 @@
+Sat 24 Oct 2015 : changed mainpoco.adb for renaming of systems_with_parameters
+  into standard_parameter_systems.
+
+Sat 10 Oct 2015 : called the multitasking root refiners in the packages
+  {dobldobl,quaddobl}_blackbox_continuations.adb.
+
+Thu 8 Oct 2015 : extended pack_continuation_parameters with get_value and
+  set_value to get and set individual values, tested by ts_pactun.adb.
+
+Sun 4 Oct 2015 : updated mainpoco.adb so that phc -p writes the version number
+  and the seed used in the random number generators.
+
+Fri 2 Oct 2015 : in {dobldobl,quaddobl}_blackbox_continuations.adb changed
+  the values for the tolerances for the black box root refiners.
+
+Thu 1 Oct 2015 : {dobldobl,quaddobl}_blackbox_continuations.adb apply the
+  silent root refiners that filter out the path failures.
+  Changed {dobldobl,quaddobl}_blackbox_continuations.adb because of
+  changed type of the tolerance parameters in the root refiners.
+
+Wed 30 Sep 2015 : settings in {dobldobl,quaddobl}_blackbox_continuations.adb
+  were too severe, lessened to the default values for double precision.
+
+Tue 29 Sep 2015 : tuned continuation parameters for double double and quad
+  double in {dobldobl,quaddobl}_blackbox_continuations.adb.
+
+Fri 25 Sep 2015 : from {dobldobl,quaddobl}_blackbox_continuations.adb
+  remove the statement to write a superfluous solutions banner;
+  added calls to the root refiners, still without multitasking.
+
 Sun 6 Sep 2015 : in {dobldobl,quaddobl}_blackbox_continuations.adb, the
   multitasked Laurent path trackers are enabled.
 

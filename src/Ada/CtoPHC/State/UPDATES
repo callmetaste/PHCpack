@@ -1,3 +1,27 @@
+Thu 22 Oct 2015 : changed use_c2lrhom.adb for the renaming of the
+  intersection_solution_posets into standard_solution_posets.
+  Added documentation to use_c2lrhom.ads.  Placing standard_ in front of
+  bracket_polynomials (& _systems) changed pieri_homotopy.adb.
+  Added verify flag as extra input in use_c2lrhom.adb.
+  Two extra jobs were added to use_c2lrhom to run L-R homotopies in
+  double double and quad double precision, extended to use_c2phc.
+
+Thu 15 Oct 2015 : updated use_c2lrhom.adb for the new option to resolve
+  Schubert problem with an efficient formulation of the equations.
+
+Thu 8 Oct 2015 : added two jobs to use_c2phc to get and set the value of
+  a continuation parameter.
+
+Thu 1 Oct 2015 : changes in cells_container.adb and use_c2phc.adb for the
+  added induced permutation to Black_Mixed_Volume_Computations procedures.
+
+Sat 26 Sep 2015 : added jobs to use_c2phc to call the blackbox solvers in
+  double double and quad double precision.
+
+Tue 22 Sep 2015 : use_syscon and use_c2phc provide operations to return the
+  computed size limit of a string representation for (Laurent) polynomials
+  stored in the systems containers.
+
 Sun 6 Sep 2015 : extended phcpack_operations with path trackers for
   Laurent systems in double double and quad double precision.
 

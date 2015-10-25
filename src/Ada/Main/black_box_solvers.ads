@@ -4,7 +4,15 @@ with Standard_Natural_Numbers;           use Standard_Natural_Numbers;
 with Standard_Complex_Polynomials;
 with Standard_Complex_Poly_Systems;
 with Standard_Complex_Laur_Systems;
-with Standard_Complex_Solutions;         use Standard_Complex_Solutions;
+with DoblDobl_Complex_Polynomials;
+with DoblDobl_Complex_Poly_Systems;
+with DoblDobl_Complex_Laur_Systems;
+with QuadDobl_Complex_Polynomials;
+with QuadDobl_Complex_Poly_Systems;
+with QuadDobl_Complex_Laur_Systems;
+with Standard_Complex_Solutions;
+with DoblDobl_Complex_Solutions;
+with QuadDobl_Complex_Solutions;
 
 package Black_Box_Solvers is
 
@@ -14,12 +22,20 @@ package Black_Box_Solvers is
 
   function Is_Constant_In 
               ( p : Standard_Complex_Polynomials.Poly ) return boolean;
+  function Is_Constant_In 
+              ( p : DoblDobl_Complex_Polynomials.Poly ) return boolean;
+  function Is_Constant_In 
+              ( p : QuadDobl_Complex_Polynomials.Poly ) return boolean;
 
   -- DESCRIPTION :
   --   Returns true if the polynomial has a constant term.
 
   function Are_Constants_In
               ( p : Standard_Complex_Poly_Systems.Poly_Sys ) return boolean;
+  function Are_Constants_In
+              ( p : DoblDobl_Complex_Poly_Systems.Poly_Sys ) return boolean;
+  function Are_Constants_In
+              ( p : QuadDobl_Complex_Poly_Systems.Poly_Sys ) return boolean;
 
   -- DESCRIPTION :
   --   Returns true if all polynomials in p have a constant term.
@@ -32,7 +48,16 @@ package Black_Box_Solvers is
 
   procedure Append_Solutions_to_Input_File
               ( infilename : in string;
-                sols : in Solution_list; append_sols : in boolean );
+                sols : in Standard_Complex_Solutions.Solution_list;
+                append_sols : in boolean );
+  procedure Append_Solutions_to_Input_File
+              ( infilename : in string;
+                sols : in DoblDobl_Complex_Solutions.Solution_list;
+                append_sols : in boolean );
+  procedure Append_Solutions_to_Input_File
+              ( infilename : in string;
+                sols : in QuadDobl_Complex_Solutions.Solution_list;
+                append_sols : in boolean );
 
   -- DESCRIPTION :
   --   If the solution list is not empty and append_sols is true,
@@ -54,6 +79,14 @@ package Black_Box_Solvers is
                ( infilename,outfilename : in string;
                  p : in Standard_Complex_Polynomials.Poly;
                  append_sols : in boolean );
+  procedure Single_Main
+               ( infilename,outfilename : in string;
+                 p : in DoblDobl_Complex_Polynomials.Poly;
+                 append_sols : in boolean );
+  procedure Single_Main
+               ( infilename,outfilename : in string;
+                 p : in QuadDobl_Complex_Polynomials.Poly;
+                 append_sols : in boolean );
 
   -- DESCRIPTION :
   --   This procedure solves one single polynomial,
@@ -62,6 +95,16 @@ package Black_Box_Solvers is
   procedure Linear_Main 
               ( infilename,outfilename : in string;
                 p : in Standard_Complex_Poly_Systems.Link_to_Poly_Sys;
+                n : in natural32; append_sols : in boolean;
+                fail : out boolean );
+  procedure Linear_Main 
+              ( infilename,outfilename : in string;
+                p : in DoblDobl_Complex_Poly_Systems.Link_to_Poly_Sys;
+                n : in natural32; append_sols : in boolean;
+                fail : out boolean );
+  procedure Linear_Main 
+              ( infilename,outfilename : in string;
+                p : in QuadDobl_Complex_Poly_Systems.Link_to_Poly_Sys;
                 n : in natural32; append_sols : in boolean;
                 fail : out boolean );
 
@@ -86,12 +129,59 @@ package Black_Box_Solvers is
   procedure Square_Main
               ( nt : in natural32; infilename,outfilename : in string;
                 start_moment : in Ada.Calendar.Time;
-                p : in Standard_Complex_Laur_Systems.Link_to_Laur_Sys;
+                p : in DoblDobl_Complex_Poly_Systems.Link_to_Poly_Sys;
+                append_sols : in boolean );
+  procedure Square_Main
+              ( nt : in natural32; infilename,outfilename : in string;
+                start_moment : in Ada.Calendar.Time;
+                p : in QuadDobl_Complex_Poly_Systems.Link_to_Poly_Sys;
                 append_sols : in boolean );
 
   -- DESCRIPTION :
-  --   Solves general square polynomial systems.  Must be called after
-  --   the special cases (single and linear) have been dealt with.
+  --   A polynomial system with as many equations as unknowns is square.
+  --   This procedure solves a square polynomial system p,
+  --   using standard double, double double, or quad double arithmetic.
+  --
+  -- REQUIRED :
+  --   Must be called after the special cases (one single equation
+  --   and a linear system) have been dealt with.
+
+  -- ON ENTRY :
+  --   nt             the number of tasks, if 0 then no multitasking,
+  --                  otherwise nt tasks will be used to track the paths;
+  --   infilename     the name of the input file;
+  --   outfilename    the name of the output file;
+  --   start_moment   clock time when phc was started;
+  --   p              polynomial system to be solved.
+  --   append_sols    true if solutions need to be appended to input file.
+
+  -- ON RETURN :
+  --   p              system may be scaled or reduced.
+
+  procedure Square_Main
+              ( nt : in natural32; infilename,outfilename : in string;
+                start_moment : in Ada.Calendar.Time;
+                p : in Standard_Complex_Laur_Systems.Link_to_Laur_Sys;
+                append_sols : in boolean );
+  procedure Square_Main
+              ( nt : in natural32; infilename,outfilename : in string;
+                start_moment : in Ada.Calendar.Time;
+                p : in DoblDobl_Complex_Laur_Systems.Link_to_Laur_Sys;
+                append_sols : in boolean );
+  procedure Square_Main
+              ( nt : in natural32; infilename,outfilename : in string;
+                start_moment : in Ada.Calendar.Time;
+                p : in QuadDobl_Complex_Laur_Systems.Link_to_Laur_Sys;
+                append_sols : in boolean );
+
+  -- DESCRIPTION :
+  --   A polynomial system with as many equations as unknowns is square.
+  --   This procedure solves a square Laurent polynomial system p,
+  --   with standard double, double double, or quad double arithmetic.
+  --
+  -- REQUIRED :
+  --   Must be called after the special cases (one single equation
+  --   and a linear system) have been dealt with.
 
   -- ON ENTRY :
   --   nt             the number of tasks, if 0 then no multitasking,
@@ -107,58 +197,225 @@ package Black_Box_Solvers is
 
   procedure Solve ( p : in Standard_Complex_Poly_Systems.Poly_Sys;
                     silent : in boolean;
-                    rc : out natural32; sols : out Solution_List );
-  procedure Solve ( file : in file_type;
-                    p : in Standard_Complex_Poly_Systems.Poly_Sys;
-                    rc : out natural32; sols : out Solution_List );
-  procedure Solve ( p : in Standard_Complex_Laur_Systems.Laur_Sys;
+                    rc : out natural32;
+                    sols : out Standard_Complex_Solutions.Solution_List );
+  procedure Solve ( p : in DoblDobl_Complex_Poly_Systems.Poly_Sys;
                     silent : in boolean;
-                    rc : out natural32; sols : out Solution_List );
-  procedure Solve ( file : in file_type;
-                    p : in Standard_Complex_Laur_Systems.Laur_Sys;
-                    rc : out natural32; sols : out Solution_List );
+                    rc : out natural32;
+                    sols : out DoblDobl_Complex_Solutions.Solution_List );
+  procedure Solve ( p : in QuadDobl_Complex_Poly_Systems.Poly_Sys;
+                    silent : in boolean;
+                    rc : out natural32;
+                    sols : out QuadDobl_Complex_Solutions.Solution_List );
 
   -- DESCRIPTION :
-  --   Calls the blackbox solver to solve the system p.
+  --   Calls the blackbox solver to solve the polynomial system p,
+  --   without output to file, available for three levels of precision:
+  --   standard double, double double, and quad double.
 
   -- ON INPUT :
-  --    p       a polynomial system, or a system with Laurent polynomials;
-  --    silent  if true, then the computed root counts will not be shown,
+  --   p        a polynomial system, or a system with Laurent polynomials;
+  --   silent   if true, then the computed root counts will not be shown,
   --            if false, then the user will see the computed root counts
   --            displayed on screen.
 
   -- ON RETURN :
-  --   file     for intermediate output and diagnostics;
+  --   rc       root count used in the homotopy to solve p;
+  --   sols     solutions found at the end of the paths.
+
+  procedure Solve ( file : in file_type;
+                    p : in Standard_Complex_Poly_Systems.Poly_Sys;
+                    rc : out natural32;
+                    sols : out Standard_Complex_Solutions.Solution_List );
+  procedure Solve ( file : in file_type;
+                    p : in DoblDobl_Complex_Poly_Systems.Poly_Sys;
+                    rc : out natural32;
+                    sols : out DoblDobl_Complex_Solutions.Solution_List );
+  procedure Solve ( file : in file_type;
+                    p : in QuadDobl_Complex_Poly_Systems.Poly_Sys;
+                    rc : out natural32;
+                    sols : out QuadDobl_Complex_Solutions.Solution_List );
+
+  -- DESCRIPTION :
+  --   Calls the blackbox solver to solve the polynomial system p.
+
+  -- ON INPUT :
+  --   file     must be opened for output;
+  --   p        a polynomial system, or a system with Laurent polynomials;
+  --   silent   if true, then the computed root counts will not be shown,
+  --            if false, then the user will see the computed root counts
+  --            displayed on screen.
+
+  -- ON RETURN :
+  --   rc       root count used in the homotopy to solve p;
+  --   sols     solutions found at the end of the paths.
+
+  procedure Solve ( p : in Standard_Complex_Laur_Systems.Laur_Sys;
+                    silent : in boolean;
+                    rc : out natural32;
+                    sols : out Standard_Complex_Solutions.Solution_List );
+  procedure Solve ( p : in DoblDobl_Complex_Laur_Systems.Laur_Sys;
+                    silent : in boolean;
+                    rc : out natural32;
+                    sols : out DoblDobl_Complex_Solutions.Solution_List );
+  procedure Solve ( p : in QuadDobl_Complex_Laur_Systems.Laur_Sys;
+                    silent : in boolean;
+                    rc : out natural32;
+                    sols : out QuadDobl_Complex_Solutions.Solution_List );
+
+  -- DESCRIPTION :
+  --   Calls the blackbox solver to solve the Laurent system p,
+  --   without multitasking and without intermediate output to file,
+  --   in standard double, double double, or quad double precision.
+
+  -- ON INPUT :
+  --   p        a polynomial system, or a system with Laurent polynomials;
+  --   silent   if true, then the computed root counts will not be shown,
+  --            if false, then the user will see the computed root counts
+  --            displayed on screen.
+
+  -- ON RETURN :
+  --   rc       root count used in the homotopy to solve p;
+  --   sols     solutions found at the end of the paths.
+
+  procedure Solve ( file : in file_type;
+                    p : in Standard_Complex_Laur_Systems.Laur_Sys;
+                    rc : out natural32;
+                    sols : out Standard_Complex_Solutions.Solution_List );
+  procedure Solve ( file : in file_type;
+                    p : in DoblDobl_Complex_Laur_Systems.Laur_Sys;
+                    rc : out natural32;
+                    sols : out DoblDobl_Complex_Solutions.Solution_List );
+  procedure Solve ( file : in file_type;
+                    p : in QuadDobl_Complex_Laur_Systems.Laur_Sys;
+                    rc : out natural32;
+                    sols : out QuadDobl_Complex_Solutions.Solution_List );
+
+  -- DESCRIPTION :
+  --   Calls the blackbox solver to solve the Laurent system p,
+  --   without multitasking and with output to file,
+  --   in standard double, double double, or quad double precision.
+
+  -- ON INPUT :
+  --   file     must be opened for output;
+  --   p        a Laurent polynomial system.
+
+  -- ON RETURN :
   --   rc       root count used in the homotopy to solve p;
   --   sols     solutions found at the end of the paths.
 
   procedure Solve ( nt : in natural32;
                     p : in Standard_Complex_Poly_Systems.Poly_Sys;
                     silent : in boolean;
-                    rc : out natural32; sols : out Solution_List );
-  procedure Solve ( file : in file_type; nt : in natural32;
-                    p : in Standard_Complex_Poly_Systems.Poly_Sys;
-                    rc : out natural32; sols : out Solution_List );
+                    rc : out natural32;
+                    sols : out Standard_Complex_Solutions.Solution_List );
   procedure Solve ( nt : in natural32;
-                    p : in Standard_Complex_Laur_Systems.Laur_Sys;
+                    p : in DoblDobl_Complex_Poly_Systems.Poly_Sys;
                     silent : in boolean;
-                    rc : out natural32; sols : out Solution_List );
-  procedure Solve ( file : in file_type; nt : in natural32;
-                    p : in Standard_Complex_Laur_Systems.Laur_Sys;
-                    rc : out natural32; sols : out Solution_List );
+                    rc : out natural32;
+                    sols : out DoblDobl_Complex_Solutions.Solution_List );
+  procedure Solve ( nt : in natural32;
+                    p : in QuadDobl_Complex_Poly_Systems.Poly_Sys;
+                    silent : in boolean;
+                    rc : out natural32;
+                    sols : out QuadDobl_Complex_Solutions.Solution_List );
 
   -- DESCRIPTION :
-  --   Calls the blackbox solver to solve the system p.
+  --   Calls the blackbox solver to solve the polynomial system p,
+  --   using nt tasks, without output to file, and with
+  --   standard double, double double, or quad double arithmetic.
 
   -- ON INPUT :
   --    nt      number of tasks for multithreading, 0 if no multitasking;
-  --    p       a polynomial system, or a system with Laurent polynomials;
-  --    silent  if true, then the computed root counts will not be shown,
+  --    p       a polynomial system.
+
+  -- ON RETURN :
+  --   rc       root count used in the homotopy to solve p;
+  --   sols     solutions found at the end of the paths.
+
+  procedure Solve ( file : in file_type; nt : in natural32;
+                    p : in Standard_Complex_Poly_Systems.Poly_Sys;
+                    rc : out natural32;
+                    sols : out Standard_Complex_Solutions.Solution_List );
+  procedure Solve ( file : in file_type; nt : in natural32;
+                    p : in DoblDobl_Complex_Poly_Systems.Poly_Sys;
+                    rc : out natural32;
+                    sols : out DoblDobl_Complex_Solutions.Solution_List );
+  procedure Solve ( file : in file_type; nt : in natural32;
+                    p : in QuadDobl_Complex_Poly_Systems.Poly_Sys;
+                    rc : out natural32;
+                    sols : out QuadDobl_Complex_Solutions.Solution_List );
+
+  -- DESCRIPTION :
+  --   Calls the blackbox solver to solve the polynomial system p,
+  --   using nt tasks, with output to file, and with
+  --   standard double, double double, or quad double arithmetic.
+
+  -- ON INPUT :
+  --   file     must be opened for output;
+  --   nt       number of tasks for multithreading, 0 if no multitasking;
+  --   p        a polynomial system.
+
+  -- ON RETURN :
+  --   rc       root count used in the homotopy to solve p;
+  --   sols     solutions found at the end of the paths.
+
+  procedure Solve ( nt : in natural32;
+                    p : in Standard_Complex_Laur_Systems.Laur_Sys;
+                    silent : in boolean;
+                    rc : out natural32;
+                    sols : out Standard_Complex_Solutions.Solution_List );
+  procedure Solve ( nt : in natural32;
+                    p : in DoblDobl_Complex_Laur_Systems.Laur_Sys;
+                    silent : in boolean;
+                    rc : out natural32;
+                    sols : out DoblDobl_Complex_Solutions.Solution_List );
+  procedure Solve ( nt : in natural32;
+                    p : in QuadDobl_Complex_Laur_Systems.Laur_Sys;
+                    silent : in boolean;
+                    rc : out natural32;
+                    sols : out QuadDobl_Complex_Solutions.Solution_List );
+
+  -- DESCRIPTION :
+  --   Calls the blackbox solver to solve the polynomial system p,
+  --   with nt tasks and no intermediate output to file,
+  --   in standard double, double double, or quad double precision.
+
+  -- ON INPUT :
+  --   nt       number of tasks for multithreading, 0 if no multitasking;
+  --   p        a polynomial system, or a system with Laurent polynomials;
+  --   silent   if true, then the computed root counts will not be shown,
   --            if false, then the user will see the computed root counts
   --            displayed on screen.
 
   -- ON RETURN :
-  --   file     for intermediate output and diagnostics;
+  --   rc       root count used in the homotopy to solve p;
+  --   sols     solutions found at the end of the paths.
+
+  procedure Solve ( file : in file_type; nt : in natural32;
+                    p : in Standard_Complex_Laur_Systems.Laur_Sys;
+                    rc : out natural32;
+                    sols : out Standard_Complex_Solutions.Solution_List );
+  procedure Solve ( file : in file_type; nt : in natural32;
+                    p : in DoblDobl_Complex_Laur_Systems.Laur_Sys;
+                    rc : out natural32;
+                    sols : out DoblDobl_Complex_Solutions.Solution_List );
+  procedure Solve ( file : in file_type; nt : in natural32;
+                    p : in QuadDobl_Complex_Laur_Systems.Laur_Sys;
+                    rc : out natural32;
+                    sols : out QuadDobl_Complex_Solutions.Solution_List );
+
+  -- DESCRIPTION :
+  --   Calls the blackbox solver to solve the Laurent polynomial system p,
+  --   using nt tasks in standard double, double double, or quad double,
+  --   with intermediate output written to file.
+
+  -- ON INPUT :
+  --   file     must be opened for output;
+  --   nt       number of tasks for multithreading, 0 if no multitasking;
+  --   p        a Laurent polynomial system.
+
+  -- ON RETURN :
   --   rc       root count used in the homotopy to solve p;
   --   sols     solutions found at the end of the paths.
 

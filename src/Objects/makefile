@@ -19,6 +19,9 @@ phc:
 phcpy2c.so:
 	make -f $(MAKEFILE) phcpy2c.so
 
+phcpy2c.a:
+	make -f $(MAKEFILE) phcpy2c.a
+
 # with the double version of the Path library :
 
 phcpy2cpath_d.so:
@@ -297,7 +300,7 @@ ts_vmplu:
 
 test_polynomials: ts_poly ts_laurpoly ts_laurlist ts_rpol ts_ddpol ts_qdpol \
                   ts_polmat ts_jaco ts_parse ts_subs ts_tabform ts_randpoly \
-                  ts_str2pol ts_termlist
+                  ts_str2pol ts_termlist ts_rwspol
 
 ts_poly:
 	make -f $(MAKEFILE) ts_poly
@@ -340,6 +343,9 @@ ts_str2pol:
 
 ts_termlist:
 	make -f $(MAKEFILE) ts_termlist
+
+ts_rwspol:
+	make -f $(MAKEFILE) ts_rwspol
 
 # Test programs for Math_Lib/Functions :
 
@@ -429,9 +435,9 @@ test_deformations: test_solutions test_homotopy test_newton test_curves \
 
 # Test programs for the Deformations/Solutions library :
 
-test_solutions: ts_sols ts_ddsols ts_qdsols ts_solfilt ts_solar \
+test_solutions: ts_sols ts_ddsols ts_qdsols ts_solfilt ts_solar ts_solstr \
                 ts_mapsols_io ts_dicsols_io ts_grepsols ts_selsol \
-                ts_solstr ts_contab ts_quad ts_soldrop ts_ptlists
+                ts_ptlists ts_quadpart ts_contab ts_quad ts_soldrop
 
 ts_sols:
 	make -f $(MAKEFILE) ts_sols
@@ -465,6 +471,9 @@ ts_solstr:
 
 ts_contab:
 	make -f $(MAKEFILE) ts_contab
+
+ts_quadpart:
+	make -f $(MAKEFILE) ts_quadpart
 
 ts_quad:
 	make -f $(MAKEFILE) ts_quad
@@ -1262,7 +1271,7 @@ test_state: ts_filman ts_solcon ts_use_solcon ts_solpool ts_use_solpool \
             ts_c2str ts_use_c2phc ts_use_c2fac ts_unisolve ts_use_giftwrap \
             ts_giftwcon
 
-ts_filman: file_management.o
+ts_filman:
 	make -f $(MAKEFILE) ts_filman
 
 ts_solcon:

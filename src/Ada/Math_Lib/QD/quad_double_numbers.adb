@@ -17,7 +17,22 @@ package body Quad_Double_Numbers is
     return Create(integer32(n));
   end Create;
 
+  function Create ( n : natural64 ) return quad_double is
+  begin
+    return Create(integer64(n));
+  end Create;
+
   function Create ( i : integer32 ) return quad_double is
+
+    q : quad_double;
+
+  begin
+    q.hihi := double_float(i);
+    q.lohi := 0.0; q.hilo := 0.0; q.lolo := 0.0;
+    return q;
+  end Create;
+
+  function Create ( i : integer64 ) return quad_double is
 
     q : quad_double;
 
@@ -1161,6 +1176,47 @@ package body Quad_Double_Numbers is
     return res;
   end "**";
 
+  function "**" ( x : quad_double; n : integer32 ) return quad_double is
+  begin
+    return x**integer(n);
+  end "**";
+
+  function "**" ( x : quad_double; n : integer64 ) return quad_double is
+
+    res,acc : quad_double;
+    absn : natural64;
+
+  begin
+    if n = 0 then
+      res := Create(1.0);
+    else
+      if n > 0
+       then absn := natural64(n);
+       else absn := natural64(-n);
+      end if;
+      copy(x,res);
+      acc := Create(1.0);
+      if absn > 1 then         -- use binary exponentiation
+        while absn > 0 loop     
+          if absn mod 2 = 1    -- if odd multiply by res
+           then Mul(acc,res);  -- eventually absn = 1, so this executes
+          end if;
+          absn := absn/2;
+          if absn > 0
+           then res := sqr(res);
+          end if;
+        end loop;
+      else
+        copy(res,acc);
+      end if;
+      if n < 0                 -- compute reciprocal
+       then res := 1.0/acc;
+       else copy(acc,res);
+      end if;
+    end if;
+    return res;
+  end "**";
+
   function ldexp ( x : quad_double; n : integer ) return quad_double is
 
     res : quad_double;
@@ -1178,6 +1234,22 @@ package body Quad_Double_Numbers is
   function "**" ( x,y : quad_double ) return quad_double is
   begin
     return exp(y*log(x));
+  end "**";
+
+  function "**" ( x : quad_double; y : double_double ) return quad_double is
+
+    qd_y : constant quad_double := create(y);
+
+  begin
+    return x**qd_y;
+  end "**";
+
+  function "**" ( x : quad_double; y : double_float ) return quad_double is
+
+    qd_y : constant quad_double := create(y);
+
+  begin
+    return x**qd_y;
   end "**";
  
   function exp ( x : quad_double ) return quad_double is

@@ -47,12 +47,137 @@ def resolve_schubert_conditions(ndim, kdim, brackets, verbose=True):
     roco = resolve(ndim, kdim, nbc, len(cds), cds, int(verbose))
     return roco
 
-def littlewood_richardson_homotopies(ndim, kdim, brackets, \
-    verbose=True, outputfilename='/tmp/output'):
+def standard_littlewood_richardson_homotopies(ndim, kdim, brackets, \
+    verbose=True, vrfcnd=False, outputfilename='/tmp/output'):
     """
     In n-dimensional space we consider k-dimensional planes,
     subject to intersection conditions represented by brackets.
-    The brackets is a list of brackets.  A bracket is a list
+    The parameters ndim and kdim give values for n and k respectively.
+    The parameter brackets is a list of brackets.  A bracket is a list
+    of as many natural numbers (in the range 1..ndim) as kdim.
+    The Littlewood-Richardson homotopies compute k-planes that
+    meet the flags at spaces of dimensions prescribed by the brackets,
+    in standard double precision.
+    On return is a 4-tuple.  The first item of the tuple is the
+    formal root count, sharp for general flags, then as second
+    item the coordinates of the flags.  The coordinates of the
+    flags are stored row wise in a list of real and imaginary parts.
+    The third and fourth item of the tuple on return are respectively
+    the polynomial system that has been solved and its solutions.
+    The length of the list of solution should match the root count.
+    """
+    from phcpy2c import py2c_solcon_clear_standard_solutions
+    from phcpy2c \
+       import py2c_schubert_standard_littlewood_richardson_homotopies \
+       as stlrhom
+    from interface import load_standard_solutions, load_standard_system
+    py2c_solcon_clear_standard_solutions()
+    nbc = len(brackets)
+    cds = ''
+    for bracket in brackets:
+        for num in bracket:
+            cds = cds + ' ' + str(num)
+    # print 'the condition string :', cds
+    (roco, sflags) = stlrhom(ndim, kdim, nbc, len(cds), cds, int(verbose), \
+        int(vrfcnd), len(outputfilename), outputfilename)
+    rflags = eval(sflags)
+    flgs = []
+    for k in range(len(rflags)/2):
+        flgs.append(complex(rflags[2*k], rflags[2*k+1]))
+    fsys = load_standard_system()
+    sols = load_standard_solutions()
+    return (roco, flgs, fsys, sols)
+
+def dobldobl_littlewood_richardson_homotopies(ndim, kdim, brackets, \
+    verbose=True, vrfcnd=False, outputfilename='/tmp/output'):
+    """
+    In n-dimensional space we consider k-dimensional planes,
+    subject to intersection conditions represented by brackets.
+    The parameters ndim and kdim give values for n and k respectively.
+    The parameter brackets is a list of brackets.  A bracket is a list
+    of as many natural numbers (in the range 1..ndim) as kdim.
+    The Littlewood-Richardson homotopies compute k-planes that
+    meet the flags at spaces of dimensions prescribed by the brackets,
+    in double double precision.
+    On return is a 4-tuple.  The first item of the tuple is the
+    formal root count, sharp for general flags, then as second
+    item the coordinates of the flags.  The coordinates of the
+    flags are stored row wise in a list of real and imaginary parts.
+    The third and fourth item of the tuple on return are respectively
+    the polynomial system that has been solved and its solutions.
+    The length of the list of solution should match the root count.
+    """
+    from phcpy2c import py2c_solcon_clear_dobldobl_solutions
+    from phcpy2c \
+       import py2c_schubert_dobldobl_littlewood_richardson_homotopies \
+       as ddlrhom
+    from interface import load_dobldobl_solutions, load_dobldobl_system
+    py2c_solcon_clear_dobldobl_solutions()
+    nbc = len(brackets)
+    cds = ''
+    for bracket in brackets:
+        for num in bracket:
+            cds = cds + ' ' + str(num)
+    # print 'the condition string :', cds
+    (roco, sflags) = ddlrhom(ndim, kdim, nbc, len(cds), cds, int(verbose), \
+        int(vrfcnd), len(outputfilename), outputfilename)
+    rflags = eval(sflags)
+    flgs = []
+    for k in range(len(rflags)/4):
+        flgs.append(complex(rflags[2*k], rflags[2*k+2]))
+    fsys = load_dobldobl_system()
+    sols = load_dobldobl_solutions()
+    return (roco, flgs, fsys, sols)
+
+def quaddobl_littlewood_richardson_homotopies(ndim, kdim, brackets, \
+    verbose=True, vrfcnd=False, outputfilename='/tmp/output'):
+    """
+    In n-dimensional space we consider k-dimensional planes,
+    subject to intersection conditions represented by brackets.
+    The parameters ndim and kdim give values for n and k respectively.
+    The parameter brackets is a list of brackets.  A bracket is a list
+    of as many natural numbers (in the range 1..ndim) as kdim.
+    The Littlewood-Richardson homotopies compute k-planes that
+    meet the flags at spaces of dimensions prescribed by the brackets,
+    in quad double precision.
+    On return is a 4-tuple.  The first item of the tuple is the
+    formal root count, sharp for general flags, then as second
+    item the coordinates of the flags.  The coordinates of the
+    flags are stored row wise in a list of real and imaginary parts.
+    The third and fourth item of the tuple on return are respectively
+    the polynomial system that has been solved and its solutions.
+    The length of the list of solution should match the root count.
+    """
+    from phcpy2c import py2c_solcon_clear_quaddobl_solutions
+    from phcpy2c \
+       import py2c_schubert_quaddobl_littlewood_richardson_homotopies \
+       as qdlrhom
+    from interface import load_quaddobl_solutions, load_quaddobl_system
+    py2c_solcon_clear_quaddobl_solutions()
+    nbc = len(brackets)
+    cds = ''
+    for bracket in brackets:
+        for num in bracket:
+            cds = cds + ' ' + str(num)
+    # print 'the condition string :', cds
+    (roco, sflags) = qdlrhom(ndim, kdim, nbc, len(cds), cds, int(verbose), \
+        int(vrfcnd), len(outputfilename), outputfilename)
+    rflags = eval(sflags)
+    flgs = []
+    for k in range(len(rflags)/8):
+        flgs.append(complex(rflags[2*k], rflags[2*k+4]))
+    fsys = load_quaddobl_system()
+    sols = load_quaddobl_solutions()
+    return (roco, flgs, fsys, sols)
+
+def littlewood_richardson_homotopies(ndim, kdim, brackets, \
+    verbose=True, vrfcnd=False, precision='d', \
+    outputfilename='/tmp/output'):
+    """
+    In n-dimensional space we consider k-dimensional planes,
+    subject to intersection conditions represented by brackets.
+    The parameters ndim and kdim give values for n and k respectively.
+    The parameter brackets is a list of brackets.  A bracket is a list
     of as many natural numbers (in the range 1..ndim) as kdim.
     The Littlewood-Richardson homotopies compute k-planes that
     meet the flags at spaces of dimensions prescribed by the brackets.
@@ -64,25 +189,17 @@ def littlewood_richardson_homotopies(ndim, kdim, brackets, \
     the polynomial system that has been solved and its solutions.
     The length of the list of solution should match the root count.
     """
-    from phcpy2c import py2c_solcon_clear_standard_solutions
-    from phcpy2c import py2c_schubert_littlewood_richardson_homotopies as lrhom
-    from interface import load_standard_solutions, load_standard_system
-    py2c_solcon_clear_standard_solutions()
-    nbc = len(brackets)
-    cds = ''
-    for bracket in brackets:
-        for num in bracket:
-            cds = cds + ' ' + str(num)
-    # print 'the condition string :', cds
-    (roco, sflags) = lrhom(ndim, kdim, nbc, len(cds), cds, int(verbose), \
-        len(outputfilename), outputfilename)
-    rflags = eval(sflags)
-    flgs = []
-    for k in range(len(rflags)/2):
-        flgs.append(complex(rflags[2*k], rflags[2*k+1]))
-    fsys = load_standard_system()
-    sols = load_standard_solutions()
-    return (roco, flgs, fsys, sols)
+    if(precision == 'd'):
+        return standard_littlewood_richardson_homotopies(ndim, kdim, \
+                  brackets, verbose, vrfcnd, outputfilename)
+    elif(precision == 'dd'):
+        return dobldobl_littlewood_richardson_homotopies(ndim, kdim, \
+                  brackets, verbose, vrfcnd, outputfilename)
+    elif(precision == 'qd'):
+        return quaddobl_littlewood_richardson_homotopies(ndim, kdim, \
+                  brackets, verbose, vrfcnd, outputfilename)
+    else:
+        print 'wrong level of precision, use d, dd, or qd'
 
 def random_complex_matrix(nbrows, nbcols):
     """
@@ -94,12 +211,9 @@ def random_complex_matrix(nbrows, nbcols):
     from random import uniform as u
     result = []
     for i in range(0, nbrows):
-        row = []
-        for j in range(0, nbcols):
-            angle = u(0, 2*pi)
-            cff = complex(cos(angle), sin(angle))
-            row.append(cff)
-        result.append(row)
+        angles = [u(0, 2*pi) for _ in range(nbcols)]
+        cols = [complex(cos(a), sin(a)) for a in angles]
+        result.append(cols)
     return result
 
 def random_complex_matrices(nbr, nbrows, nbcols):
@@ -263,7 +377,7 @@ def cheater(mdim, pdim, qdeg, start, startsols):
     the Pieri system in start, at the solutions in startsols.
     """
     dim = mdim*pdim + qdeg*(mdim+pdim)
-    planes = [random_complex_matrix(mdim+pdim, mdim) for k in range(0, dim)]
+    planes = [random_complex_matrix(mdim+pdim, mdim) for _ in range(0, dim)]
     pols = make_pieri_system(mdim, pdim, qdeg, planes)
     from trackers import track
     print 'cheater homotopy with %d paths' % len(startsols)
@@ -293,12 +407,13 @@ def osculating_input(mdim, pdim, qdeg, start, startsols):
         print sol
     verify(target_system, target_solutions)
 
-def test_lrhom():
+def test_lrhom(prc='d'):
     """
     Performs a test on the Littlewood-Richardson homotopies.
     """
     brk = [[2, 4, 6], [2, 4, 6], [2, 4, 6]]
-    (roco, flags, fsys, sols) = littlewood_richardson_homotopies(6, 3, brk)
+    (roco, flags, fsys, sols) \
+        = littlewood_richardson_homotopies(6, 3, brk, precision=prc)
     print 'the root count :', roco
     print 'the flags :', flags
     print 'the solutions :'
@@ -335,7 +450,7 @@ def test_pieri():
     if(qdeg == 0):
         osculating_input(mdim, pdim, qdeg, system, sols)
 
-if __name__ == "__main__":
+def main():
     """
     Tests the Pieri homotopies and the Littlewood-Richardson homotopies.
     """
@@ -343,3 +458,6 @@ if __name__ == "__main__":
     test_pieri()
     print "\nTesting the Littlewood-Richardson homotopies ..."
     test_lrhom()
+
+if __name__ == "__main__":
+    main()

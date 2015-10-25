@@ -1,5 +1,6 @@
 with text_io;                            use text_io;
 with Standard_Natural_Numbers;           use Standard_Natural_Numbers;
+with Standard_Floating_Numbers;          use Standard_Floating_Numbers;
 with Quad_Double_Numbers;                use Quad_Double_Numbers;
 with QuadDobl_Complex_Vectors;
 with QuadDobl_Complex_VecVecs;
@@ -10,12 +11,204 @@ with QuadDobl_Complex_Laur_Systems;
 with QuadDobl_Complex_Laur_SysFun;
 with QuadDobl_Complex_Laur_JacoMats;
 with QuadDobl_Jacobian_Circuits;
-with QuadDobl_Complex_Solutions;
+with QuadDobl_Complex_Solutions;         use QuadDobl_Complex_Solutions;
+with QuadDobl_Point_Lists;               use QuadDobl_Point_Lists;
 
 package QuadDobl_Root_Refiners is
 
 -- DESCRIPTION :
 --   Provides root refinement in complex quad double arithmetic.
+
+-- ROOT ACCOUNTING :
+
+  procedure Write_Info
+              ( file : in file_type; zero : in Solution;
+                initres : in quad_double;
+                i,numb,nbdef : in natural32;
+                fail,infty : in boolean );
+
+  -- DESCRIPTION :
+  --   The information concerning the zero is written to file.
+
+  -- ON ENTRY :
+  --   file     file which must be opened for output;
+  --   zero     a solution;
+  --   initres  the initial residual
+  --   i        number of solution;
+  --   numb     number of iterations;
+  --   nbdef    number of deflations;
+  --   fail     if failed or not;
+  --   infty    at infinity or not.
+
+  procedure Multiplicity
+              ( h1,h2 : in QuadDobl_Complex_Vectors.Vector;
+                pl : in out Point_List; ls : in Link_to_Solution;
+                nb : in natural32; sa : in out Solution_Array;
+                fail,infty,deflate : in boolean;
+                tolsing,tolclus : in double_float );
+
+  -- DESCRIPTION :
+  --   Checks whether the solution ls at position nb in sa is clustered.
+
+  -- ON ENTRY :
+  --   h1       first hash function for solution vectors;
+  --   h2       second hash function for solution vectors;
+  --   pl       list of hashed points;
+  --   ls       current solution;
+  --   nb       position of the solution ls in sa;
+  --   sa       array of solutions;
+  --   fail     if Newton failed to converge;
+  --   infty    if at infinity;
+  --   deflate  if deflation will be applied;
+  --   tolsing  tolerance on singular solution;
+  --   tolclus  tolerance for two solutions to be clustered.
+
+  -- ON RETURN :
+  --   pl       updated list of hashed points;
+  --   ls       ls.m will reflect if multiple or clustered:
+  --            if clustered, then ls.m < 0 and refers to the
+  --            other solution in sa that is equal to ls.
+
+  procedure Multiplicity
+              ( h1,h2 : in QuadDobl_Complex_Vectors.Vector;
+                pl : in out Point_List; ls : in Link_to_Solution;
+                nb : in natural32; sols : in out Solution_List;
+                fail,infty,deflate : in boolean;
+                tolsing,tolclus : in double_float );
+
+  -- DESCRIPTION :
+  --   Checks whether the solution ls at position nb in sa is clustered.
+
+  -- ON ENTRY :
+  --   h1       first hash function for solution vectors;
+  --   h2       second hash function for solution vectors;
+  --   pl       list of hashed points;
+  --   ls       current solution;
+  --   nb       position of the solution ls in sa;
+  --   sols     list of solutions;
+  --   fail     if Newton failed to converge;
+  --   infty    if at infinity;
+  --   deflate  if deflation will be applied;
+  --   tolsing  tolerance on singular solution;
+  --   tolclus  tolerance for two solutions to be clustered.
+
+  -- ON RETURN :
+  --   pl       updated list of hashed points;
+  --   ls       ls.m will reflect if multiple or clustered:
+  --            if clustered, then ls.m < 0 and refers to the
+  --            other solution in sols that is equal to ls.
+
+  procedure Write_Type
+              ( file : in file_type;
+                h1,h2 : in QuadDobl_Complex_Vectors.Vector;
+                pl : in out Point_List; ls : in Link_to_Solution;
+                nb : in natural32; sa : in out Solution_Array;
+                fail,infty,deflate : in boolean;
+                tolsing,tolclus : in double_float; nbfail,nbinfty,
+                nbreal,nbcomp,nbreg,nbsing,nbclus : in out natural32 );
+
+  -- DESCRIPTION :
+  --   Writes the type of solution, after root accounting.
+
+  -- ON ENTRY :
+  --   file     file opened for output;
+  --   h1       first hash function on a solution vector;
+  --   h2       second hash function on a solution vector;
+  --   pl       list of hashed points;
+  --   ls       the current solution;
+  --   nb       index of the solution in the array sa;
+  --   sa       solution array;
+  --   fail     if Newton failed to converge;
+  --   infty    if at infinity;
+  --   deflate  if deflation will be applied;
+  --   tolsing  tolerance for singular solutions;
+  --   tolclus  tolerance for clustered solutions;
+  --   nbfail   current number of failures;
+  --   nbinfty  current number of at infinity;
+  --   nbreal   current number of real solutions;
+  --   nbcomp   current number of complex solutions;
+  --   nbreg    current number of regular solutions;
+  --   nbsing   current number of singular solutions;
+  --   nbclus   current number of clustered solutions.
+
+  -- ON RETURN :
+  --   pl       list with new hashed point;
+  --   ls       multiplicity field may be adjusted;
+  --   sa       some solution may have increased multiplicities;
+  --   nbfail   updated number of failures;
+  --   nbinfty  updated number of at infinity;
+  --   nbreal   updated number of real solutions;
+  --   nbcomp   updated number of complex solutions;
+  --   nbreg    updated number of regular solutions;
+  --   nbsing   updated number of singular solutions;
+  --   nbclus   updated number of clustered solutions.
+
+  procedure Write_Type
+              ( file : in file_type; ls : in Link_to_Solution;
+                fail,infty : in boolean;
+                tolsing : in double_float;
+                nbfail,nbinfty : in out natural32;
+                nbreal,nbcomp,nbreg,nbsing : in out natural32 );
+
+  -- DESCRIPTION :
+  --   Writes the type of the solution to file without cluster analysis.
+
+  -- ON ENTRY :
+  --   file     file opened for output;
+  --   ls       the current solution;
+  --   fail     if Newton failed to converge;
+  --   infty    if at infinity;
+  --   tolsing  tolerance for singular solutions;
+  --   nbfail   current number of failures;
+  --   nbinfty  current number of at infinity;
+  --   nbreal   current number of real solutions;
+  --   nbcomp   current number of complex solutions;
+  --   nbreg    current number of regular solutions;
+  --   nbsing   current number of singular solutions.
+
+  -- ON RETURN :
+  --   nbfail   updated number of failures;
+  --   nbinfty  updated number of at infinity;
+  --   nbreal   updated number of real solutions;
+  --   nbcomp   updated number of complex solutions;
+  --   nbreg    updated number of regular solutions;
+  --   nbsing   updated number of singular solutions.
+
+  procedure Write_Global_Info
+              ( file : in file_type; tot,nbfail,nbinfty,
+                nbreal,nbcomp,nbreg,nbsing,nbclus : in natural32 );
+
+  -- DESCRIPTION :
+  --   Writes the global information summary at the end of the solutions.
+
+  -- ON ENTRY :
+  --   file     file openen for output;
+  --   tot      total number of solutions;
+  --   nbfail   number of failures;
+  --   nbinfty  number of solutions at infinity;
+  --   nbreal   number of real solutions;
+  --   nbcomp   number of complex solutions;
+  --   nbreg    number of regular solutions;
+  --   nbsing   number of singular solutions;
+  --   nbclus   number of clustered solutions.
+
+-- ONE NEWTON STEP :
+
+  procedure Write_Diagnostics
+              ( file : in file_type; step : natural32;
+                err,rco,res : in quad_double );
+
+  -- DESCRIPTION :
+  --   Writes diagnostics in one line about the Newton step to file.
+  --   This procedure defines the formatting in the Reporting
+  --   versions of a sequence of Newton steps.
+
+  -- ON ENTRY :
+  --   file     must be opened for output;
+  --   step     the current step number;
+  --   err      forward error, magnitude of the update;
+  --   rco      estimate for the inverse of the condition number;
+  --   res      backward error, residual.
 
   procedure QuadDobl_Newton_Step
               ( f : in QuadDobl_Complex_Poly_SysFun.Eval_Poly_Sys;
@@ -64,31 +257,33 @@ package QuadDobl_Root_Refiners is
   --   rco      estimate for the inverse condition number;
   --   res      residual, norm of the function value.
 
+-- SEVERAL STEPS ON ONE SOLUTION :
+
   procedure Silent_Newton
               ( f : in QuadDobl_Complex_Poly_SysFun.Eval_Poly_Sys;
                 jf : in  QuadDobl_Complex_Jaco_Matrices.Eval_Jaco_Mat;
                 x : in out QuadDobl_Complex_Solutions.Solution;
-                epsxa,epsfa : in quad_double; numit : in out natural32;
+                epsxa,epsfa : in double_float; numit : in out natural32;
                 max : in natural32; fail : out boolean );
   procedure Reporting_Newton
               ( file : in file_type;
                 f : in QuadDobl_Complex_Poly_SysFun.Eval_Poly_Sys;
                 jf : in  QuadDobl_Complex_Jaco_Matrices.Eval_Jaco_Mat;
                 x : in out QuadDobl_Complex_Solutions.Solution;
-                epsxa,epsfa : in quad_double; numit : in out natural32;
+                epsxa,epsfa : in double_float; numit : in out natural32;
                 max : in natural32; fail : out boolean );
   procedure Silent_Newton
               ( f : in QuadDobl_Complex_Laur_SysFun.Eval_Laur_Sys;
                 jf : in  QuadDobl_Complex_Laur_JacoMats.Eval_Jaco_Mat;
                 x : in out QuadDobl_Complex_Solutions.Solution;
-                epsxa,epsfa : in quad_double; numit : in out natural32;
+                epsxa,epsfa : in double_float; numit : in out natural32;
                 max : in natural32; fail : out boolean );
   procedure Reporting_Newton
               ( file : in file_type;
                 f : in QuadDobl_Complex_Laur_SysFun.Eval_Laur_Sys;
                 jf : in  QuadDobl_Complex_Laur_JacoMats.Eval_Jaco_Mat;
                 x : in out QuadDobl_Complex_Solutions.Solution;
-                epsxa,epsfa : in quad_double; numit : in out natural32;
+                epsxa,epsfa : in double_float; numit : in out natural32;
                 max : in natural32; fail : out boolean );
 
   -- DESCRIPTION :
@@ -121,7 +316,7 @@ package QuadDobl_Root_Refiners is
                 jf : in  QuadDobl_Jacobian_Circuits.Circuit;
                 x : in out QuadDobl_Complex_Solutions.Solution;
                 wrk : in out QuadDobl_Complex_VecVecs.VecVec;
-                epsxa,epsfa : in quad_double; numit : in out natural32;
+                epsxa,epsfa : in double_float; numit : in out natural32;
                 max : in natural32; fail : out boolean );
 
   -- DESCRIPTION :
@@ -176,6 +371,8 @@ package QuadDobl_Root_Refiners is
   --   s        content where the pointer refers to is updated;
   --   wrk      modified work space for the evaluated monomials.
 
+-- REFINING A LIST OF SOLUTIONS :
+
   procedure QuadDobl_Root_Refiner
               ( p : in QuadDobl_Complex_Laur_Systems.Laur_Sys;
                 s : in out QuadDobl_Complex_Solutions.Solution_List );
@@ -191,11 +388,56 @@ package QuadDobl_Root_Refiners is
   --   Applies Newton's method to the solutions s of the system p,
   --   using the circuit representation for the Jacobian matrix.
 
+-- THE MAIN ROOT REFINERS :
+
   procedure Silent_Root_Refiner
                ( p : in QuadDobl_Complex_Poly_Systems.Poly_Sys;
                  s : in out QuadDobl_Complex_Solutions.Solution_List;
-                 epsxa,epsfa : in quad_double;
+                 epsxa,epsfa,tolsing : in double_float;
                  numit : in out natural32; max : in natural32 );
+  procedure Silent_Root_Refiner
+               ( p : in QuadDobl_Complex_Poly_Systems.Poly_Sys;
+                 s,refs : in out QuadDobl_Complex_Solutions.Solution_List;
+                 epsxa,epsfa,tolsing : in double_float;
+                 numit : in out natural32; max : in natural32 );
+  procedure Silent_Root_Refiner
+               ( p : in QuadDobl_Complex_Laur_Systems.Laur_Sys;
+                 s : in out QuadDobl_Complex_Solutions.Solution_List;
+                 epsxa,epsfa,tolsing : in double_float;
+                 numit : in out natural32; max : in natural32 );
+  procedure Silent_Root_Refiner
+               ( p : in QuadDobl_Complex_Laur_Systems.Laur_Sys;
+                 s,refs : in out QuadDobl_Complex_Solutions.Solution_List;
+                 epsxa,epsfa,tolsing : in double_float;
+                 numit : in out natural32; max : in natural32 );
+  procedure Reporting_Root_Refiner
+               ( file : in file_type;
+                 p : in QuadDobl_Complex_Poly_Systems.Poly_Sys;
+                 s : in out QuadDobl_Complex_Solutions.Solution_List;
+                 epsxa,epsfa,tolsing : in double_float;
+                 numit : in out natural32; max : in natural32;
+                 wout : in boolean );
+  procedure Reporting_Root_Refiner
+               ( file : in file_type;
+                 p : in QuadDobl_Complex_Poly_Systems.Poly_Sys;
+                 s,refs : in out QuadDobl_Complex_Solutions.Solution_List;
+                 epsxa,epsfa,tolsing : in double_float;
+                 numit : in out natural32; max : in natural32;
+                 wout : in boolean );
+  procedure Reporting_Root_Refiner
+               ( file : in file_type;
+                 p : in QuadDobl_Complex_Laur_Systems.Laur_Sys;
+                 s : in out QuadDobl_Complex_Solutions.Solution_List;
+                 epsxa,epsfa,tolsing : in double_float;
+                 numit : in out natural32; max : in natural32;
+                 wout : in boolean );
+  procedure Reporting_Root_Refiner
+               ( file : in file_type;
+                 p : in QuadDobl_Complex_Laur_Systems.Laur_Sys;
+                 s,refs : in out QuadDobl_Complex_Solutions.Solution_List;
+                 epsxa,epsfa,tolsing : in double_float;
+                 numit : in out natural32; max : in natural32;
+                 wout : in boolean );
 
   -- DESCRIPTION :
   --   Applies Newton's method to refine roots of p in s.
@@ -206,15 +448,20 @@ package QuadDobl_Root_Refiners is
   --   (3) x.res < epsfa (residual smaller than epsfa).
 
   -- ON ENTRY :
+  --   file     for intermediate output and diagnostics;
   --   p        a polynomial system;
   --   s        current approximate solutions;
   --   epsxa    accuracy requirement on update factor;
   --   epsfa    accuracy requirement on residual;
+  --   tolsing  is the tolerance on the inverse condition number of
+  --            the Jacobian matrix at the root for consideration
+  --            as a singular solution;
   --   numit    number of iterations, must be zero on entry,
   --   max      maximum number of iterations allowed.
 
   -- ON RETURN :
   --   s        updated approximate solutions;
-  --   numit    number of iterations spent on refining x;
+  --   refs     refined solutions without path failures;
+  --   numit    number of iterations spent on refining x.
 
 end QuadDobl_Root_Refiners;

@@ -1,8 +1,16 @@
 with Standard_Integer_Numbers;           use Standard_Integer_NUmbers;
 with Standard_Floating_Numbers;          use Standard_Floating_Numbers;
+with Double_Double_Numbers;              use Double_Double_Numbers;
+with Quad_Double_Numbers;                use Quad_Double_Numbers;
 with Standard_Complex_Vectors;
 with Standard_Complex_Matrices;
 with Standard_Complex_VecMats;
+with DoblDobl_Complex_Vectors;
+with DoblDobl_Complex_Matrices;
+with DoblDobl_Complex_VecMats;
+with QuadDobl_Complex_Vectors;
+with QuadDobl_Complex_Matrices;
+with QuadDobl_Complex_VecMats;
 
 package Flag_Transformations is
 
@@ -22,10 +30,14 @@ package Flag_Transformations is
 --   compute the matrix A, upper triangular matrices T1 and T2
 --   so that A*F1 = G1*T1 and A*F2 = G2*T2.
 
--- DATA STRUCTURE :
+-- DATA STRUCTURES :
 
-  type stack_of_flags is 
+  type Standard_Stack_of_Flags is 
     array ( integer32 range <> ) of Standard_Complex_VecMats.Link_to_VecMat;
+  type DoblDobl_Stack_of_Flags is 
+    array ( integer32 range <> ) of DoblDobl_Complex_VecMats.Link_to_VecMat;
+  type QuadDobl_Stack_of_Flags is 
+    array ( integer32 range <> ) of QuadDobl_Complex_VecMats.Link_to_VecMat;
 
 -- DEFINING A LINEAR SYSTEM :
 
@@ -33,6 +45,14 @@ package Flag_Transformations is
              ( n : integer32;
                f1,f2,g1,g2 : Standard_Complex_Matrices.Matrix )
              return Standard_Complex_Matrices.Matrix;
+  function Coefficient_Matrix
+             ( n : integer32;
+               f1,f2,g1,g2 : DoblDobl_Complex_Matrices.Matrix )
+             return DoblDobl_Complex_Matrices.Matrix;
+  function Coefficient_Matrix
+             ( n : integer32;
+               f1,f2,g1,g2 : QuadDobl_Complex_Matrices.Matrix )
+             return QuadDobl_Complex_Matrices.Matrix;
 
   -- DESCRIPTION :
   --   Returns the coefficient matrix to compute the matrix A
@@ -54,6 +74,12 @@ package Flag_Transformations is
   function Right_Hand_Side
              ( n : integer32; g : Standard_Complex_Matrices.Matrix )
              return Standard_Complex_Vectors.Vector;
+  function Right_Hand_Side
+             ( n : integer32; g : DoblDobl_Complex_Matrices.Matrix )
+             return DoblDobl_Complex_Vectors.Vector;
+  function Right_Hand_Side
+             ( n : integer32; g : QuadDobl_Complex_Matrices.Matrix )
+             return QuadDobl_Complex_Vectors.Vector;
 
   -- DESCRIPTION :
   --   Returns the right hand side vector in the linear system to
@@ -64,6 +90,12 @@ package Flag_Transformations is
   procedure Extract_Matrices
               ( n : in integer32; sol : in Standard_Complex_Vectors.Vector;
                 A,T1,T2 : out Standard_Complex_Matrices.Matrix );
+  procedure Extract_Matrices
+              ( n : in integer32; sol : in DoblDobl_Complex_Vectors.Vector;
+                A,T1,T2 : out DoblDobl_Complex_Matrices.Matrix );
+  procedure Extract_Matrices
+              ( n : in integer32; sol : in QuadDobl_Complex_Vectors.Vector;
+                A,T1,T2 : out QuadDobl_Complex_Matrices.Matrix );
 
   -- DESCRIPTION :
   --   Given a vector sol of size 2*n*n, extracts three n-dimensional 
@@ -76,6 +108,14 @@ package Flag_Transformations is
               ( n : in integer32; 
                 f1,f2,g1,g2 : in Standard_Complex_Matrices.Matrix;
                 A,T1,T2 : out Standard_Complex_Matrices.Matrix );
+  procedure Transform
+              ( n : in integer32; 
+                f1,f2,g1,g2 : in DoblDobl_Complex_Matrices.Matrix;
+                A,T1,T2 : out DoblDobl_Complex_Matrices.Matrix );
+  procedure Transform
+              ( n : in integer32; 
+                f1,f2,g1,g2 : in QuadDobl_Complex_Matrices.Matrix;
+                A,T1,T2 : out QuadDobl_Complex_Matrices.Matrix );
 
   -- DECRIPTION :
   --   Transforms two pairs of flags in n-space.
@@ -95,6 +135,12 @@ package Flag_Transformations is
   function Residual 
               ( f1,f2,g1,g2,A,T1,T2 : Standard_Complex_Matrices.Matrix ) 
               return double_float;
+  function Residual 
+              ( f1,f2,g1,g2,A,T1,T2 : DoblDobl_Complex_Matrices.Matrix ) 
+              return double_double;
+  function Residual 
+              ( f1,f2,g1,g2,A,T1,T2 : QuadDobl_Complex_Matrices.Matrix ) 
+              return quad_double;
 
   -- DESCRIPTION :
   --   Returns the 1-norm of the differences A*f1 - g1*T1 and A*f2 - g2*T2,
@@ -151,11 +197,20 @@ package Flag_Transformations is
               ( n,i : in integer32;
                 flags : in out Standard_Complex_VecMats.VecMat;
                 A,invA,sT : out Standard_Complex_Matrices.Matrix );
+  procedure Transform_Sequence_with_Flag
+              ( n,i : in integer32;
+                flags : in out DoblDobl_Complex_VecMats.VecMat;
+                A,invA,sT : out DoblDobl_Complex_Matrices.Matrix );
+  procedure Transform_Sequence_with_Flag
+              ( n,i : in integer32;
+                flags : in out QuadDobl_Complex_VecMats.VecMat;
+                A,invA,sT : out QuadDobl_Complex_Matrices.Matrix );
 
   -- DESCRIPTION :
   --   Takes the i-th flag in flags, that is flags(i), to transform
   --   the pair (M, I) to (I, flags(i)).  Multiplies all flags that
-  --   appear with higher index than i with the inverse of A, in invA.
+  --   appear with higher index than i with the inverse of A, in invA,
+  --   in standard double, double double, or quad double precision.
 
   -- REQUIRED : i in f'flags'range.
 
@@ -173,11 +228,20 @@ package Flag_Transformations is
 
   procedure Create ( n : in integer32;
                      flags : in Standard_Complex_VecMats.VecMat;
-                     stack : out Stack_of_Flags;
+                     stack : out Standard_Stack_of_Flags;
                      A,invA,sT : out Standard_Complex_VecMats.VecMat );
+  procedure Create ( n : in integer32;
+                     flags : in DoblDobl_Complex_VecMats.VecMat;
+                     stack : out DoblDobl_Stack_of_Flags;
+                     A,invA,sT : out DoblDobl_Complex_VecMats.VecMat );
+  procedure Create ( n : in integer32;
+                     flags : in QuadDobl_Complex_VecMats.VecMat;
+                     stack : out QuadDobl_Stack_of_Flags;
+                     A,invA,sT : out QuadDobl_Complex_VecMats.VecMat );
 
   -- DESCRIPTION :
-  --   Makes a stack of flags, successively transformed.
+  --   Makes a stack of flags, successively transformed,
+  --   in standard double, double double, or quad double precision.
 
   -- REQUIRED : stack'range = flags'first..flags'last-1.
 
@@ -191,7 +255,9 @@ package Flag_Transformations is
   --   invA     sequence of inverses of the matrices in A;
   --   sT       sequence of A times the moved flag.
 
-  procedure Clear ( s : in out Stack_of_Flags );
+  procedure Clear ( s : in out Standard_Stack_of_Flags );
+  procedure Clear ( s : in out DoblDobl_Stack_of_Flags );
+  procedure Clear ( s : in out QuadDobl_Stack_of_Flags );
 
   -- DESCRIPTION :
   --   Deallocation of the stack of flags in s.

@@ -1,3 +1,24 @@
+Wed 21 Oct 2015 : bug fix in bracket_polynomial_convertors.adb, must use
+  Frontal_Construct instead of Add when adding terms to a polynomial.
+
+Sun 18 Oct 2015 : added package bracket_polynomial_convertors to convert
+  bracket polynomials into polynomial with double double and quad double
+  precison coefficients.
+
+Sat 17 Oct 2015 : new packages {dobldobl,quaddobl}_bracket_polynomials{_io}
+  tested by ts_brackpols.  For systems of bracket polynomials, added the
+  new packages {dobldobl,quaddobl}_bracket_systems{_io}.
+
+Thu 15 Oct 2015 : extended evaluated_minors with functions in double double
+  and quad double precision.
+
+Wed 14 Oct 2015 : extended evaluated_minors with a Determinant function 
+  of a matrix where the submatrix is defined by rows and columns brackets.
+
+Tue 13 Oct 2015 : added <= operation to brackets as needed to define the
+  'not above' in the partial order of brackets, needed in the efficient
+  representation of Schubert problems.
+
 Sun 15 Jun 2014 : modified ts_shapiro.adb for a compiler warning.
 
 Tue 27 May 2014 : small change in brackets_io.adb for a compiler warning.

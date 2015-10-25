@@ -52,6 +52,22 @@ int solve_system ( int *root_count, int nbtasks )
    return fail;
 }
 
+int solve_dobldobl_system ( int *root_count, int nbtasks )
+{
+   int fail;
+   double *c;
+   fail = _ada_use_c2phc(700,root_count,&nbtasks,c);
+   return fail;
+}
+
+int solve_quaddobl_system ( int *root_count, int nbtasks )
+{
+   int fail;
+   double *c;
+   fail = _ada_use_c2phc(702,root_count,&nbtasks,c);
+   return fail;
+}
+
 int solve_Laurent_system ( int *root_count, int silent, int nbtasks )
 {
    int fail;
@@ -60,6 +76,28 @@ int solve_Laurent_system ( int *root_count, int silent, int nbtasks )
    b[0] = silent;
    b[1] = nbtasks;
    fail = _ada_use_c2phc(75,root_count,b,c);
+   return fail;
+}
+
+int solve_dobldobl_Laurent_system ( int *root_count, int silent, int nbtasks )
+{
+   int fail;
+   int b[2];
+   double *c;
+   b[0] = silent;
+   b[1] = nbtasks;
+   fail = _ada_use_c2phc(701,root_count,b,c);
+   return fail;
+}
+
+int solve_quaddobl_Laurent_system ( int *root_count, int silent, int nbtasks )
+{
+   int fail;
+   int b[2];
+   double *c;
+   b[0] = silent;
+   b[1] = nbtasks;
+   fail = _ada_use_c2phc(703,root_count,b,c);
    return fail;
 }
 
@@ -707,6 +745,20 @@ int show_continuation_parameters ( void )
    int *a,*b,fail;
    double *c;
    fail = _ada_use_c2phc(194,a,b,c);
+   return fail;
+}
+
+int get_value_of_continuation_parameter ( int k, double *val )
+{
+   int *b,fail;
+   fail = _ada_use_c2phc(189,&k,b,val);
+   return fail;
+}
+
+int set_value_of_continuation_parameter ( int k, double *val )
+{
+   int *b,fail;
+   fail = _ada_use_c2phc(190,&k,b,val);
    return fail;
 }
 

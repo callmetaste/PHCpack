@@ -549,6 +549,13 @@ function use_c2phc ( job : integer32;
 --         =  71 : interactive setting of output level during continuation;
 --         =  72 : retrieve in c the values of the continuation parameters;
 --         =  73 : set the continuation parameters with the values in c.
+--         = 189 : given in a[0] an integer in the range 1..34,
+--                 returns in c the value of the corresponding continuation
+--                 parameter with index equal to a[0];
+--         = 190 : given in a[0] an integer in the range 1..34, and
+--                 given in c[0] the value of the corresponding continuation
+--                 parameter with index equal to a[0], sets the value of
+--                 that continuation parameter to the value of c[0];
 --         = 193 : autotune of the continuation parameters with two values:
 --                 in a : the difficulty level of the solution path;
 --                 in b : the number of decimal places in the precision.
@@ -563,6 +570,9 @@ function use_c2phc ( job : integer32;
 --                   a[1] : number of variables in the Laurent polynomial,
 --                   a[2] : index of the polynomial in the system,
 --                   b : string converted to an integer array,
+--         =  75 : solves the Laurent system in the system container
+--                 with the blackbox solver in standard double precision
+--                 and puts the solutions into the solution container;
 --         =  76 : puts a polynomial given as a string in the system 
 --                 container, with the input parameters as follows:
 --                   a[0] : number of characters in the string,
@@ -571,6 +581,7 @@ function use_c2phc ( job : integer32;
 --                   b : string converted to an integer array,
 --                 this operation is the reverse of job 67;
 --         =  77 : solves the polynomial system in the system container
+--                 with the blackbox solver in standard double precision
 --                 and puts the solutions into the solution container;
 --         =  78 : computes the mixed volume for the system in the systems
 --                 container and fills the cells container with the regular
@@ -578,6 +589,45 @@ function use_c2phc ( job : integer32;
 --         =  79 : computes the mixed volume and stable mixed volume of the
 --                 system in the container and fills the cells container with
 --                 the mixed cells.
+--         = 700 : solves the polynomial system in the system container
+--                 with the blackbox solver in double double precision 
+--                 and puts the solutions into the solution container;
+--         = 701 : solves the Laurent system in the system container
+--                 with the blackbox solver in double double precision 
+--                 and puts the solutions into the solution container;
+--         = 702 : solves the polynomial system in the system container
+--                 with the blackbox solver in quad double precision 
+--                 and puts the solutions into the solution container;
+--         = 703 : solves the Laurent system in the system container
+--                 with the blackbox solver in quad double precision 
+--                 and puts the solutions into the solution container.
+--
+-- the size limit of the string representation of a polynomial :
+-- 
+--   job   = 600 : given on entry in a[0] the index k of a polynomial in
+--                 the standard systems container, returns in b
+--                 the size limit of the k-th standard polynomial;
+--         = 601 : given on entry in a[0] the index k of a polynomial in
+--                 the dobldobl systems container, returns in b
+--                 the size limit of the k-th dobldobl polynomial;
+--         = 602 : given on entry in a[0] the index k of a polynomial in
+--                 the quaddobl systems container, returns in b
+--                 the size limit of the k-th quaddobl polynomial;
+--         = 603 : given on entry in a[0] the index k of a polynomial in
+--                 the multprec systems container, returns in b
+--                 the size limit of the k-th multprec polynomial;
+--         = 604 : given on entry in a[0] the index k of a polynomial in
+--                 the standard Laurent systems container, returns in b
+--                 the size limit of the k-th standard Laurent polynomial;
+--         = 605 : given on entry in a[0] the index k of a polynomial in
+--                 the dobldobl Laurent systems container, returns in b
+--                 the size limit of the k-th dobldobl Laurent polynomial;
+--         = 606 : given on entry in a[0] the index k of a polynomial in
+--                 the quaddobl Laurent systems container, returns in b
+--                 the size limit of the k-th quaddobl Laurent polynomial;
+--         = 607 : given on entry in a[0] the index k of a polynomial in
+--                 the multprec Laurent systems container, returns in b
+--                 the size limit of the k-th multprec Laurent polynomial.
 --
 -- the operations in the cells container :
 --
@@ -1124,6 +1174,98 @@ function use_c2phc ( job : integer32;
 --                 in a[1] is the number of variables,
 --                 in a[2] is the number of characters in the string,
 --                 and in b is the solution string.
+--
+-- Numerical Schubert calculus with Pieri homotopies :
+--
+--   job  =  210 : display the menu of all available options;
+--        =  211 : initialize dimensions m,p,q calling use_c2pieri
+--                 with a[0] = m, a[1] = p, and a[2] = q;
+--        =  212 : initialize input planes calling use_c2pieri
+--                 with a[0] = m, a[1] = p, and a[2] = q,
+--                      b = m*p + q*(m+p), 
+--                      c = coefficients of the input planes,
+--                 in pairs of doubles (real + imaginary part of complex),
+--                 and as matrices stored row wise;
+--        =  213 : initialize interpolation points calling use_c2pieri
+--                 with a[0] = m, a[1] = p, and a[2] = q,
+--                      b = m*p + q*(m+p), 
+--                      c = coefficients of the interpolation points,
+--                 in pairs of doubles (real + imaginary part of complex);
+--        =  214 : store the start pivots calling use_c2pieri
+--                 with a[0] = p, and 
+--                      b = the 2*p entries of top and bottom pivots;
+--        =  215 : store the target pivots calling use_c2pieri
+--                 with a[0] = p, and 
+--                      b = the 2*p entries of top and bottom pivots;
+--        =  216 : store the start solution curve calling use_c2pieri
+--                 with a[0] = degree of freedom in start pivots, and
+--                      c = coefficients of the complex vector in pairs
+--                 of doubles (real + imaginary parts);
+--        =  217 : retrieve target solution curve calling use_c2pieri
+--                 with a[0] = degree of freedom in target pivots,
+--                 on return are then in c the coefficients of the target;
+--        =  218 : track solution path without intermediate output;
+--        =  219 : track solution path with output diagnostics;
+--        =  220 : verify intersection conditions without output,
+--                 on return c contains sum of residuals;
+--        =  211 : verify intersection conditions with extra output,
+--                 on return c contains sum of residuals;
+--        =  222 : destroy the Pieri state machine.
+--        =  223 : compute Pieri root count
+--        =  224 : return localization poset string
+--        =  225 : run Pieri homotopies
+--        =  226 : generate real osculating planes
+--        =  227 : make Schubert polynomial system
+--
+-- Numerical Schubert calculus with Littlewood-Richardson homotopies :
+--
+--   job  =  228 : given in a the dimension of a general Schubert problem:
+--                 a[0] : the ambient dimension n of the space,
+--                 a[1] : the dimension k of the solution planes,
+--                 a[2] : the number c of intersection conditions,
+--                 and in a[3] is the verbose flag, 0 for silent, 1 for output;
+--                 in b are the brackets, as many integers as the dimension k
+--                 of the solution planes times c, the number of conditions.
+--        =  229 : runs the Littlewood-Richardson homotopies on a generic,
+--                 randomly generated set of flags, in standard double
+--                 precision, with inputs:
+--                 a[0] : the ambient dimension n of the space,
+--                 a[1] : the dimension k of the solution planes,
+--                 a[2] : the number c of intersection conditions,
+--                 a[3] : indicates the monitoring of the homotopies,
+--                 a[4] : indicates the verification of the homotopies,
+--                 a[5] : number of characters in the file name;
+--                 in b are the brackets, as many integers as the dimension k
+--                 of the solution planes times c, the number of conditions;
+--                 in c are the characters of the name of the output file;
+--        =  180 : runs the Littlewood-Richardson homotopies on a generic,
+--                 randomly generated set of flags, in double double precision,
+--                 with inputs:
+--                 a[0] : the ambient dimension n of the space,
+--                 a[1] : the dimension k of the solution planes,
+--                 a[2] : the number c of intersection conditions,
+--                 a[3] : indicates the monitoring of the homotopies,
+--                 a[4] : indicates the verification of the homotopies,
+--                 a[5] : number of characters in the file name;
+--                 in b are the brackets, as many integers as the dimension k
+--                 of the solution planes times c, the number of conditions;
+--                 in c are the characters of the name of the output file;
+--        =  181 : runs the Littlewood-Richardson homotopies on a generic,
+--                 randomly generated set of flags, in quad double precision,
+--                 with inputs:
+--                 a[0] : the ambient dimension n of the space,
+--                 a[1] : the dimension k of the solution planes,
+--                 a[2] : the number c of intersection conditions,
+--                 a[3] : indicates the monitoring of the homotopies,
+--                 a[4] : indicates the verification of the homotopies,
+--                 a[5] : number of characters in the file name;
+--                 in b are the brackets, as many integers as the dimension k
+--                 of the solution planes times c, the number of conditions;
+--                 in c are the characters of the name of the output file.
+
+-- ON RETURN :
+--   0 if the operation was successful, otherwise something went wrong,
+--   e.g.: job not in the right range.
 -- 
 -- addition operations for diagonal homotopies :
 --

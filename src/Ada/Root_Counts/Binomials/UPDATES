@@ -1,3 +1,12 @@
+Thu 1 Oct 2015 : changed black_box_simplex_solvers.adb for changed type
+  of the tolerance parameters.
+
+Fri 25 Sep 2015 : new packages {dobldobl,quaddobl}_monomial_maps, for use
+  to stub in the black_box_binomial_solvers.
+
+Wed 23 Sep 2015 : extended black_box_simplex_solvers with versions for
+  quad double precision arithmetic.
+
 Fri 11 Sep 2015 : edits in black_box_{binomial,simplex}_solvers.
 
 Wed 9 Sep 2015 : prepared black_box_simplex_solvers for extended precision.

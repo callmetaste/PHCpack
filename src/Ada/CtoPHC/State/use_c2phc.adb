@@ -36,6 +36,8 @@ with Multprec_Complex_Laur_SysFun;
 with Multprec_Complex_Laur_JacoMats;
 with Standard_Complex_Laur_Systems;
 with Standard_Laur_Poly_Convertors;
+with DoblDobl_Laur_Poly_Convertors;
+with QuadDobl_Laur_Poly_Convertors;
 with Standard_Complex_Solutions;
 with DoblDobl_Complex_Solutions;
 with QuadDobl_Complex_Solutions;
@@ -1679,6 +1681,142 @@ function use_c2phc ( job : integer32;
     return 0;
   end Job77;
 
+  function Job700 return integer32 is -- dobldobl polynomial blackbox solver
+
+    use DoblDobl_Complex_Poly_Systems,DoblDobl_Complex_Solutions;
+    v_b : constant C_Integer_Array := C_intarrs.Value(b);
+    nt : constant natural32  := natural32(v_b(v_b'first));
+    lp : constant Link_to_Poly_Sys := DoblDobl_PolySys_Container.Retrieve;
+    nv : constant natural32 := Size_of_Support(lp.all);
+    nq : constant natural32 := natural32(lp'last);
+    rc : natural32;
+    sols : Solution_List;
+
+  begin
+   -- put("Dimension of the system in the container : "); put(n,1); new_line;
+    if nv < nq then
+      put_line("The system is overdetermined, add slack variables.");
+      return 700;
+    elsif nv > nq then
+      put_line("The system is underdetermined, add linear equations.");
+      return 700;
+    end if;
+    Black_Box_Solvers.Solve(nt,lp.all,false,rc,sols); -- not silent by default
+    Assign(integer32(rc),a);
+    DoblDobl_Solutions_Container.Initialize(sols);
+    return 0;
+  end Job700;
+
+  function Job701 return integer32 is -- dobldobl Laurent blackbox solver
+
+    use DoblDobl_Complex_Poly_Systems,DoblDobl_Complex_Solutions;
+    use DoblDobl_Complex_Laur_Systems;
+    use Interfaces.C;
+
+    v_b : constant C_Integer_Array(0..1)
+        := C_Intarrs.Value(b,Interfaces.C.ptrdiff_t(2));
+    silval : constant natural32 := natural32(v_b(v_b'first));
+    silent : constant boolean := (silval = 1);
+    ntasks : constant natural32 := natural32(v_b(v_b'first+1));
+    lp : constant Link_to_Laur_Sys := DoblDobl_LaurSys_Container.Retrieve;
+    nv : constant natural32 := Size_of_Support(lp.all);
+    nq : constant natural32 := natural32(lp'last);
+    rc : natural32;
+    sols : Solution_List;
+
+  begin
+   -- put("nv = "); put(integer32(nv),1);
+   -- put("  nq = "); put(integer32(nq),1); new_line;
+    if nv < nq then
+      put_line("The system is overdetermined, add slack variables.");
+      return 701;
+    elsif nv > nq then
+      put_line("The system is underdetermined, add linear equations.");
+      return 701;
+    end if;
+    if DoblDobl_Laur_Poly_Convertors.Is_Genuine_Laurent(lp.all) then
+      Black_Box_Solvers.Solve(ntasks,lp.all,silent,rc,sols);
+    else
+      declare
+        use DoblDobl_Laur_Poly_Convertors;
+        p : constant Poly_Sys := Positive_Laurent_Polynomial_System(lp.all);
+      begin
+        Black_Box_Solvers.Solve(ntasks,p,silent,rc,sols);
+      end;
+    end if;
+    Assign(integer32(rc),a);
+    DoblDobl_Solutions_Container.Initialize(sols);
+    return 0;
+  end Job701;
+
+  function Job702 return integer32 is -- quaddobl polynomial blackbox solver
+
+    use QuadDobl_Complex_Poly_Systems,QuadDobl_Complex_Solutions;
+    v_b : constant C_Integer_Array := C_intarrs.Value(b);
+    nt : constant natural32  := natural32(v_b(v_b'first));
+    lp : constant Link_to_Poly_Sys := QuadDobl_PolySys_Container.Retrieve;
+    nv : constant natural32 := Size_of_Support(lp.all);
+    nq : constant natural32 := natural32(lp'last);
+    rc : natural32;
+    sols : Solution_List;
+
+  begin
+   -- put("Dimension of the system in the container : "); put(n,1); new_line;
+    if nv < nq then
+      put_line("The system is overdetermined, add slack variables.");
+      return 702;
+    elsif nv > nq then
+      put_line("The system is underdetermined, add linear equations.");
+      return 702;
+    end if;
+    Black_Box_Solvers.Solve(nt,lp.all,false,rc,sols); -- not silent by default
+    Assign(integer32(rc),a);
+    QuadDobl_Solutions_Container.Initialize(sols);
+    return 0;
+  end Job702;
+
+  function Job703 return integer32 is -- quaddobl Laurent blackbox solver
+
+    use QuadDobl_Complex_Poly_Systems,QuadDobl_Complex_Solutions;
+    use QuadDobl_Complex_Laur_Systems;
+    use Interfaces.C;
+
+    v_b : constant C_Integer_Array(0..1)
+        := C_Intarrs.Value(b,Interfaces.C.ptrdiff_t(2));
+    silval : constant natural32 := natural32(v_b(v_b'first));
+    silent : constant boolean := (silval = 1);
+    ntasks : constant natural32 := natural32(v_b(v_b'first+1));
+    lp : constant Link_to_Laur_Sys := QuadDobl_LaurSys_Container.Retrieve;
+    nv : constant natural32 := Size_of_Support(lp.all);
+    nq : constant natural32 := natural32(lp'last);
+    rc : natural32;
+    sols : Solution_List;
+
+  begin
+   -- put("nv = "); put(integer32(nv),1);
+   -- put("  nq = "); put(integer32(nq),1); new_line;
+    if nv < nq then
+      put_line("The system is overdetermined, add slack variables.");
+      return 703;
+    elsif nv > nq then
+      put_line("The system is underdetermined, add linear equations.");
+      return 703;
+    end if;
+    if QuadDobl_Laur_Poly_Convertors.Is_Genuine_Laurent(lp.all) then
+      Black_Box_Solvers.Solve(ntasks,lp.all,silent,rc,sols);
+    else
+      declare
+        use QuadDobl_Laur_Poly_Convertors;
+        p : constant Poly_Sys := Positive_Laurent_Polynomial_System(lp.all);
+      begin
+        Black_Box_Solvers.Solve(ntasks,p,silent,rc,sols);
+      end;
+    end if;
+    Assign(integer32(rc),a);
+    QuadDobl_Solutions_Container.Initialize(sols);
+    return 0;
+  end Job703;
+
   function Job78 return integer32 is -- computes mixed volume
 
     use Standard_Complex_Poly_Systems;
@@ -1686,19 +1824,21 @@ function use_c2phc ( job : integer32;
     use Black_Mixed_Volume_Computations;
 
     lp : constant Link_to_Poly_Sys := Standard_PolySys_Container.Retrieve;
-    mix,perm : Standard_Integer_Vectors.Link_to_Vector;
+    mix,perm,iprm : Standard_Integer_Vectors.Link_to_Vector;
     lifsup : Arrays_of_Floating_Vector_Lists.Link_to_Array_of_Lists;
     mixsub : Floating_Mixed_Subdivisions.Mixed_Subdivision;
     mv : natural32;
 
   begin
     if lp /= null then
-      Black_Box_Mixed_Volume_Computation(lp.all,mix,perm,lifsup,mixsub,mv);
+      Black_Box_Mixed_Volume_Computation
+        (lp.all,mix,perm,iprm,lifsup,mixsub,mv);
     else
       declare
         lq : constant Link_to_Laur_Sys := Laurent_Systems_Container.Retrieve;
       begin
-        Black_Box_Mixed_Volume_Computation(lq.all,mix,perm,lifsup,mixsub,mv);
+        Black_Box_Mixed_Volume_Computation
+          (lq.all,mix,perm,iprm,lifsup,mixsub,mv);
       end;
     end if;
     Assign(integer32(mv),a);
@@ -1712,7 +1852,7 @@ function use_c2phc ( job : integer32;
     use Black_Mixed_Volume_Computations;
 
     lp : constant Link_to_Poly_Sys := Standard_PolySys_Container.Retrieve;
-    mix,perm : Standard_Integer_Vectors.Link_to_Vector;
+    mix,perm,iprm : Standard_Integer_Vectors.Link_to_Vector;
     lifsup : Arrays_of_Floating_Vector_Lists.Link_to_Array_of_Lists;
     mixsub,mcc1,mcc2 : Floating_Mixed_Subdivisions.Mixed_Subdivision;
     mv,smv,tot,c1,c2 : natural32;
@@ -1720,12 +1860,45 @@ function use_c2phc ( job : integer32;
 
   begin
     Black_Box_Mixed_Volume_Computation
-      (lp.all,mix,perm,stlb,lifsup,mixsub,mcc1,mcc2,mv,smv,tot,c1,c2);
+      (lp.all,mix,perm,iprm,stlb,lifsup,mixsub,mcc1,mcc2,mv,smv,tot,c1,c2);
     Assign(integer32(mv),a);
     Assign(integer32(smv),b);
     Cells_Container.Initialize(mix,lifsup,mixsub);
     return 0;
   end Job79;
+
+  function Job189 return integer32 is -- get value of continuation parameter
+
+    v_a : constant C_Integer_Array := C_intarrs.Value(a);
+    k : constant natural32 := natural32(v_a(v_a'first));
+    res : Standard_Floating_Vectors.Vector(1..1);
+
+  begin
+    if k = 0 or k > 34 then
+      return 189;
+    else
+      res(1) := Pack_Continuation_Parameters.Get_Value(k);
+      Assign(res,c);
+    end if;
+    return 0;
+  exception
+    when others => return 189;
+  end Job189;
+
+  function Job190 return integer32 is -- set value of continuation parameter
+
+    v_a : constant C_Integer_Array := C_intarrs.Value(a);
+    k : constant natural32 := natural32(v_a(v_a'first));
+    v_c : constant C_Double_Array := C_dblarrs.Value(c);
+    v : constant double_float := double_float(v_c(v_c'first));
+
+  begin
+    if k = 0 or k > 34
+     then return 190;
+     else Pack_Continuation_Parameters.Set_Value(k,v);
+    end if;
+    return 0;
+  end Job190;
 
   function Job191 return integer32 is -- define output file from string
 
@@ -2001,9 +2174,13 @@ function use_c2phc ( job : integer32;
       when 172..178 => return use_track(job-150,a,b,c);
      -- variable precision Newton step :
       when 179 => return Job179;
+     -- double double and quad double L-R homotopies :
+      when 180..181 => return use_c2lrhom(job-178,a,b,c);
      -- track operations for quad double precision :
       when 182..188 => return use_track(job-150,a,b,c);
      -- tuning continuation parameters, deflation, and Newton step
+      when 189 => return Job189; -- get value of a continuation parameter
+      when 190 => return Job190; -- set value of a continuation parameter
       when 191 => return Job191; -- define output file from string
       when 192 => return Job192; -- close the defined output file
       when 193 => return Job193; -- autotune continuation parameters
@@ -2160,6 +2337,13 @@ function use_c2phc ( job : integer32;
       when 580..589 => return use_giftwrap(job-579,a,b,c);
      -- scaling systems and solutions :
       when 590..596 => return use_scaling(job-589,a,b,c);
+     -- size limits of string representations of polynomials
+      when 600..607 => return use_syscon(job-520,a,b,c);
+     -- blackbox solvers in double double and quad double precision
+      when 700 => return Job700; -- dobldobl poly system blackbox solver
+      when 701 => return Job701; -- dobldobl Laurent poly blackbox solver
+      when 702 => return Job702; -- dobldobl poly system blackbox solver
+      when 703 => return Job703; -- dobldobl Laurent poly blackbox solver
      -- getting, setting the seed and the version string
       when 997 => return Get_Seed;
       when 998 => return Set_Seed;

@@ -26,7 +26,27 @@ package body Double_Double_Numbers is
     return d;
   end Create;
 
+  function Create ( n : natural64 ) return double_double is
+
+    d : double_double;
+
+  begin
+    d.hi := double_float(n);
+    d.lo := 0.0;
+    return d;
+  end Create;
+
   function Create ( i : integer32 ) return double_double is
+
+    d : double_double;
+
+  begin
+    d.hi := double_float(i);
+    d.lo := 0.0;
+    return d;
+  end Create;
+
+  function Create ( i : integer64 ) return double_double is
 
     d : double_double;
 
@@ -651,6 +671,47 @@ package body Double_Double_Numbers is
     return res;
   end "**";
 
+  function "**" ( x : double_double; n : integer32 ) return double_double is
+  begin
+    return x**integer(n);
+  end "**";
+
+  function "**" ( x : double_double; n : integer64 ) return double_double is
+
+    res,acc : double_double;
+    absn : natural64;
+
+  begin
+    if n = 0 then
+      res.hi := 1.0; res.lo := 0.0;
+    else
+      if n > 0
+       then absn := natural64(n);
+       else absn := natural64(-n);
+      end if;
+      res.hi := x.hi; res.lo := x.lo;
+      acc.hi := 1.0;  acc.lo := 0.0;
+      if absn > 1 then          -- use binary exponentiation
+        while absn > 0 loop
+          if absn mod 2 = 1
+           then Mul(acc,res);
+          end if;
+          absn := absn/2;
+          if absn > 0
+           then res := sqr(res);
+          end if;
+        end loop;
+      else
+        acc.hi := res.hi; acc.lo := res.lo;
+      end if;
+      if n < 0
+       then res := 1.0/acc;          -- compute reciprocal
+       else res.hi := acc.hi; res.lo := acc.lo;
+      end if;
+    end if;
+    return res;
+  end "**";
+
   function ldexp ( x : double_double; n : integer ) return double_double is
 
     res : double_double;
@@ -666,6 +727,14 @@ package body Double_Double_Numbers is
   function "**" ( x,y : double_double ) return double_double is
   begin
     return exp(y*log(x));
+  end "**";
+
+  function "**" ( x : double_double; y : double_float ) return double_double is
+
+    dd_y : constant double_double := create(y);
+
+  begin
+    return x**dd_y;
   end "**";
 
   function exp ( x : double_double ) return double_double is

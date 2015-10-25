@@ -1,4 +1,4 @@
-Sweeping for singularities and parameter continuation in PHCv2.3.80
+Sweeping for singularities and parameter continuation in PHCv2.4.04
 
 For clarity, this directory was isolated from Continuation in v2.3.75.
 The path trackers in this directory rely on natural parameter homotopies.
@@ -6,10 +6,13 @@ The path trackers in this directory rely on natural parameter homotopies.
 ------------------------------------------------------------------------------
 file name                        : short description
 ------------------------------------------------------------------------------
-solutions_with_parameters        : selecting and joining variables
-systems_with_parameters          : definition of parameter homotopy + i/o
+standard_parameter_solutions     : selecting and joining variables
+standard_parameter_systems       : definition of parameter homotopy + i/o
+dobldobl_parameter_systems       : parameter homotopy with double doubles
+quaddobl_parameter_systems       : parameter homotopy with quad doubles
 parameter_homotopy_continuation  : drivers to path tracking
 ts_parcon                        : stand-alone calling program
+------------------------------------------------------------------------------
 standard_quad_parameters         : manages sweep numerical parameters
 standard_quad_turn_points        : location of quadratic turning points
 standard_quad_turn_points_io     : some input and output routines

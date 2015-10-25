@@ -20,14 +20,18 @@ package Quad_Double_Numbers is
   --   Returns the quad double representation of the standard integer i.
 
   function Create ( n : natural32 ) return quad_double;
+  function Create ( n : natural64 ) return quad_double;
 
   -- DESCRIPTION :
-  --   Returns the quad double representation of the 32-bit natural n.
+  --   Returns the quad double representation of the 32-bit or 64-bit
+  --   natural number n.
 
   function Create ( i : integer32 ) return quad_double;
+  function Create ( i : integer64 ) return quad_double;
 
   -- DESCRIPTION :
-  --   Returns the quad double representation of the 32-bit integer i.
+  --   Returns the quad double representation of the 32-bit or 64-bit
+  --   integer number i.
 
   function Create ( f : double_float ) return quad_double;
 
@@ -214,9 +218,14 @@ package Quad_Double_Numbers is
   function sqr ( x : double_double ) return quad_double; -- x^2
   function sqr ( x : quad_double ) return quad_double;   -- x^2
   function "**" ( x : quad_double; n : integer ) return quad_double; -- x^n
+  function "**" ( x : quad_double; n : integer32 ) return quad_double; -- x^n
+  function "**" ( x : quad_double; n : integer64 ) return quad_double; -- x^n
+
   function ldexp ( x : quad_double; n : integer ) return quad_double;
      -- multiplies the quad double in x with 2^n
   function "**" ( x,y : quad_double ) return quad_double; -- x^y
+  function "**" ( x : quad_double; y : double_double ) return quad_double;
+  function "**" ( x : quad_double; y : double_float ) return quad_double;
  
   function exp ( x : quad_double ) return quad_double;   -- returns exp(x)
   function log ( x : quad_double ) return quad_double;   -- natural log

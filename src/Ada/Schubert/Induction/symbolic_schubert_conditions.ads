@@ -2,9 +2,11 @@ with Standard_Natural_Numbers;          use Standard_Natural_Numbers;
 with Standard_Integer_Numbers;          use Standard_Integer_Numbers;
 with Standard_Natural_Matrices;
 with Standard_Complex_Poly_Matrices;
+with DoblDobl_Complex_Poly_Matrices;
+with QuadDobl_Complex_Poly_Matrices;
 with Brackets;                          use Brackets;
-with Bracket_Polynomials;               use Bracket_Polynomials;
-with Bracket_Systems;                   use Bracket_Systems;
+with Standard_Bracket_Polynomials;      use Standard_Bracket_Polynomials;
+with Standard_Bracket_Systems;          use Standard_Bracket_Systems;
 
 package Symbolic_Schubert_Conditions is
 
@@ -24,6 +26,12 @@ package Symbolic_Schubert_Conditions is
   function Symbolic_Form_of_Plane
              ( n,k : integer32; locmap : Standard_Natural_Matrices.Matrix )
              return Standard_Complex_Poly_Matrices.Matrix;
+  function Symbolic_Form_of_Plane
+             ( n,k : integer32; locmap : Standard_Natural_Matrices.Matrix )
+             return DoblDobl_Complex_Poly_Matrices.Matrix;
+  function Symbolic_Form_of_Plane
+             ( n,k : integer32; locmap : Standard_Natural_Matrices.Matrix )
+             return QuadDobl_Complex_Poly_Matrices.Matrix;
 
   -- DESCRIPTION :
   --   Returns a symbolic form of a k-plane in n-space,
@@ -41,6 +49,21 @@ package Symbolic_Schubert_Conditions is
   --   Returns the number of minor equations imposed on a k-plane
   --   by a general flag in n-space.  The k-bracket lists the
   --   dimensions of the spaces defined by the flag.
+
+  generic
+    with procedure Process ( c : in Bracket; continue : out boolean );
+  procedure Enumerate_NotAbove ( n : in natural32; b : in Bracket );
+
+  -- DESCRIPTION :
+  --   Enumerates all brackets c that are not (c <= b).
+  --   With each new bracket, the procedure Process is executed.
+  --   The enumeration stops when the execution of Process results
+  --   in the output parameter continue set to false.
+
+  function Number_of_NotAbove ( n : natural32; b : Bracket ) return natural32;
+
+  -- DESCRIPTION :
+  --   Returns the number of brackets that are not above b.
 
   procedure Explain_Equations
               ( n : in natural32; b : in Bracket; nq : out natural32 );

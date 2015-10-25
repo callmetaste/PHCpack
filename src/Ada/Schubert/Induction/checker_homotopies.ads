@@ -5,8 +5,16 @@ with Standard_Natural_Matrices;
 with Standard_Complex_Vectors;
 with Standard_Complex_Matrices;
 with Standard_Complex_VecMats;
+with DoblDobl_Complex_Vectors;
+with DoblDobl_Complex_Matrices;
+with QuadDobl_Complex_Vectors;
+with QuadDobl_Complex_Matrices;
 with Standard_Complex_Poly_Matrices;
-with Standard_Complex_Solutions;        use Standard_Complex_Solutions;
+with DoblDobl_Complex_Poly_Matrices;
+with QuadDobl_Complex_Poly_Matrices;
+with Standard_Complex_Solutions;
+with DoblDobl_Complex_Solutions;
+with QuadDobl_Complex_Solutions;
 
 package Checker_Homotopies is
 
@@ -67,10 +75,17 @@ package Checker_Homotopies is
   procedure Inverse_Row_Transformation
               ( r : in integer32;
                 x : in out Standard_Complex_Matrices.Matrix );
+  procedure Inverse_Row_Transformation
+              ( r : in integer32;
+                x : in out DoblDobl_Complex_Matrices.Matrix );
+  procedure Inverse_Row_Transformation
+              ( r : in integer32;
+                x : in out QuadDobl_Complex_Matrices.Matrix );
 
   -- DESCRIPTION :
   --   Applies the inverse coordinate transformation to a solution plane
-  --   in case no homotopies are needed.
+  --   in case no homotopies are needed.  The transformation happens in
+  --   standard double, double double, or quad double precision.
 
   -- REQUIRED : r < x'last(1).
 
@@ -85,10 +100,17 @@ package Checker_Homotopies is
   procedure Inverse_Row_Transformation
               ( mf : in Standard_Complex_Matrices.Matrix;
                 x : in out Standard_Complex_Matrices.Matrix );
+  procedure Inverse_Row_Transformation
+              ( mf : in DoblDobl_Complex_Matrices.Matrix;
+                x : in out DoblDobl_Complex_Matrices.Matrix );
+  procedure Inverse_Row_Transformation
+              ( mf : in QuadDobl_Complex_Matrices.Matrix;
+                x : in out QuadDobl_Complex_Matrices.Matrix );
 
   -- DESCRIPTION :
   --   Applies the inverse coordinate transformation to a solution plane
-  --   in the case homotopies are needed.
+  --   in the case homotopies are needed.  The transformation happens in
+  --   standard double, double double, or quad double precision.
 
   -- ON ENTRY :
   --   mf       the new current moving flag;
@@ -101,11 +123,18 @@ package Checker_Homotopies is
   procedure Normalize_to_Fit
               ( pattern : in Standard_Natural_Matrices.Matrix;
                 x : in out Standard_Complex_Matrices.Matrix );
+  procedure Normalize_to_Fit
+              ( pattern : in Standard_Natural_Matrices.Matrix;
+                x : in out DoblDobl_Complex_Matrices.Matrix );
+  procedure Normalize_to_Fit
+              ( pattern : in Standard_Natural_Matrices.Matrix;
+                x : in out QuadDobl_Complex_Matrices.Matrix );
 
   -- DESCRIPTION :
   --   Normalizes and column reduces the solution in x to fit 
   --   the localization pattern, after application of the inverse
-  --   row transformation on the solution plane x.
+  --   row transformation on the solution plane x.  The normalization is
+  --   done in standard double, double double, or quad double precision.
 
   -- REQUIRED : The rows where ones are expected according to the 
   --   localization pattern in  the matrix x must be different from zero.
@@ -124,10 +153,17 @@ package Checker_Homotopies is
   procedure Reduce_to_Fit
               ( pattern : in Standard_Natural_Matrices.Matrix;
                 x : in out Standard_Complex_Matrices.Matrix );
+  procedure Reduce_to_Fit
+              ( pattern : in Standard_Natural_Matrices.Matrix;
+                x : in out DoblDobl_Complex_Matrices.Matrix );
+  procedure Reduce_to_Fit
+              ( pattern : in Standard_Natural_Matrices.Matrix;
+                x : in out QuadDobl_Complex_Matrices.Matrix );
 
   -- DESCRIPTION :
   --   Reduces the columns of the matrix x according to the zeres in
-  --   the localization pattern.
+  --   the localization pattern.  The reduction happens in
+  --   standard double, double double, or quad double precision.
 
   -- REQUIRED :
   --   The matrix x has been normalized so the ones appear on the
@@ -149,11 +185,19 @@ package Checker_Homotopies is
   procedure Normalize_and_Reduce_to_Fit
               ( pattern : in Standard_Natural_Matrices.Matrix;
                 x : in out Standard_Complex_Matrices.Matrix );
+  procedure Normalize_and_Reduce_to_Fit
+              ( pattern : in Standard_Natural_Matrices.Matrix;
+                x : in out DoblDobl_Complex_Matrices.Matrix );
+  procedure Normalize_and_Reduce_to_Fit
+              ( pattern : in Standard_Natural_Matrices.Matrix;
+                x : in out QuadDobl_Complex_Matrices.Matrix );
 
   -- DESCRIPTION :
   --   Normalizes and column reduces the solution in x to fit 
   --   the localization pattern, after application of the inverse
   --   coordinate row transformation on the solution plane x.
+  --   The normalization and the reduction to fit a pattern happen
+  --   in standard double, double double, or quad double precision.
 
   -- ON ENTRY :
   --   pattern  a matrix of 0, 1, and 2 entries represents a localization
@@ -172,13 +216,53 @@ package Checker_Homotopies is
                 q,p,qr,qc,pr,pc : in Standard_Natural_Vectors.Vector;
                 x : in out Standard_Complex_Vectors.Vector );
   procedure Trivial_Stay_Coordinates
+              ( n,k,r : in integer32;
+                q,p,qr,qc,pr,pc : in Standard_Natural_Vectors.Vector;
+                x : in out DoblDobl_Complex_Vectors.Vector );
+  procedure Trivial_Stay_Coordinates
+              ( n,k,r : in integer32;
+                q,p,qr,qc,pr,pc : in Standard_Natural_Vectors.Vector;
+                x : in out QuadDobl_Complex_Vectors.Vector );
+
+  -- DESCRIPTION :
+  --   Performs the change of variables on the solution x,
+  --   in standard double, double double, or quad double precision,
+  --   in case of a trivial stay case when no homotopy is needed.
+  --   There is no intermediate output.
+
+  -- ON ENTRY :
+  --   n        ambient dimension;
+  --   k        dimension of the solution plane;
+  --   r        the critical row;
+  --   q        parent permutation in the poset used for target;
+  --   p        current permutation in the poset used for start;
+  --   qr       position of the rows of the white checkers with q;
+  --   qc       position of the columns of the white checkers with q;
+  --   pr       position of the rows of the white checkers with p;
+  --   pc       position of the columns of the white checkers with p;
+  --   x        current solution.
+
+  -- ON RETURN :
+  --   x        solution with transformed coordinates.
+
+  procedure Trivial_Stay_Coordinates
               ( file : in file_type; n,k,r : in integer32;
                 q,p,qr,qc,pr,pc : in Standard_Natural_Vectors.Vector;
                 x : in out Standard_Complex_Vectors.Vector );
+  procedure Trivial_Stay_Coordinates
+              ( file : in file_type; n,k,r : in integer32;
+                q,p,qr,qc,pr,pc : in Standard_Natural_Vectors.Vector;
+                x : in out DoblDobl_Complex_Vectors.Vector );
+  procedure Trivial_Stay_Coordinates
+              ( file : in file_type; n,k,r : in integer32;
+                q,p,qr,qc,pr,pc : in Standard_Natural_Vectors.Vector;
+                x : in out QuadDobl_Complex_Vectors.Vector );
 
   -- DESCRIPTION :
-  --   Performs the change of variables on the solution x
+  --   Performs the change of variables on the solution x,
+  --   in standard double, double double, or quad double precision,
   --   in case of a trivial stay case when no homotopy is needed.
+  --   There is intermediate output to file during computations.
 
   -- ON ENTRY :
   --   file     for intermediate output, if omitted, then silent version;
@@ -199,15 +283,55 @@ package Checker_Homotopies is
   procedure Trivial_Stay_Coordinates
               ( n,k,r : in integer32;
                 q,p,qr,qc,pr,pc : in Standard_Natural_Vectors.Vector;
-                sols : in out Solution_List );
+                sols : in out Standard_Complex_Solutions.Solution_List );
+  procedure Trivial_Stay_Coordinates
+              ( n,k,r : in integer32;
+                q,p,qr,qc,pr,pc : in Standard_Natural_Vectors.Vector;
+                sols : in out DoblDobl_Complex_Solutions.Solution_List );
+  procedure Trivial_Stay_Coordinates
+              ( n,k,r : in integer32;
+                q,p,qr,qc,pr,pc : in Standard_Natural_Vectors.Vector;
+                sols : in out QuadDobl_Complex_Solutions.Solution_List );
+
+  -- DESCRIPTION :
+  --   Performs the change of variables on the solutions in sols,
+  --   in standard double, double double, or quad double precision,
+  --   in case of a trivial stay case when no homotopy is needed.
+  --   There is no intermediate output during computations.
+
+  -- ON ENTRY :
+  --   n        ambient dimension;
+  --   k        dimension of the solution plane;
+  --   r        the critical row;
+  --   q        parent permutation in the poset used for target;
+  --   p        current permutation in the poset used for start;
+  --   qr       position of the rows of the white checkers with q;
+  --   qc       position of the columns of the white checkers with q;
+  --   pr       position of the rows of the white checkers with p;
+  --   pc       position of the columns of the white checkers with p;
+  --   sols     list of current solutions.
+
+  -- ON RETURN :
+  --   sols     solutions with transformed coordinates.
+
   procedure Trivial_Stay_Coordinates
               ( file : in file_type; n,k,r : in integer32;
                 q,p,qr,qc,pr,pc : in Standard_Natural_Vectors.Vector;
-                sols : in out Solution_List );
+                sols : in out Standard_Complex_Solutions.Solution_List );
+  procedure Trivial_Stay_Coordinates
+              ( file : in file_type; n,k,r : in integer32;
+                q,p,qr,qc,pr,pc : in Standard_Natural_Vectors.Vector;
+                sols : in out DoblDobl_Complex_Solutions.Solution_List );
+  procedure Trivial_Stay_Coordinates
+              ( file : in file_type; n,k,r : in integer32;
+                q,p,qr,qc,pr,pc : in Standard_Natural_Vectors.Vector;
+                sols : in out QuadDobl_Complex_Solutions.Solution_List );
 
   -- DESCRIPTION :
-  --   Performs the change of variables on the solutions in sols
+  --   Performs the change of variables on the solutions in sols,
+  --   in standard double, double double, or quad double precision,
   --   in case of a trivial stay case when no homotopy is needed.
+  --   There is intermediate output during computations.
 
   -- ON ENTRY :
   --   file     for intermediate output, if omitted, then silent version;
@@ -232,15 +356,60 @@ package Checker_Homotopies is
                 xtm : in Standard_Complex_Poly_Matrices.Matrix;
                 x : in out Standard_Complex_Vectors.Vector );
   procedure Homotopy_Stay_Coordinates
+              ( n,k,r : in integer32;
+                p,rows,cols : in Standard_Natural_Vectors.Vector;
+                mf : in DoblDobl_Complex_Matrices.Matrix;
+                xtm : in DoblDobl_Complex_Poly_Matrices.Matrix;
+                x : in out DoblDobl_Complex_Vectors.Vector );
+  procedure Homotopy_Stay_Coordinates
+              ( n,k,r : in integer32;
+                p,rows,cols : in Standard_Natural_Vectors.Vector;
+                mf : in QuadDobl_Complex_Matrices.Matrix;
+                xtm : in QuadDobl_Complex_Poly_Matrices.Matrix;
+                x : in out QuadDobl_Complex_Vectors.Vector );
+
+  -- DESCRIPTION :
+  --   Performs the change of variables on the solution x,
+  --   in standard double, double double, or quad double precision,
+  --   after a homotopy in the stay case, without intermediate output.
+
+  -- ON ENTRY :
+  --   n        ambient dimension;
+  --   k        dimension of the solution plane;
+  --   r        the critical row;
+  --   p        permutation indicates location of black checkers;
+  --   rows     row indices for the location of the white checkers;
+  --   cols     column indices for the location of the white checkers;
+  --   mf       the coordinates of the new moving flag;
+  --   xtm      localization pattern extended with t;
+  --   x        current solution.
+
+  -- ON RETURN :
+  --   x        solution with transformed coordinates.
+
+  procedure Homotopy_Stay_Coordinates
               ( file : in file_type; n,k,r : in integer32;
                 p,rows,cols : in Standard_Natural_Vectors.Vector;
                 mf : in Standard_Complex_Matrices.Matrix;
                 xtm : in Standard_Complex_Poly_Matrices.Matrix;
                 x : in out Standard_Complex_Vectors.Vector );
+  procedure Homotopy_Stay_Coordinates
+              ( file : in file_type; n,k,r : in integer32;
+                p,rows,cols : in Standard_Natural_Vectors.Vector;
+                mf : in DoblDobl_Complex_Matrices.Matrix;
+                xtm : in DoblDobl_Complex_Poly_Matrices.Matrix;
+                x : in out DoblDobl_Complex_Vectors.Vector );
+  procedure Homotopy_Stay_Coordinates
+              ( file : in file_type; n,k,r : in integer32;
+                p,rows,cols : in Standard_Natural_Vectors.Vector;
+                mf : in QuadDobl_Complex_Matrices.Matrix;
+                xtm : in QuadDobl_Complex_Poly_Matrices.Matrix;
+                x : in out QuadDobl_Complex_Vectors.Vector );
 
   -- DESCRIPTION :
-  --   Performs the change of variables on the solution x
-  --   after a homotopy in the stay case.
+  --   Performs the change of variables on the solution x,
+  --   in standard double, double double, or quad double precision,
+  --   after a homotopy in the stay case, with output to file.
 
   -- ON ENTRY :
   --   file     for intermediate output, if omitted, then silent version;
@@ -262,17 +431,62 @@ package Checker_Homotopies is
                 p,rows,cols : in Standard_Natural_Vectors.Vector;
                 mf : in Standard_Complex_Matrices.Matrix;
                 xtm : in Standard_Complex_Poly_Matrices.Matrix;
-                sols : in out Solution_List );
+                sols : in out Standard_Complex_Solutions.Solution_List );
+  procedure Homotopy_Stay_Coordinates
+              ( n,k,r : in integer32;
+                p,rows,cols : in Standard_Natural_Vectors.Vector;
+                mf : in DoblDobl_Complex_Matrices.Matrix;
+                xtm : in DoblDobl_Complex_Poly_Matrices.Matrix;
+                sols : in out DoblDobl_Complex_Solutions.Solution_List );
+  procedure Homotopy_Stay_Coordinates
+              ( n,k,r : in integer32;
+                p,rows,cols : in Standard_Natural_Vectors.Vector;
+                mf : in QuadDobl_Complex_Matrices.Matrix;
+                xtm : in QuadDobl_Complex_Poly_Matrices.Matrix;
+                sols : in out QuadDobl_Complex_Solutions.Solution_List );
+
+  -- DESCRIPTION :
+  --   Performs the change of variables on the solutions in the list sols,
+  --   in standard double, double double, or quad double precision.
+  --   after a homotopy in the stay case.  There is no output.
+
+  -- ON ENTRY :
+  --   n        ambient dimension;
+  --   k        dimension of the solution plane;
+  --   r        the critical row;
+  --   p        permutation indicates location of black checkers;
+  --   rows     row indices for the location of the white checkers;
+  --   cols     column indices for the location of the white checkers;
+  --   mf       the coordinates of the new moving flag;
+  --   xtm      localization pattern extended with t;
+  --   sols     current solutions.
+
+  -- ON RETURN :
+  --   sols     list of solutions with transformed coordinates.
+
   procedure Homotopy_Stay_Coordinates
               ( file : in file_type; n,k,r : in integer32;
                 p,rows,cols : in Standard_Natural_Vectors.Vector;
                 mf : in Standard_Complex_Matrices.Matrix;
                 xtm : in Standard_Complex_Poly_Matrices.Matrix;
-                sols : in out Solution_List );
+                sols : in out Standard_Complex_Solutions.Solution_List );
+  procedure Homotopy_Stay_Coordinates
+              ( file : in file_type; n,k,r : in integer32;
+                p,rows,cols : in Standard_Natural_Vectors.Vector;
+                mf : in DoblDobl_Complex_Matrices.Matrix;
+                xtm : in DoblDobl_Complex_Poly_Matrices.Matrix;
+                sols : in out DoblDobl_Complex_Solutions.Solution_List );
+  procedure Homotopy_Stay_Coordinates
+              ( file : in file_type; n,k,r : in integer32;
+                p,rows,cols : in Standard_Natural_Vectors.Vector;
+                mf : in QuadDobl_Complex_Matrices.Matrix;
+                xtm : in QuadDobl_Complex_Poly_Matrices.Matrix;
+                sols : in out QuadDobl_Complex_Solutions.Solution_List );
 
   -- DESCRIPTION :
-  --   Performs the change of variables on the solutions in the list sols
-  --   after a homotopy in the stay case.
+  --   Performs the change of variables on the solutions in the list sols,
+  --   in standard double, double double, or quad double precision,
+  --   after a homotopy in the stay case, with output to file.
 
   -- ON ENTRY :
   --   file     for intermediate output, if omitted, then silent version;
@@ -296,15 +510,68 @@ package Checker_Homotopies is
                 xtm : in Standard_Complex_Poly_Matrices.Matrix;
                 x : in out Standard_Complex_Vectors.Vector );
   procedure First_Swap_Coordinates
+              ( n,k,r,big_r,dc,s : in integer32;
+                q,p,qr,qc,pr,pc : in Standard_Natural_Vectors.Vector;
+                mf : in DoblDobl_Complex_Matrices.Matrix;
+                xtm : in DoblDobl_Complex_Poly_Matrices.Matrix;
+                x : in out DoblDobl_Complex_Vectors.Vector );
+  procedure First_Swap_Coordinates
+              ( n,k,r,big_r,dc,s : in integer32;
+                q,p,qr,qc,pr,pc : in Standard_Natural_Vectors.Vector;
+                mf : in QuadDobl_Complex_Matrices.Matrix;
+                xtm : in QuadDobl_Complex_Poly_Matrices.Matrix;
+                x : in out QuadDobl_Complex_Vectors.Vector );
+
+  -- DESCRIPTION :
+  --   Performs the change of variables on the solution x,
+  --   in standard double, double double, or quad double precision.
+  --   after a swap homotopy of the first type.
+  --   This version of the change of variables is silent.
+
+  -- ON ENTRY :
+  --   n        ambient dimension;
+  --   k        dimension of the solution plane;
+  --   r        the critical row;
+  --   big_r    row of the swapped white checker, R > r + 1;
+  --   dc       index of the descending black checker in specializing poset;
+  --   s        columns s and s+1 in x are swapped;
+  --   q        parent permutation in the poset used for target;
+  --   p        current permutation in the poset used for start;
+  --   qr       position of the rows of the white checkers with q;
+  --   qc       position of the columns of the white checkers with q;
+  --   pr       position of the rows of the white checkers with p;
+  --   pc       position of the columns of the white checkers with p;
+  --   mf       the coordinates of the new moving flag;
+  --   xtm      localization pattern extended with t;
+  --   x        current solution.
+
+  -- ON RETURN :
+  --   x        solution with transformed coordinates.
+
+  procedure First_Swap_Coordinates
               ( file : in file_type; n,k,r,big_r,dc,s : in integer32;
                 q,p,qr,qc,pr,pc : in Standard_Natural_Vectors.Vector;
                 mf : in Standard_Complex_Matrices.Matrix;
                 xtm : in Standard_Complex_Poly_Matrices.Matrix;
                 x : in out Standard_Complex_Vectors.Vector );
+  procedure First_Swap_Coordinates
+              ( file : in file_type; n,k,r,big_r,dc,s : in integer32;
+                q,p,qr,qc,pr,pc : in Standard_Natural_Vectors.Vector;
+                mf : in DoblDobl_Complex_Matrices.Matrix;
+                xtm : in DoblDobl_Complex_Poly_Matrices.Matrix;
+                x : in out DoblDobl_Complex_Vectors.Vector );
+  procedure First_Swap_Coordinates
+              ( file : in file_type; n,k,r,big_r,dc,s : in integer32;
+                q,p,qr,qc,pr,pc : in Standard_Natural_Vectors.Vector;
+                mf : in QuadDobl_Complex_Matrices.Matrix;
+                xtm : in QuadDobl_Complex_Poly_Matrices.Matrix;
+                x : in out QuadDobl_Complex_Vectors.Vector );
 
   -- DESCRIPTION :
-  --   Performs the change of variables on the solution x
-  --   after a swap homotopy of the first type.
+  --   Performs the change of variables on the solution x,
+  --   in standard double, double double, or quad double precision,
+  --   after a swap homotopy of the first type,
+  --   with intermediate output written to file.
 
   -- ON ENTRY :
   --   file     for intermediate output, if omitted, then silent version;
@@ -332,17 +599,69 @@ package Checker_Homotopies is
                 q,p,qr,qc,pr,pc : in Standard_Natural_Vectors.Vector;
                 mf : in Standard_Complex_Matrices.Matrix;
                 xtm : in Standard_Complex_Poly_Matrices.Matrix;
-                sols : in out Solution_List );
+                sols : in out Standard_Complex_Solutions.Solution_List );
+  procedure First_Swap_Coordinates
+              ( n,k,r,big_r,dc,s : in integer32;
+                q,p,qr,qc,pr,pc : in Standard_Natural_Vectors.Vector;
+                mf : in DoblDobl_Complex_Matrices.Matrix;
+                xtm : in DoblDobl_Complex_Poly_Matrices.Matrix;
+                sols : in out DoblDobl_Complex_Solutions.Solution_List );
+  procedure First_Swap_Coordinates
+              ( n,k,r,big_r,dc,s : in integer32;
+                q,p,qr,qc,pr,pc : in Standard_Natural_Vectors.Vector;
+                mf : in QuadDobl_Complex_Matrices.Matrix;
+                xtm : in QuadDobl_Complex_Poly_Matrices.Matrix;
+                sols : in out QuadDobl_Complex_Solutions.Solution_List );
+
+  -- DESCRIPTION :
+  --   Performs the change of variables on the solutions in the list sols
+  --   after a swap homotopy of the first type, without output,
+  --   in standard double, double double, or quad double precision.
+
+  -- ON ENTRY :
+  --   n        ambient dimension;
+  --   k        dimension of the solution plane;
+  --   r        the critical row;
+  --   big_r    row of the swapped white checker, R > r + 1;
+  --   dc       index of the descending black checker in specializing poset;
+  --   s        columns s and s+1 in x are swapped;
+  --   q        parent permutation in the poset used for target;
+  --   p        current permutation in the poset used for start;
+  --   qr       position of the rows of the white checkers with q;
+  --   qc       position of the columns of the white checkers with q;
+  --   pr       position of the rows of the white checkers with p;
+  --   pc       position of the columns of the white checkers with p;
+  --   mf       the coordinates of the new moving flag;
+  --   xtm      localization pattern extended with t;
+  --   sols     current solutions.
+
+  -- ON RETURN :
+  --   sols     list of solutions with transformed coordinates.
+
   procedure First_Swap_Coordinates
               ( file : in file_type; n,k,r,big_r,dc,s : in integer32;
                 q,p,qr,qc,pr,pc : in Standard_Natural_Vectors.Vector;
                 mf : in Standard_Complex_Matrices.Matrix;
                 xtm : in Standard_Complex_Poly_Matrices.Matrix;
-                sols : in out Solution_List );
+                sols : in out Standard_Complex_Solutions.Solution_List );
+  procedure First_Swap_Coordinates
+              ( file : in file_type; n,k,r,big_r,dc,s : in integer32;
+                q,p,qr,qc,pr,pc : in Standard_Natural_Vectors.Vector;
+                mf : in DoblDobl_Complex_Matrices.Matrix;
+                xtm : in DoblDobl_Complex_Poly_Matrices.Matrix;
+                sols : in out DoblDobl_Complex_Solutions.Solution_List );
+  procedure First_Swap_Coordinates
+              ( file : in file_type; n,k,r,big_r,dc,s : in integer32;
+                q,p,qr,qc,pr,pc : in Standard_Natural_Vectors.Vector;
+                mf : in QuadDobl_Complex_Matrices.Matrix;
+                xtm : in QuadDobl_Complex_Poly_Matrices.Matrix;
+                sols : in out QuadDobl_Complex_Solutions.Solution_List );
 
   -- DESCRIPTION :
-  --   Performs the change of variables on the solutions in the list sols
-  --   after a swap homotopy of the first type.
+  --   Performs the change of variables on the solutions in the list sols,
+  --   in standard double, double double, or quad double precision,
+  --   after a swap homotopy of the first type, 
+  --   writing intermediate output to file.
 
   -- ON ENTRY :
   --   file     for intermediate output, if omitted, then silent version;
@@ -372,15 +691,62 @@ package Checker_Homotopies is
                 xtm : in Standard_Complex_Poly_Matrices.Matrix;
                 x : in out Standard_Complex_Vectors.Vector );
   procedure Second_Swap_Coordinates
+              ( n,k,r,s : in integer32;
+                p,rows,cols : in Standard_Natural_Vectors.Vector;
+                mf : in DoblDobl_Complex_Matrices.Matrix;
+                xtm : in DoblDobl_Complex_Poly_Matrices.Matrix;
+                x : in out DoblDobl_Complex_Vectors.Vector );
+  procedure Second_Swap_Coordinates
+              ( n,k,r,s : in integer32;
+                p,rows,cols : in Standard_Natural_Vectors.Vector;
+                mf : in QuadDobl_Complex_Matrices.Matrix;
+                xtm : in QuadDobl_Complex_Poly_Matrices.Matrix;
+                x : in out QuadDobl_Complex_Vectors.Vector );
+
+  -- DESCRIPTION :
+  --   Performs the change of variables on the solution x,
+  --   in standard double, double double, or quad double precision,
+  --   after a swap homotopy of the second type, without output.
+
+  -- ON ENTRY :
+  --   n        ambient dimension;
+  --   k        dimension of the solution plane;
+  --   r        the critical row;
+  --   s        columns s and s+1 in x are swapped;
+  --   p        permutation indicates location of black checkers;
+  --   rows     row indices for the location of the white checkers;
+  --   cols     column indices for the location of the white checkers;
+  --   mf       the coordinates of the new moving flag;
+  --   xtm      localization pattern extended with t;
+  --   x        current solution.
+
+  -- ON RETURN :
+  --   x        solution with transformed coordinates.
+
+  procedure Second_Swap_Coordinates
               ( file : in file_type; n,k,r,s : in integer32;
                 p,rows,cols : in Standard_Natural_Vectors.Vector;
                 mf : in Standard_Complex_Matrices.Matrix;
                 xtm : in Standard_Complex_Poly_Matrices.Matrix;
                 x : in out Standard_Complex_Vectors.Vector );
+  procedure Second_Swap_Coordinates
+              ( file : in file_type; n,k,r,s : in integer32;
+                p,rows,cols : in Standard_Natural_Vectors.Vector;
+                mf : in DoblDobl_Complex_Matrices.Matrix;
+                xtm : in DoblDobl_Complex_Poly_Matrices.Matrix;
+                x : in out DoblDobl_Complex_Vectors.Vector );
+  procedure Second_Swap_Coordinates
+              ( file : in file_type; n,k,r,s : in integer32;
+                p,rows,cols : in Standard_Natural_Vectors.Vector;
+                mf : in QuadDobl_Complex_Matrices.Matrix;
+                xtm : in QuadDobl_Complex_Poly_Matrices.Matrix;
+                x : in out QuadDobl_Complex_Vectors.Vector );
 
   -- DESCRIPTION :
-  --   Performs the change of variables on the solution x
-  --   after a swap homotopy of the second type.
+  --   Performs the change of variables on the solution x,
+  --   in standard double, double double, or quad double precision,
+  --   after a swap homotopy of the second type,
+  --   writing intermediate output to file.
 
   -- ON ENTRY :
   --   file     for intermediate output, if omitted, then silent version;
@@ -403,17 +769,64 @@ package Checker_Homotopies is
                 p,rows,cols : in Standard_Natural_Vectors.Vector;
                 mf : in Standard_Complex_Matrices.Matrix;
                 xtm : in Standard_Complex_Poly_Matrices.Matrix;
-                sols : in out Solution_List );
+                sols : in out Standard_Complex_Solutions.Solution_List );
+  procedure Second_Swap_Coordinates
+              ( n,k,r,s : in integer32;
+                p,rows,cols : in Standard_Natural_Vectors.Vector;
+                mf : in DoblDobl_Complex_Matrices.Matrix;
+                xtm : in DoblDobl_Complex_Poly_Matrices.Matrix;
+                sols : in out DoblDobl_Complex_Solutions.Solution_List );
+  procedure Second_Swap_Coordinates
+              ( n,k,r,s : in integer32;
+                p,rows,cols : in Standard_Natural_Vectors.Vector;
+                mf : in QuadDobl_Complex_Matrices.Matrix;
+                xtm : in QuadDobl_Complex_Poly_Matrices.Matrix;
+                sols : in out QuadDobl_Complex_Solutions.Solution_List );
+
+  -- DESCRIPTION :
+  --   Performs the change of variables on the solutions in the list sols,
+  --   in standard double, double double, or quad double precision,
+  --   after a swap homotopy of the second type, without output.
+
+  -- ON ENTRY :
+  --   n        ambient dimension;
+  --   k        dimension of the solution plane;
+  --   r        the critical row;
+  --   s        columns s and s+1 in x are swapped;
+  --   p        permutation indicates location of black checkers;
+  --   rows     row indices for the location of the white checkers;
+  --   cols     column indices for the location of the white checkers;
+  --   mf       the coordinates of the new moving flag;
+  --   xtm      localization pattern extended with t;
+  --   sols     current solutions.
+
+  -- ON RETURN :
+  --   sols     list of solutions with transformed coordinates.
+
   procedure Second_Swap_Coordinates
               ( file : in file_type; n,k,r,s : in integer32;
                 p,rows,cols : in Standard_Natural_Vectors.Vector;
                 mf : in Standard_Complex_Matrices.Matrix;
                 xtm : in Standard_Complex_Poly_Matrices.Matrix;
-                sols : in out Solution_List );
+                sols : in out Standard_Complex_Solutions.Solution_List );
+  procedure Second_Swap_Coordinates
+              ( file : in file_type; n,k,r,s : in integer32;
+                p,rows,cols : in Standard_Natural_Vectors.Vector;
+                mf : in DoblDobl_Complex_Matrices.Matrix;
+                xtm : in DoblDobl_Complex_Poly_Matrices.Matrix;
+                sols : in out DoblDobl_Complex_Solutions.Solution_List );
+  procedure Second_Swap_Coordinates
+              ( file : in file_type; n,k,r,s : in integer32;
+                p,rows,cols : in Standard_Natural_Vectors.Vector;
+                mf : in QuadDobl_Complex_Matrices.Matrix;
+                xtm : in QuadDobl_Complex_Poly_Matrices.Matrix;
+                sols : in out QuadDobl_Complex_Solutions.Solution_List );
 
   -- DESCRIPTION :
-  --   Performs the change of variables on the solutions in the list sols
-  --   after a swap homotopy of the second type.
+  --   Performs the change of variables on the solutions in the list sols,
+  --   in standard double, double double, or quad double precision,
+  --   after a swap homotopy of the second type,
+  --   with intermediate output written to file.
 
   -- ON ENTRY :
   --   file     for intermediate output, if omitted, then silent version;
@@ -465,13 +878,42 @@ package Checker_Homotopies is
               ( x : in out Standard_Complex_Poly_Matrices.Matrix;
                 m : in Standard_Natural_Matrices.Matrix );
   procedure Initialize_Moving_Plane
+              ( x : in out DoblDobl_Complex_Poly_Matrices.Matrix;
+                m : in Standard_Natural_Matrices.Matrix );
+  procedure Initialize_Moving_Plane
+              ( x : in out QuadDobl_Complex_Poly_Matrices.Matrix;
+                m : in Standard_Natural_Matrices.Matrix );
+
+  -- DESCRIPTION :
+  --   Initializes the coordinates of the moving plane x, using the
+  --   localization pattern in m, with x matrix with coefficients in
+  --   standard double, double double, or quad double precision.
+
+  -- REQUIRED :
+  --   x'range(1) = 1..n = m'range(1) and x'range(2) = 1..k = m'range(2).
+
+  -- ON ENTRY :
+  --   x        matrix of n rows and k rows;
+  --   m        column localization pattern.
+
+  -- ON RETURN :
+  --   x        initialized coordinates.
+
+  procedure Initialize_Moving_Plane
               ( x : in out Standard_Complex_Poly_Matrices.Matrix;
+                m : in Standard_Natural_Matrices.Matrix; s : in integer32 );
+  procedure Initialize_Moving_Plane
+              ( x : in out DoblDobl_Complex_Poly_Matrices.Matrix;
+                m : in Standard_Natural_Matrices.Matrix; s : in integer32 );
+  procedure Initialize_Moving_Plane
+              ( x : in out QuadDobl_Complex_Poly_Matrices.Matrix;
                 m : in Standard_Natural_Matrices.Matrix; s : in integer32 );
 
   -- DESCRIPTION :
   --   Initializes the coordinates of the moving plane x, using the
   --   localization pattern in m, for all columns except s and s + 1,
-  --   if s is provided as an input parameter.
+  --   if s is provided as an input parameter.  The matrix x is in
+  --   standard double, double double, or quad double precision.
 
   -- REQUIRED :
   --   x'range(1) = 1..n = m'range(1) and x'range(2) = 1..k = m'range(2).
@@ -490,14 +932,57 @@ package Checker_Homotopies is
                 p : in Standard_Natural_Vectors.Vector;
                 locmap : in Standard_Natural_Matrices.Matrix );
   procedure First_Swap_Plane
-              ( file : in file_type;
-                x : in out Standard_Complex_Poly_Matrices.Matrix;
+              ( x : in out DoblDobl_Complex_Poly_Matrices.Matrix;
+                r,big_r,dc,s : in integer32;
+                p : in Standard_Natural_Vectors.Vector;
+                locmap : in Standard_Natural_Matrices.Matrix );
+  procedure First_Swap_Plane
+              ( x : in out QuadDobl_Complex_Poly_Matrices.Matrix;
                 r,big_r,dc,s : in integer32;
                 p : in Standard_Natural_Vectors.Vector;
                 locmap : in Standard_Natural_Matrices.Matrix );
 
   -- DESCRIPTION :
-  --   In the first type of swap homotopy r+1 < R = big_r.
+  --   In the first type of swap homotopy r+1 < R = big_r, where
+  --   x is represented as a matrix of polynomials with coefficients
+  --   in standard double, double double, or quad double precision.
+
+  -- ON ENTRY :
+  --   x        matrix of n rows and k rows;
+  --   r        critical row, row of the descending black checker;
+  --   big_r    row of the swapped white checker, R > r + 1;
+  --   dc       index of the descending black checker in specializing poset;
+  --   s        columns s and s+1 in x are swapped;
+  --   p        permutation defines current position of black checkers;
+  --   locmap   Checker_Localization_Patterns.Column_Pattern(p,rows,cols).
+
+  -- ON RETURN :
+  --   x        coordinates for swap homotopy of first type.
+
+  procedure First_Swap_Plane
+              ( file : in file_type;
+                x : in out Standard_Complex_Poly_Matrices.Matrix;
+                r,big_r,dc,s : in integer32;
+                p : in Standard_Natural_Vectors.Vector;
+                locmap : in Standard_Natural_Matrices.Matrix );
+  procedure First_Swap_Plane
+              ( file : in file_type;
+                x : in out DoblDobl_Complex_Poly_Matrices.Matrix;
+                r,big_r,dc,s : in integer32;
+                p : in Standard_Natural_Vectors.Vector;
+                locmap : in Standard_Natural_Matrices.Matrix );
+  procedure First_Swap_Plane
+              ( file : in file_type;
+                x : in out QuadDobl_Complex_Poly_Matrices.Matrix;
+                r,big_r,dc,s : in integer32;
+                p : in Standard_Natural_Vectors.Vector;
+                locmap : in Standard_Natural_Matrices.Matrix );
+
+  -- DESCRIPTION :
+  --   In the first type of swap homotopy r+1 < R = big_r, where
+  --   x is represented as a matrix of polynomials with coefficients
+  --   in standard double, double double, or quad double precision.
+  --   This version writes intermeidate output to file.
 
   -- ON ENTRY :
   --   file     for intermediate output, if omitted, then silent;
@@ -518,14 +1003,56 @@ package Checker_Homotopies is
                 p : in Standard_Natural_Vectors.Vector;
                 locmap : in Standard_Natural_Matrices.Matrix );
   procedure Second_Swap_Plane
-              ( file : in file_type;
-                x : in out Standard_Complex_Poly_Matrices.Matrix;
+              ( x : in out DoblDobl_Complex_Poly_Matrices.Matrix;
+                r,dc,s : in integer32;
+                p : in Standard_Natural_Vectors.Vector;
+                locmap : in Standard_Natural_Matrices.Matrix );
+  procedure Second_Swap_Plane
+              ( x : in out QuadDobl_Complex_Poly_Matrices.Matrix;
                 r,dc,s : in integer32;
                 p : in Standard_Natural_Vectors.Vector;
                 locmap : in Standard_Natural_Matrices.Matrix );
 
   -- DESCRIPTION :
-  --   In the second type of swap homotopy r+1 = R.
+  --   In the second type of swap homotopy r+1 = R, where
+  --   x is represented as a matrix of polynomials with coefficients
+  --   in standard double, double double, or quad double precision.
+
+  -- ON ENTRY :
+  --   x        matrix of n rows and k rows;
+  --   r        critical row, row of the descending black checker;
+  --   dc       index of the descending black checker in specializing poset;
+  --   s        columns s and s+1 in x are swapped;
+  --   p        permutation defines current position of black checkers;
+  --   locmap   Checker_Localization_Patterns.Column_Pattern(p,rows,cols).
+
+  -- ON RETURN :
+  --   x        coordinates for swap homotopy of second type.
+
+  procedure Second_Swap_Plane
+              ( file : in file_type;
+                x : in out Standard_Complex_Poly_Matrices.Matrix;
+                r,dc,s : in integer32;
+                p : in Standard_Natural_Vectors.Vector;
+                locmap : in Standard_Natural_Matrices.Matrix );
+  procedure Second_Swap_Plane
+              ( file : in file_type;
+                x : in out DoblDobl_Complex_Poly_Matrices.Matrix;
+                r,dc,s : in integer32;
+                p : in Standard_Natural_Vectors.Vector;
+                locmap : in Standard_Natural_Matrices.Matrix );
+  procedure Second_Swap_Plane
+              ( file : in file_type;
+                x : in out QuadDobl_Complex_Poly_Matrices.Matrix;
+                r,dc,s : in integer32;
+                p : in Standard_Natural_Vectors.Vector;
+                locmap : in Standard_Natural_Matrices.Matrix );
+
+  -- DESCRIPTION :
+  --   In the second type of swap homotopy r+1 = R, where
+  --   x is represented as a matrix of polynomials with coefficients
+  --   in standard double, double double, or quad double precision.
+  --   Intermediate output is written to file.
 
   -- ON ENTRY :
   --   file     for intermediate output, if omitted, then silent;
@@ -543,9 +1070,19 @@ package Checker_Homotopies is
               ( n,k,r : in integer32;
                 p,rows,cols : in Standard_Natural_Vectors.Vector )
               return Standard_Complex_Poly_Matrices.Matrix;
+  function Stay_Moving_Plane
+              ( n,k,r : in integer32;
+                p,rows,cols : in Standard_Natural_Vectors.Vector )
+              return DoblDobl_Complex_Poly_Matrices.Matrix;
+  function Stay_Moving_Plane
+              ( n,k,r : in integer32;
+                p,rows,cols : in Standard_Natural_Vectors.Vector )
+              return QuadDobl_Complex_Poly_Matrices.Matrix;
 
   -- DESCRIPTION :
-  --   Returns a moving k-plane in n-space for use in a stay homotopy.
+  --   Returns a moving k-plane in n-space for use in a stay homotopy,
+  --   represented as a matrix of polynomials with coefficients in
+  --   standard double, double double, or quad double precision.
 
   -- ON ENTRY :
   --   n        number of rows of the matrix on return;
@@ -560,12 +1097,47 @@ package Checker_Homotopies is
                 q,p,rows,cols : in Standard_Natural_Vectors.Vector )
               return Standard_Complex_Poly_Matrices.Matrix;
   function Swap_Moving_Plane
+              ( n,k,r,big_r,s : in integer32;
+                q,p,rows,cols : in Standard_Natural_Vectors.Vector )
+              return DoblDobl_Complex_Poly_Matrices.Matrix;
+  function Swap_Moving_Plane
+              ( n,k,r,big_r,s : in integer32;
+                q,p,rows,cols : in Standard_Natural_Vectors.Vector )
+              return QuadDobl_Complex_Poly_Matrices.Matrix;
+
+  -- DESCRIPTION :
+  --   Returns a moving k-plane in n-space for use in a swap homotopy,
+  --   represented as a matrix of polynomials with coefficients in
+  --   standard double, double double, or quad double precision.
+
+  -- ON ENTRY :
+  --   n        number of rows of the matrix on return;
+  --   k        number of columns of the matrix on return;
+  --   r        critical row;
+  --   s        column to be swapped;
+  --   q        parent permutation in specializing poset;
+  --   p        permutation defines current position of black checkers;
+  --   rows     row indices for the location of the white checkers;
+  --   cols     column indices for the location of the white checkers.
+
+  function Swap_Moving_Plane
               ( file : in file_type; n,k,r,big_r,s : in integer32;
                 q,p,rows,cols : in Standard_Natural_Vectors.Vector )
               return Standard_Complex_Poly_Matrices.Matrix;
+  function Swap_Moving_Plane
+              ( file : in file_type; n,k,r,big_r,s : in integer32;
+                q,p,rows,cols : in Standard_Natural_Vectors.Vector )
+              return DoblDobl_Complex_Poly_Matrices.Matrix;
+  function Swap_Moving_Plane
+              ( file : in file_type; n,k,r,big_r,s : in integer32;
+                q,p,rows,cols : in Standard_Natural_Vectors.Vector )
+              return QuadDobl_Complex_Poly_Matrices.Matrix;
 
   -- DESCRIPTION :
-  --   Returns a moving k-plane in n-space for use in a swap homotopy.
+  --   Returns a moving k-plane in n-space for use in a swap homotopy,
+  --   represented as a matrix of polynomials with coefficients in
+  --   standard double, double double, or quad double precision.
+  --   This version writes intermediate output to file.
 
   -- ON ENTRY :
   --   file     for intermediate diagnostics, if omitted, then silent;

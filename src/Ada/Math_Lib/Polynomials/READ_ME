@@ -1,4 +1,4 @@
-Multivariate polynomials and polynomial systems over rings in PHCv2.4.01
+Multivariate polynomials and polynomial systems over rings in PHCv2.4.03
 
 New in release 2 is the availability of multiprecision numbers.
 The data structures are entirely redefined using Ada 95 concepts.
@@ -150,6 +150,8 @@ multprec_complex_laur_systems_io  : i/o for multiprecision Laurent systems
 exponent_vectors                  : management of exponents of a system
 matrix_indeterminates             : manipulate symbols for xij
 standard_system_readers           : interactive reading from file
+dobldobl_system_readers           : double double version of system readers
+quaddobl_system_readers           : quad double version of system readers
 multprec_system_readers           : multiprecision version of system readers
 string_system_readers             : reading strings from file
 standard_complex_laur_lists       : lists of standard complex Laurentials
@@ -166,6 +168,7 @@ ts_subs                           : test on substitution of variables
 ts_ddpol                          : test on double double polynomials
 ts_qdpol                          : test on quad double polynomials
 ts_termlist                       : tests on lists of terms
+ts_rwspol                         : test on writing, for long polynomials
 -------------------------------------------------------------------------------
 parse_strings_to_polynomials      : to parse strings into a system
 maingood                          : code for the phc -g

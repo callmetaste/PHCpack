@@ -156,7 +156,7 @@ package body Black_Polyhedral_Continuations is
   procedure Black_Box_Polyhedral_Continuation
                ( nt : in integer32;
                  p : in Standard_Complex_Laur_Systems.Laur_Sys;
-                 mix,perm : in Standard_Integer_Vectors.Link_to_Vector;
+                 mix : in Standard_Integer_Vectors.Link_to_Vector;
                  lifsup : in Arrays_of_Floating_Vector_Lists.Array_of_Lists;
                  mcc : in Floating_Mixed_Subdivisions.Mixed_Subdivision;
                  q : in out Standard_Complex_Laur_Systems.Laur_Sys;
@@ -208,7 +208,7 @@ package body Black_Polyhedral_Continuations is
   procedure Black_Box_Polyhedral_Continuation
                ( nt : in integer32;
                  p : in DoblDobl_Complex_Laur_Systems.Laur_Sys;
-                 mix,perm : in Standard_Integer_Vectors.Link_to_Vector;
+                 mix : in Standard_Integer_Vectors.Link_to_Vector;
                  lifsup : in Arrays_of_Floating_Vector_Lists.Array_of_Lists;
                  mcc : in Floating_Mixed_Subdivisions.Mixed_Subdivision;
                  q : in out DoblDobl_Complex_Laur_Systems.Laur_Sys;
@@ -242,7 +242,7 @@ package body Black_Polyhedral_Continuations is
       end;
     end loop;
     Create(q,jacmat,mulfac);
-    Continuation_Parameters.Tune(0);
+    Continuation_Parameters.Tune(0); --,32);
     Continuation_Parameters.start_end_game := 0.0;
     if nt = 0 then
       Mixed_Solve(q,lifsup,hq,coeffv,expvec,jacmat,mulfac,
@@ -261,7 +261,7 @@ package body Black_Polyhedral_Continuations is
   procedure Black_Box_Polyhedral_Continuation
                ( nt : in integer32;
                  p : in QuadDobl_Complex_Laur_Systems.Laur_Sys;
-                 mix,perm : in Standard_Integer_Vectors.Link_to_Vector;
+                 mix : in Standard_Integer_Vectors.Link_to_Vector;
                  lifsup : in Arrays_of_Floating_Vector_Lists.Array_of_Lists;
                  mcc : in Floating_Mixed_Subdivisions.Mixed_Subdivision;
                  q : in out QuadDobl_Complex_Laur_Systems.Laur_Sys;
@@ -295,7 +295,7 @@ package body Black_Polyhedral_Continuations is
       end;
     end loop;
     Create(q,jacmat,mulfac);
-    Continuation_Parameters.Tune(0);
+    Continuation_Parameters.Tune(0); --,64);
     Continuation_Parameters.start_end_game := 0.0;
     if nt = 0 then
       Mixed_Solve(q,lifsup,hq,coeffv,expvec,jacmat,mulfac,
@@ -314,7 +314,7 @@ package body Black_Polyhedral_Continuations is
   procedure Black_Box_Polyhedral_Continuation
                ( nt : in integer32;
                  p : in Standard_Complex_Poly_Systems.Poly_Sys;
-                 mix,perm : in Standard_Integer_Vectors.Link_to_Vector;
+                 mix : in Standard_Integer_Vectors.Link_to_Vector;
                  stlb : in double_float;
                  lifsup : in Arrays_of_Floating_Vector_Lists.Array_of_Lists;
                  orgmcc : in Floating_Mixed_Subdivisions.Mixed_Subdivision;
@@ -384,7 +384,7 @@ package body Black_Polyhedral_Continuations is
   procedure Black_Box_Polyhedral_Continuation
                ( nt : in integer32;
                  p : in DoblDobl_Complex_Poly_Systems.Poly_Sys;
-                 mix,perm : in Standard_Integer_Vectors.Link_to_Vector;
+                 mix : in Standard_Integer_Vectors.Link_to_Vector;
                  stlb : in double_float;
                  lifsup : in Arrays_of_Floating_Vector_Lists.Array_of_Lists;
                  orgmcc : in Floating_Mixed_Subdivisions.Mixed_Subdivision;
@@ -425,7 +425,7 @@ package body Black_Polyhedral_Continuations is
       end;
     end loop;
     Create(lq,jacmat,mulfac);
-    Continuation_Parameters.Tune(0);
+    Continuation_Parameters.Tune(0); --,32);
     Continuation_Parameters.start_end_game := 0.0;
     if nt = 0 then
       Mixed_Solve(lq,lifsup,hq,coeffv,expvec,jacmat,mulfac,
@@ -455,7 +455,7 @@ package body Black_Polyhedral_Continuations is
   procedure Black_Box_Polyhedral_Continuation
                ( nt : in integer32;
                  p : in QuadDobl_Complex_Poly_Systems.Poly_Sys;
-                 mix,perm : in Standard_Integer_Vectors.Link_to_Vector;
+                 mix : in Standard_Integer_Vectors.Link_to_Vector;
                  stlb : in double_float;
                  lifsup : in Arrays_of_Floating_Vector_Lists.Array_of_Lists;
                  orgmcc : in Floating_Mixed_Subdivisions.Mixed_Subdivision;
@@ -496,7 +496,7 @@ package body Black_Polyhedral_Continuations is
       end;
     end loop;
     Create(lq,jacmat,mulfac);
-    Continuation_Parameters.Tune(0);
+    Continuation_Parameters.Tune(0); --,64);
     Continuation_Parameters.start_end_game := 0.0;
     if nt = 0 then
       Mixed_Solve(lq,lifsup,hq,coeffv,expvec,jacmat,mulfac,

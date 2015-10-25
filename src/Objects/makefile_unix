@@ -1301,6 +1301,9 @@ ts_csols:
 
 # test programs for the CtoPHC/State directory :
 
+ts_filman:
+	gnatmake $(INCLULIBS) $(GNATFLAGS) ts_solcon.adb -o $(BIN)/ts_filman
+
 ts_solcon:
 	gnatmake $(INCLULIBS) $(GNATFLAGS) ts_solcon.adb -o $(BIN)/ts_solcon
 

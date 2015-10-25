@@ -2,9 +2,10 @@
  * declared in the file "syscon.h". */
 
 /* #include<stdio.h> only used for extra print statements */
+#include <stdlib.h>
 #include "syscon.h"
 
-int syscon_read_system ( void )
+int syscon_read_standard_system ( void )
 {
    int *a,*b,fail;
    double *c;
@@ -12,7 +13,7 @@ int syscon_read_system ( void )
    return fail;
 }
 
-int syscon_read_Laurent_system ( void )
+int syscon_read_standard_Laurent_system ( void )
 {
    int *a,*b,fail;
    double *c;
@@ -79,7 +80,7 @@ int syscon_random_system ( int n, int m, int d, int c )
    return fail;
 }
 
-int syscon_write_system ( void )
+int syscon_write_standard_system ( void )
 {
    int *a,*b,fail;
    double *c;
@@ -87,7 +88,7 @@ int syscon_write_system ( void )
    return fail;
 }
 
-int syscon_write_Laurent_system ( void )
+int syscon_write_standard_Laurent_system ( void )
 {
    int *a,*b,fail;
    double *c;
@@ -143,7 +144,7 @@ int syscon_write_multprec_Laurent_system ( void )
    return fail;
 }
 
-int syscon_number_of_polynomials ( int *length )
+int syscon_number_of_standard_polynomials ( int *length )
 {
    int *b,fail;
    double *c;
@@ -151,7 +152,7 @@ int syscon_number_of_polynomials ( int *length )
    return fail;
 }
 
-int syscon_number_of_Laurentials ( int *length )
+int syscon_number_of_standard_Laurentials ( int *length )
 {
    int *b,fail;
    double *c;
@@ -207,7 +208,7 @@ int syscon_number_of_multprec_Laurentials ( int *length )
    return fail;
 }
 
-int syscon_initialize_number ( int length )
+int syscon_initialize_number_of_standard_polynomials ( int length )
 {
    int *b,fail;
    double *c;
@@ -215,7 +216,7 @@ int syscon_initialize_number ( int length )
    return fail;
 }
 
-int syscon_initialize_number_of_Laurentials ( int length )
+int syscon_initialize_number_of_standard_Laurentials ( int length )
 {
    int *b,fail;
    double *c;
@@ -271,7 +272,7 @@ int syscon_initialize_number_of_multprec_Laurentials ( int length )
    return fail;
 }
 
-int syscon_degree_of_polynomial ( int k, int *d )
+int syscon_degree_of_standard_polynomial ( int k, int *d )
 {
    int fail;
    double *c;
@@ -303,7 +304,7 @@ int syscon_degree_of_multprec_polynomial ( int k, int *d )
    return fail;
 }
 
-int syscon_store_polynomial ( int nc, int n, int k, char *p )
+int syscon_store_standard_polynomial ( int nc, int n, int k, char *p )
 {
    int a[3],b[nc],i,fail;
    double *c;
@@ -367,71 +368,163 @@ int syscon_store_multprec_polynomial
    return fail;
 }
 
-int syscon_load_polynomial ( int k, int *nc, char *p )
+int syscon_standard_size_limit ( int k, int *szl )
 {
-   int fail,i;
-   int b[25600];
+   int fail;
+   double *c;
+
+   fail = _ada_use_c2phc(600,&k,szl,c);
+
+   return fail;
+}
+
+int syscon_dobldobl_size_limit ( int k, int *szl )
+{
+   int fail;
+   double *c;
+
+   fail = _ada_use_c2phc(601,&k,szl,c);
+
+   return fail;
+}
+
+int syscon_quaddobl_size_limit ( int k, int *szl )
+{
+   int fail;
+   double *c;
+
+   fail = _ada_use_c2phc(602,&k,szl,c);
+
+   return fail;
+}
+
+int syscon_multprec_size_limit ( int k, int *szl )
+{
+   int fail;
+   double *c;
+
+   fail = _ada_use_c2phc(603,&k,szl,c);
+
+   return fail;
+}
+
+int syscon_standard_Laurent_size_limit ( int k, int *szl )
+{
+   int fail;
+   double *c;
+
+   fail = _ada_use_c2phc(604,&k,szl,c);
+
+   return fail;
+}
+
+int syscon_dobldobl_Laurent_size_limit ( int k, int *szl )
+{
+   int fail;
+   double *c;
+
+   fail = _ada_use_c2phc(605,&k,szl,c);
+
+   return fail;
+}
+
+int syscon_quaddobl_Laurent_size_limit ( int k, int *szl )
+{
+   int fail;
+   double *c;
+
+   fail = _ada_use_c2phc(606,&k,szl,c);
+
+   return fail;
+}
+
+int syscon_multprec_Laurent_size_limit ( int k, int *szl )
+{
+   int fail;
+   double *c;
+
+   fail = _ada_use_c2phc(607,&k,szl,c);
+
+   return fail;
+}
+
+int syscon_load_standard_polynomial ( int k, int *nc, char *p )
+{
+   int fail,i,szl;
+   int *buffer;
    int size = k;
    double *c;
 
-   fail = _ada_use_c2phc(67,&size,b,c);
+   fail = syscon_standard_size_limit(k,&szl);
+   buffer = (int*)calloc(szl,sizeof(int));
+   fail = _ada_use_c2phc(67,&size,buffer,c);
    /* printf("number of characters : %d\n",size); */
-   for(i=0; i<size; i++) p[i] = (char) b[i];
+   for(i=0; i<size; i++) p[i] = (char) buffer[i];
    p[size] = '\0';
    /* printf("the string : %s\n",p); */
+   free(buffer);
 
    return fail;
 }
 
 int syscon_load_dobldobl_polynomial ( int k, int *nc, char *p )
 {
-   int fail,i;
-   int b[51200];
+   int fail,i,szl;
+   int *buffer;
    int size = k;
    double *c;
 
-   fail = _ada_use_c2phc(106,&size,b,c);
+   fail = syscon_dobldobl_size_limit(k,&szl);
+   buffer = (int*)calloc(szl,sizeof(int));
+   fail = _ada_use_c2phc(106,&size,buffer,c);
    /* printf("number of characters : %d\n",size); */
-   for(i=0; i<size; i++) p[i] = (char) b[i];
+   for(i=0; i<size; i++) p[i] = (char) buffer[i];
    p[size] = '\0';
    /* printf("the string : %s\n",p); */
+   free(buffer);
 
    return fail;
 }
 
 int syscon_load_quaddobl_polynomial ( int k, int *nc, char *p )
 {
-   int fail,i;
-   int b[102400];
+   int fail,i,szl;
+   int *buffer;
    int size = k;
    double *c;
 
-   fail = _ada_use_c2phc(107,&size,b,c);
+   fail = syscon_quaddobl_size_limit(k,&szl);
+   buffer = (int*)calloc(szl,sizeof(int));
+   fail = _ada_use_c2phc(107,&size,buffer,c);
    /* printf("number of characters : %d\n",size); */
-   for(i=0; i<size; i++) p[i] = (char) b[i];
+   for(i=0; i<size; i++) p[i] = (char) buffer[i];
    p[size] = '\0';
    /* printf("the string : %s\n",p); */
+   free(buffer);
 
    return fail;
 }
 
 int syscon_load_multprec_polynomial ( int k, int *nc, char *p )
 {
-   int fail,i;
-   int b[102400];
+   int fail,i,szl;
+   int *buffer;
    int size = k;
    double *c;
 
-   fail = _ada_use_c2phc(108,&size,b,c);
+   fail = syscon_multprec_size_limit(k,&szl);
+   buffer = (int*)calloc(szl,sizeof(int));
+   fail = _ada_use_c2phc(108,&size,buffer,c);
    /* printf("number of characters : %d\n",size); */
-   for(i=0; i<size; i++) p[i] = (char) b[i];
+   for(i=0; i<size; i++) p[i] = (char) buffer[i];
    p[size] = '\0';
    /* printf("the string : %s\n",p); */
+   free(buffer);
 
    return fail;
 }
 
-int syscon_store_Laurential ( int nc, int n, int k, char *p )
+int syscon_store_standard_Laurential ( int nc, int n, int k, char *p )
 {
    int a[3],b[nc],i,fail;
    double *c;
@@ -495,64 +588,76 @@ int syscon_store_multprec_Laurential
 
 int syscon_load_standard_Laurential ( int k, int *nc, char *p )
 {
-   int fail,i;
-   int b[25600];
+   int fail,i,szl;
+   int *buffer;
    int size = k;
    double *c;
 
-   fail = _ada_use_c2phc(128,&size,b,c);
+   fail = syscon_standard_Laurent_size_limit(k,&szl);
+   buffer = (int*)calloc(szl,sizeof(int));
+   fail = _ada_use_c2phc(128,&size,buffer,c);
    /* printf("number of characters : %d\n",size); */
-   for(i=0; i<size; i++) p[i] = (char) b[i];
+   for(i=0; i<size; i++) p[i] = (char) buffer[i];
    p[size] = '\0';
    /* printf("the string : %s\n",p); */
+   free(buffer);
 
    return fail;
 }
 
 int syscon_load_dobldobl_Laurential ( int k, int *nc, char *p )
 {
-   int fail,i;
-   int b[51200];
+   int fail,i,szl;
+   int *buffer;
    int size = k;
    double *c;
 
-   fail = _ada_use_c2phc(559,&size,b,c);
+   fail = syscon_dobldobl_Laurent_size_limit(k,&szl);
+   buffer = (int*)calloc(szl,sizeof(int));
+   fail = _ada_use_c2phc(559,&size,buffer,c);
    /* printf("number of characters : %d\n",size); */
-   for(i=0; i<size; i++) p[i] = (char) b[i];
+   for(i=0; i<size; i++) p[i] = (char) buffer[i];
    p[size] = '\0';
    /* printf("the string : %s\n",p); */
+   free(buffer);
 
    return fail;
 }
 
 int syscon_load_quaddobl_Laurential ( int k, int *nc, char *p )
 {
-   int fail,i;
-   int b[102400];
+   int fail,i,szl;
+   int *buffer;
    int size = k;
    double *c;
 
-   fail = _ada_use_c2phc(569,&size,b,c);
+   fail = syscon_quaddobl_Laurent_size_limit(k,&szl);
+   buffer = (int*)calloc(szl,sizeof(int));
+   fail = _ada_use_c2phc(569,&size,buffer,c);
    /* printf("number of characters : %d\n",size); */
-   for(i=0; i<size; i++) p[i] = (char) b[i];
+   for(i=0; i<size; i++) p[i] = (char) buffer[i];
    p[size] = '\0';
    /* printf("the string : %s\n",p); */
+   free(buffer);
 
    return fail;
 }
 
 int syscon_load_multprec_Laurential ( int k, int *nc, char *p )
 {
-   int fail,i;
-   int b[102400];
+   int fail,i,szl;
+   int *buffer;
    int size = k;
    double *c;
 
-   fail = _ada_use_c2phc(579,&size,b,c);
+   fail = syscon_multprec_Laurent_size_limit(k,&szl);
+   buffer = (int*)calloc(szl,sizeof(int));
+   fail = _ada_use_c2phc(579,&size,buffer,c);
    /* printf("number of characters : %d\n",size); */
-   for(i=0; i<size; i++) p[i] = (char) b[i];
+   for(i=0; i<size; i++) p[i] = (char) buffer[i];
    p[size] = '\0';
    /* printf("the string : %s\n",p); */
+   free(buffer);
 
    return fail;
 }
@@ -573,7 +678,7 @@ int syscon_create_Jacobian_evaluator ( void )
    return fail;
 }
 
-int syscon_number_of_terms ( int i, int *nt )
+int syscon_number_of_standard_terms ( int i, int *nt )
 {
    int a[2],*b,fail;
    double *c;
@@ -583,7 +688,7 @@ int syscon_number_of_terms ( int i, int *nt )
    return fail;
 }
 
-int syscon_number_of_Laurent_terms ( int i, int *nt )
+int syscon_number_of_standard_Laurent_terms ( int i, int *nt )
 {
    int a[2],*b,fail;
    double *c;
@@ -643,7 +748,7 @@ int syscon_number_of_multprec_terms ( int i, int *nt )
    return fail;
 }
 
-int syscon_retrieve_term ( int i, int j, int n, int *exp, double *c )
+int syscon_retrieve_standard_term ( int i, int j, int n, int *exp, double *c )
 {
    int a[3],fail;
    a[0] = n;
@@ -653,8 +758,7 @@ int syscon_retrieve_term ( int i, int j, int n, int *exp, double *c )
    return fail;
 }
 
-int syscon_retrieve_dobldobl_term
- ( int i, int j, int n, int *exp, double *c )
+int syscon_retrieve_dobldobl_term ( int i, int j, int n, int *exp, double *c )
 {
    int a[3],fail;
    a[0] = n;
@@ -697,7 +801,7 @@ int syscon_retrieve_quaddobl_Laurent_term
    return fail;
 }
 
-int syscon_add_term ( int i, int n, int *exp, double *c )
+int syscon_add_standard_term ( int i, int n, int *exp, double *c )
 {
    int a[2],fail;
    a[0] = n;
@@ -750,7 +854,7 @@ int syscon_total_degree ( int *d )
    return fail;
 }
 
-int syscon_clear_system ( void )
+int syscon_clear_standard_system ( void )
 {
    int *a,*b,fail;
    double *c;
@@ -758,7 +862,7 @@ int syscon_clear_system ( void )
    return fail;
 }
 
-int syscon_clear_Laurent_system ( void )
+int syscon_clear_standard_Laurent_system ( void )
 {
    int *a,*b,fail;
    double *c;

@@ -1,15 +1,14 @@
 with Timing_Package;                     use Timing_Package;
 with Standard_Natural_Numbers_io;        use Standard_Natural_Numbers_io;
 with Multprec_Natural_Numbers_io;        use Multprec_Natural_Numbers_io;
-with Standard_Floating_Numbers;          use Standard_Floating_Numbers;
-with Standard_Integer_Vectors;           use Standard_Integer_Vectors;
 with DoblDobl_Polynomial_Convertors;     use DoblDobl_Polynomial_Convertors;
 with QuadDobl_Polynomial_Convertors;     use QuadDobl_Polynomial_Convertors;
 with Standard_Complex_Poly_Systems_io;   use Standard_Complex_Poly_Systems_io;
 with Standard_Complex_Laur_Systems_io;   use Standard_Complex_Laur_Systems_io;
+with DoblDobl_Complex_Poly_Systems_io;   use DoblDobl_Complex_Poly_Systems_io;
 with DoblDobl_Complex_Laur_Systems_io;   use DoblDobl_Complex_Laur_Systems_io;
+with QuadDobl_Complex_Poly_Systems_io;   use QuadDobl_Complex_Poly_Systems_io;
 with QuadDobl_Complex_Laur_Systems_io;   use QuadDobl_Complex_Laur_Systems_io;
-with Arrays_of_Floating_Vector_Lists;    use Arrays_of_Floating_Vector_Lists;
 with Standard_Complex_Solutions_io;      use Standard_Complex_Solutions_io;
 with DoblDobl_Complex_Solutions_io;      use DoblDobl_Complex_Solutions_io;
 with QuadDobl_Complex_Solutions_io;      use QuadDobl_Complex_Solutions_io;
@@ -23,10 +22,13 @@ with Standard_Complex_Prod_Systems;      use Standard_Complex_Prod_Systems;
 with Standard_Complex_Prod_Systems_io;   use Standard_Complex_Prod_Systems_io;
 with Standard_Complex_Prod_Planes;
 with Random_Product_Start_Systems;       use Random_Product_Start_Systems;
-with Floating_Mixed_Subdivisions;        use Floating_Mixed_Subdivisions;
 with Floating_Mixed_Subdivisions_io;
+with Induced_Permutations;
 with Black_Mixed_Volume_Computations;    use Black_Mixed_Volume_Computations;
 with Black_Polyhedral_Continuations;     use Black_Polyhedral_Continuations;
+
+--with Standard_Integer_Vectors_io;
+-- use Standard_Integer_Vectors_io;
 
 package body Black_Box_Root_Counters is
 
@@ -43,6 +45,30 @@ package body Black_Box_Root_Counters is
    -- return Permanent(Degree_Sets_Tables.Create);
   end Set_Structure_Bound;
 
+  function Set_Structure_Bound
+             ( p : DoblDobl_Complex_Poly_Systems.Poly_Sys ) return natural64 is
+
+    q : Standard_Complex_Poly_Systems.Poly_Sys(p'range)
+      := DoblDobl_Complex_to_Standard_Poly_Sys(p);
+    res : natural64 := Set_Structure_Bound(q);
+
+  begin
+    Standard_Complex_Poly_Systems.Clear(q);
+    return res;
+  end Set_Structure_Bound;
+
+  function Set_Structure_Bound
+             ( p : QuadDobl_Complex_Poly_Systems.Poly_Sys ) return natural64 is
+
+    q : Standard_Complex_Poly_Systems.Poly_Sys(p'range)
+      := QuadDobl_Complex_to_Standard_Poly_Sys(p);
+    res : natural64 := Set_Structure_Bound(q);
+
+  begin
+    Standard_Complex_Poly_Systems.Clear(q);
+    return res;
+  end Set_Structure_Bound;
+
   procedure Count_Roots 
                ( p : in out Standard_Complex_Poly_Systems.Poly_Sys;
                  deg : in boolean;
@@ -52,34 +78,9 @@ package body Black_Box_Root_Counters is
                  zz : out Partition; nz : out natural32;
                  stlb : out double_float;
                  lifsup : out Link_to_Array_of_Lists;
-                 mix,perm : out Link_to_Vector;
+                 mix,perm,iprm : out Link_to_Vector;
                  orgmcc,stbmcc : out Mixed_Subdivision;
                  rocotime : out duration ) is
-
-  -- DESCRIPTION :
-  --   Computes four different root counts for the system p.
-  --   If the flag "deg" is on, then the output parameter "mivo" is
-  --   assigned to take the value of the total degree.
-
-  -- ON ENTRY :
-  --   p         a polynomial system.
-
-  -- ON RETURN :
-  --   tode      total degree;
-  --   mptode    multiprecision version of total degree (if overflow);
-  --   mhbz      m-homogeneous Bezout number;
-  --   setb      bound based on set structure;
-  --   mivo      mixed volume;
-  --   stmv      stable mixed volume;
-  --   zz        partition used to compute mhbz;
-  --   nz        number of sets in partition zz;
-  --   lifsup    lifted supports of the system;
-  --   stlb      lifting of the artificial origin;
-  --   mix       type of mixture;
-  --   perm      permutation of the equations in p;
-  --   orgmcc    regular mixed-cell configuration to compute mivo;
-  --   stbmcc    extra stable mixed cells that contribute to stmv;
-  --   rocotime  is the time it took to compute the root count.
 
     timer : timing_widget;
     n : constant natural32 := natural32(p'length);
@@ -117,7 +118,7 @@ package body Black_Box_Root_Counters is
       declare -- problems with systems with one monomial equation
       begin
         Black_Box_Mixed_Volume_Computation
-          (p,mix,perm,stlb,lifsup,mixsub,orgmcc,stbmcc,
+          (p,mix,perm,iprm,stlb,lifsup,mixsub,orgmcc,stbmcc,
            mv,smv,tmv,orgcnt,stbcnt);
       exception
         when others => mv := 0; smv := 0; tmv := 0;
@@ -131,6 +132,59 @@ package body Black_Box_Root_Counters is
     tode := d; mhbz := bz; setb := bs;
     zz := z; nz := m;
     rocotime := Elapsed_User_Time(timer);
+  end Count_Roots;
+
+  procedure Count_Roots 
+               ( p : in out DoblDobl_Complex_Poly_Systems.Poly_Sys;
+                 deg : in boolean;
+                 tode : out natural64; mptode : out Natural_Number;
+                 mhbz,setb : out natural64;
+                 mivo,stmv : out natural32;
+                 zz : out Partition; nz : out natural32;
+                 stlb : out double_float;
+                 lifsup : out Link_to_Array_of_Lists;
+                 mix,perm,iprm : out Link_to_Vector;
+                 orgmcc,stbmcc : out Mixed_Subdivision;
+                 rocotime : out duration ) is
+
+    q : Standard_Complex_Poly_Systems.Poly_Sys(p'range)
+      := DoblDobl_Complex_to_Standard_Poly_Sys(p);
+
+  begin
+    Count_Roots(q,deg,tode,mptode,mhbz,setb,mivo,stmv,zz,nz,stlb,lifsup,
+                mix,perm,iprm,orgmcc,stbmcc,rocotime);
+    if iprm /= null then
+     -- put("The permutation : "); put(iprm); new_line;
+     -- put_line("The system before the permutation : "); put_line(p);
+      Induced_Permutations.Permute(iprm.all,p);
+     -- put_line("The system after the permutation : "); put_line(p);
+    end if;
+    Standard_Complex_Poly_Systems.Clear(q);
+  end Count_Roots;
+
+  procedure Count_Roots 
+               ( p : in out QuadDobl_Complex_Poly_Systems.Poly_Sys;
+                 deg : in boolean;
+                 tode : out natural64; mptode : out Natural_Number;
+                 mhbz,setb : out natural64;
+                 mivo,stmv : out natural32;
+                 zz : out Partition; nz : out natural32;
+                 stlb : out double_float;
+                 lifsup : out Link_to_Array_of_Lists;
+                 mix,perm,iprm : out Link_to_Vector;
+                 orgmcc,stbmcc : out Mixed_Subdivision;
+                 rocotime : out duration ) is
+
+    q : Standard_Complex_Poly_Systems.Poly_Sys(p'range)
+      := QuadDobl_Complex_to_Standard_Poly_Sys(p);
+
+  begin
+    Count_Roots(q,deg,tode,mptode,mhbz,setb,mivo,stmv,zz,nz,stlb,lifsup,
+                mix,perm,iprm,orgmcc,stbmcc,rocotime);
+    if iprm /= null
+     then Induced_Permutations.Permute(iprm.all,p);
+    end if;
+    Standard_Complex_Poly_Systems.Clear(q);
   end Count_Roots;
 
   procedure Write_Root_Counts
@@ -174,35 +228,9 @@ package body Black_Box_Root_Counters is
                  zz : out Partition; nz : out natural32;
                  stlb : out double_float;
                  lifsup : out Link_to_Array_of_Lists;
-                 mix,perm : out Link_to_Vector;
+                 mix,perm,iprm : out Link_to_Vector;
                  orgmcc,stbmcc : out Mixed_Subdivision;
                  rocotime : out duration ) is
-
-  -- DESCRIPTION :
-  --   Computes four different root counts for the system p.
-  --   If the flag "deg" is on, then the output parameter "mivo" is
-  --   assigned to take the value of the total degree.
-
-  -- ON ENTRY :
-  --   file      output file;
-  --   p         a polynomial system.
-
-  -- ON RETURN :
-  --   tode      total degree;
-  --   mptode    multiprecision version of total degree (if overflow)
-  --   mhbz      m-homogeneous Bezout number;
-  --   setb      bound based on set structure;
-  --   mivo      mixed volume;
-  --   stmv      stable mixed volume;
-  --   zz        partition used to compute mhbz;
-  --   nz        number of sets in partition zz;
-  --   stlb      lifting for artificial origin;
-  --   lifsup    lifted supports of the system;
-  --   mix       type of mixture;
-  --   perm      permutation of the equations in p;
-  --   orgmcc    regular mixed-cell configuration to compute mivo;
-  --   stbmcc    extra stable mixed cells that contribute to stmv;
-  --   rocotime  is the time it took to compute the root count.
 
     timer : timing_widget;
     n : constant natural32 := natural32(p'length);
@@ -242,7 +270,7 @@ package body Black_Box_Root_Counters is
       declare -- problems with systems with one monomial equation
       begin
         Black_Box_Mixed_Volume_Computation
-          (p,mix,perm,stlb,lifsup,mixsub,orgmcc,stbmcc,
+          (p,mix,perm,iprm,stlb,lifsup,mixsub,orgmcc,stbmcc,
            mv,smv,tmv,orgcnt,stbcnt);
        -- put("the mixed volume : "); put(mv,1); new_line;
        -- put("the stable mixed volume : "); put(smv,1); new_line;
@@ -262,6 +290,61 @@ package body Black_Box_Root_Counters is
      else mivo := mv; stmv := smv;
     end if;
     rocotime := Elapsed_User_Time(timer);
+  end Count_Roots;
+
+  procedure Count_Roots 
+               ( file : in file_type;
+                 p : in out DoblDobl_Complex_Poly_Systems.Poly_Sys;
+                 deg : in boolean;
+                 tode : out natural64; mptode : out Natural_Number;
+                 mhbz,setb : out natural64;
+                 mivo,stmv : out natural32;
+                 zz : out Partition; nz : out natural32;
+                 stlb : out double_float;
+                 lifsup : out Link_to_Array_of_Lists;
+                 mix,perm,iprm : out Link_to_Vector;
+                 orgmcc,stbmcc : out Mixed_Subdivision;
+                 rocotime : out duration ) is
+
+    sp : Standard_Complex_Poly_Systems.Poly_Sys(p'range)
+       := DoblDobl_Complex_to_Standard_Poly_Sys(p);
+
+  begin
+    Count_Roots(file,sp,deg,tode,mptode,mhbz,setb,mivo,stmv,
+                zz,nz,stlb,lifsup,mix,perm,iprm,orgmcc,stbmcc,rocotime);
+    if iprm /= null then
+     -- put("The permutation : "); put(iprm); new_line;
+     -- put_line("The system before the permutation : "); put_line(p);
+      Induced_Permutations.Permute(iprm.all,p);
+     -- put_line("The system after the permutation : "); put_line(p);
+    end if;
+    Standard_Complex_Poly_Systems.Clear(sp);
+  end Count_Roots;
+
+  procedure Count_Roots 
+               ( file : in file_type;
+                 p : in out QuadDobl_Complex_Poly_Systems.Poly_Sys;
+                 deg : in boolean;
+                 tode : out natural64; mptode : out Natural_Number;
+                 mhbz,setb : out natural64;
+                 mivo,stmv : out natural32;
+                 zz : out Partition; nz : out natural32;
+                 stlb : out double_float;
+                 lifsup : out Link_to_Array_of_Lists;
+                 mix,perm,iprm : out Link_to_Vector;
+                 orgmcc,stbmcc : out Mixed_Subdivision;
+                 rocotime : out duration ) is
+
+    sp : Standard_Complex_Poly_Systems.Poly_Sys(p'range)
+       := QuadDobl_Complex_to_Standard_Poly_Sys(p);
+
+  begin
+    Count_Roots(file,sp,deg,tode,mptode,mhbz,setb,mivo,stmv,
+                zz,nz,stlb,lifsup,mix,perm,iprm,orgmcc,stbmcc,rocotime);
+    if iprm /= null
+     then Induced_Permutations.Permute(iprm.all,p);
+    end if;
+    Standard_Complex_Poly_Systems.Clear(sp);
   end Count_Roots;
 
   function Minimum ( a,b : natural64 ) return natural64 is
@@ -305,42 +388,16 @@ package body Black_Box_Root_Counters is
   end Minimum;
 
   procedure Construct_Start_System
-               ( nt : in integer32;
-                 p : in out Standard_Complex_Poly_Systems.Poly_Sys;
-                 d,bz,bs : in natural64;
-                 mv,smv : in natural32; z : in Partition;
-                 mix,perm : in Link_to_Vector;
-                 stlb : in double_float; lifted : in Link_to_Array_of_Lists;
-                 orgmcc,stbmcc : in Mixed_Subdivision; roco : out natural64;
-                 q : in out Standard_Complex_Poly_Systems.Poly_Sys;
-                 qsols,qsols0 : in out Standard_Complex_Solutions.Solution_List;
-                 hocotime : out duration ) is
-
-  -- DESCRIPTION :
-  --   Constructs a start system for the minimal root count and least
-  --   amount of work.
-
-  -- ON ENTRY :
-  --   p         polynomial system;
-  --   d         total degree;
-  --   bz        m-homogeneous Bezout number;
-  --   bs        Bezout number based on set structure;
-  --   mv        mixed volume;
-  --   smv       stable mixed volume;
-  --   z         partition that corresponds with bz;
-  --   mix       type of mixture of the supports;
-  --   perm      permutation of the equations in p;
-  --   stlb      lifting for the artificial origin;
-  --   lifted    lifted supports;
-  --   orgmcc    regular mixed-cell configuration to compute mv;
-  --   stbmcc    extra stable mixed cells that contributed to smv.
-
-  -- ON RETURN :
-  --   roco      minimum(d,bz,bs,mv), provided mv /= 0;
-  --   q         start system;
-  --   qsols     solutions of q;
-  --   qsols0    solutions of q with zero components;
-  --   hocotime  is the time it took to construct the start system.
+              ( nt : in integer32;
+                p : in out Standard_Complex_Poly_Systems.Poly_Sys;
+                d,bz,bs : in natural64;
+                mv,smv : in natural32; z : in Partition;
+                mix : in Link_to_Vector;
+                stlb : in double_float; lifted : in Link_to_Array_of_Lists;
+                orgmcc,stbmcc : in Mixed_Subdivision; roco : out natural64;
+                q : in out Standard_Complex_Poly_Systems.Poly_Sys;
+                qsols,qsols0 : in out Standard_Complex_Solutions.Solution_List;
+                hocotime : out duration ) is
 
     timer : timing_widget;
     n : constant natural32 := natural32(p'length);
@@ -367,11 +424,11 @@ package body Black_Box_Root_Counters is
         Standard_Linear_Product_System.Clear;
       else 
         Black_Box_Polyhedral_Continuation
-          (nt,p,mix,perm,stlb,lifted.all,orgmcc,stbmcc,q,qsols,qsols0);
+          (nt,p,mix,stlb,lifted.all,orgmcc,stbmcc,q,qsols,qsols0);
       end if;
     else 
       Black_Box_Polyhedral_Continuation
-        (nt,p,mix,perm,stlb,lifted.all,orgmcc,stbmcc,q,qsols,qsols0);
+        (nt,p,mix,stlb,lifted.all,orgmcc,stbmcc,q,qsols,qsols0);
     end if;
     tstop(timer);
     hocotime := Elapsed_User_Time(timer);
@@ -379,46 +436,151 @@ package body Black_Box_Root_Counters is
     when others => put_line("exception raised in construct start system");
                    put_line("the lifted supports : ");
                    Floating_Mixed_Subdivisions_io.put(lifted.all);
-                   -- put("the permutation : "); put(perm); new_line;
                    raise;
   end Construct_Start_System;
 
   procedure Construct_Start_System
-               ( file : in file_type; nt : in integer32;
-                 p : in out Standard_Complex_Poly_Systems.Poly_Sys;
-                 d,bz,bs : in natural64; mv,smv : in natural32;
-                 z : in Partition; mix,perm : in Link_to_Vector;
-                 stlb : in double_float; lifted : in Link_to_Array_of_Lists;
-                 orgmcc,stbmcc : in Mixed_Subdivision; roco : out natural64;
-                 q : in out Standard_Complex_Poly_Systems.Poly_Sys;
-                 qsols,qsols0 : in out Standard_Complex_Solutions.Solution_List;
-                 hocotime : out duration ) is
+              ( nt : in integer32;
+                p : in out DoblDobl_Complex_Poly_Systems.Poly_Sys;
+                d,bz,bs : in natural64;
+                mv,smv : in natural32; z : in Partition;
+                mix : in Link_to_Vector;
+                stlb : in double_float; lifted : in Link_to_Array_of_Lists;
+                orgmcc,stbmcc : in Mixed_Subdivision; roco : out natural64;
+                q : in out DoblDobl_Complex_Poly_Systems.Poly_Sys;
+                qsols,qsols0 : in out DoblDobl_Complex_Solutions.Solution_List;
+                hocotime : out duration ) is
 
-  -- DESCRIPTION :
-  --   Constructs a start system for the minimal root count and least
-  --   amount of work.
+    timer : timing_widget;
+    n : constant natural32 := natural32(p'length);
+    nl : natural32;
+    gap : constant natural32 := smv - mv;
 
-  -- ON ENTRY :
-  --   file      output file;
-  --   p         polynomial system;
-  --   d         total degree;
-  --   bz        m-homogeneous Bezout number;
-  --   bs        Bezout number based on set structure;
-  --   mv        mixed volume;
-  --   smv       stable mixed volume;
-  --   z         partition that corresponds with bz;
-  --   mix       type of mixture of the supports;
-  --   perm      permutation of the equations in p;
-  --   stlb      lifting of the artificial origin;
-  --   orgmcc    regular mixed-cell configuration to compute mv;
-  --   stbmcc    extra stable mixed cells that contribute to smv.
+  begin
+    tstart(timer);
+    if mv = 0 and smv = 0
+     then roco := Minimum(d,bz,bs);
+     else roco := Minimum(d,bz,bs,natural64(smv));
+    end if;
+    if gap = 0 then
+      if roco = d or roco = bz or roco = bs then
+        declare
+          sp : Standard_Complex_Poly_Systems.Poly_Sys(p'range)
+             := DoblDobl_Complex_to_Standard_Poly_Sys(p);
+          sq : Standard_Complex_Poly_Systems.Poly_Sys(p'range);
+          sqsols : Standard_Complex_Solutions.Solution_List;
+        begin
+          if roco = d then
+            Start_System(sp,sq,sqsols);
+          elsif roco = bz then
+            m_Homogeneous_Start_System(sp,z,sq,sqsols);
+          elsif roco = bs then
+            Standard_Linear_Product_System.Init(n);
+            Build_Random_Product_System(n);
+            sq := Standard_Linear_Product_System.Polynomial_System;
+            Standard_Linear_Product_System.Solve(sqsols,nl);
+            Set_Structure.Clear;
+            Standard_Linear_Product_System.Clear;
+          end if;
+          q := Standard_Poly_Sys_to_DoblDobl_Complex(sq);
+          qsols := DoblDobl_Complex_Solutions.Create(sqsols);
+          Standard_Complex_Poly_Systems.Clear(sp);
+          Standard_Complex_Poly_Systems.Clear(sq);
+          Standard_Complex_Solutions.Clear(sqsols);
+        end;
+      else 
+        Black_Box_Polyhedral_Continuation
+          (nt,p,mix,stlb,lifted.all,orgmcc,stbmcc,q,qsols,qsols0);
+      end if;
+    else 
+      Black_Box_Polyhedral_Continuation
+        (nt,p,mix,stlb,lifted.all,orgmcc,stbmcc,q,qsols,qsols0);
+    end if;
+    tstop(timer);
+    hocotime := Elapsed_User_Time(timer);
+  exception
+    when others => put_line("exception raised in construct start system");
+                   put_line("the lifted supports : ");
+                   Floating_Mixed_Subdivisions_io.put(lifted.all);
+                   raise;
+  end Construct_Start_System;
 
-  -- ON RETURN :
-  --   roco      minimum(d,bz,bs,mv), provided mv /= 0;
-  --   q         start system;
-  --   qsols     solutions of q;
-  --   qsols0    solutions of q with zero components;
-  --   hocotime  is the time it took to construct the start system.
+  procedure Construct_Start_System
+              ( nt : in integer32;
+                p : in out QuadDobl_Complex_Poly_Systems.Poly_Sys;
+                d,bz,bs : in natural64;
+                mv,smv : in natural32; z : in Partition;
+                mix : in Link_to_Vector;
+                stlb : in double_float; lifted : in Link_to_Array_of_Lists;
+                orgmcc,stbmcc : in Mixed_Subdivision; roco : out natural64;
+                q : in out QuadDobl_Complex_Poly_Systems.Poly_Sys;
+                qsols,qsols0 : in out QuadDobl_Complex_Solutions.Solution_List;
+                hocotime : out duration ) is
+
+    timer : timing_widget;
+    n : constant natural32 := natural32(p'length);
+    nl : natural32;
+    gap : constant natural32 := smv - mv;
+
+  begin
+    tstart(timer);
+    if mv = 0 and smv = 0
+     then roco := Minimum(d,bz,bs);
+     else roco := Minimum(d,bz,bs,natural64(smv));
+    end if;
+    if gap = 0 then
+      if roco = d or roco = bz or roco = bs then
+        declare
+          sp : Standard_Complex_Poly_Systems.Poly_Sys(p'range)
+             := QuadDobl_Complex_to_Standard_Poly_Sys(p);
+          sq : Standard_Complex_Poly_Systems.Poly_Sys(p'range);
+          sqsols : Standard_Complex_Solutions.Solution_List;
+        begin
+          if roco = d then
+            Start_System(sp,sq,sqsols);
+          elsif roco = bz then
+            m_Homogeneous_Start_System(sp,z,sq,sqsols);
+          elsif roco = bs then
+            Standard_Linear_Product_System.Init(n);
+            Build_Random_Product_System(n);
+            sq := Standard_Linear_Product_System.Polynomial_System;
+            Standard_Linear_Product_System.Solve(sqsols,nl);
+            Set_Structure.Clear;
+            Standard_Linear_Product_System.Clear;
+          end if;
+          q := Standard_Poly_Sys_to_QuadDobl_Complex(sq);
+          qsols := QuadDobl_Complex_Solutions.Create(sqsols);
+          Standard_Complex_Poly_Systems.Clear(sp);
+          Standard_Complex_Poly_Systems.Clear(sq);
+          Standard_Complex_Solutions.Clear(sqsols);
+        end;
+      else 
+        Black_Box_Polyhedral_Continuation
+          (nt,p,mix,stlb,lifted.all,orgmcc,stbmcc,q,qsols,qsols0);
+      end if;
+    else 
+      Black_Box_Polyhedral_Continuation
+        (nt,p,mix,stlb,lifted.all,orgmcc,stbmcc,q,qsols,qsols0);
+    end if;
+    tstop(timer);
+    hocotime := Elapsed_User_Time(timer);
+  exception
+    when others => put_line("exception raised in construct start system");
+                   put_line("the lifted supports : ");
+                   Floating_Mixed_Subdivisions_io.put(lifted.all);
+                   raise;
+  end Construct_Start_System;
+
+  procedure Construct_Start_System
+              ( file : in file_type; nt : in integer32;
+                p : in out Standard_Complex_Poly_Systems.Poly_Sys;
+                d,bz,bs : in natural64; mv,smv : in natural32;
+                z : in Partition; mix : in Link_to_Vector;
+                stlb : in double_float; lifted : in Link_to_Array_of_Lists;
+                orgmcc,stbmcc : in Mixed_Subdivision; roco : out natural64;
+                q : in out Standard_Complex_Poly_Systems.Poly_Sys;
+                qsols,qsols0 : in out Standard_Complex_Solutions.Solution_List;
+                hocotime : out duration ) is
 
     use Standard_Complex_Solutions;
 
@@ -459,12 +621,198 @@ package body Black_Box_Root_Counters is
       else
         put_line(file,"RANDOM COEFFICIENT START SYSTEM :");
         Black_Box_Polyhedral_Continuation
-          (nt,p,mix,perm,stlb,lifted.all,orgmcc,stbmcc,q,qsols,qsols0);
+          (nt,p,mix,stlb,lifted.all,orgmcc,stbmcc,q,qsols,qsols0);
       end if;
     else
       put_line(file,"RANDOM COEFFICIENT START SYSTEM :");
       Black_Box_Polyhedral_Continuation
-        (nt,p,mix,perm,stlb,lifted.all,orgmcc,stbmcc,q,qsols,qsols0);
+        (nt,p,mix,stlb,lifted.all,orgmcc,stbmcc,q,qsols,qsols0);
+    end if;
+    tstop(timer);
+    new_line(file);
+    if prodform
+     then put_line(file,natural32(rq'last),rq); Deep_Clear(rq);
+     else put_line(file,q);
+    end if;
+    new_line(file);
+    put_line(file,"START SOLUTIONS : ");
+    new_line(file);
+    if Is_Null(qsols0) then
+      put(file,Length_Of(qsols),natural32(q'last),qsols);
+    else
+      Push(qsols,wsols);
+      Push(qsols0,wsols);
+      put(file,Length_Of(wsols),natural32(q'last),wsols);
+    end if;
+    new_line(file);
+    print_times(file,timer,"Construction of Start System");
+    flush(file);
+    hocotime := Elapsed_User_Time(timer);
+  end Construct_Start_System;
+
+  procedure Construct_Start_System
+              ( file : in file_type; nt : in integer32;
+                p : in out DoblDobl_Complex_Poly_Systems.Poly_Sys;
+                d,bz,bs : in natural64; mv,smv : in natural32;
+                z : in Partition; mix : in Link_to_Vector;
+                stlb : in double_float; lifted : in Link_to_Array_of_Lists;
+                orgmcc,stbmcc : in Mixed_Subdivision; roco : out natural64;
+                q : in out DoblDobl_Complex_Poly_Systems.Poly_Sys;
+                qsols,qsols0 : in out DoblDobl_Complex_Solutions.Solution_List;
+                hocotime : out duration ) is
+
+    use DoblDobl_Complex_Solutions;
+
+    timer : timing_widget;
+    n : constant natural32 := natural32(p'length);
+    rq : Prod_Sys(p'range);
+    nl : natural32;
+    prodform : boolean := false;
+    wsols : Solution_List;
+    gap : constant natural32 := smv - mv;
+
+  begin
+    new_line(file);
+    tstart(timer);
+    if mv = 0 and smv = 0
+     then roco := Minimum(d,bz,bs);
+     else roco := Minimum(d,bz,bs,natural64(smv));
+    end if;
+    if gap = 0 then
+      if roco = d or roco = bz or roco = bs then
+        declare
+          sp : Standard_Complex_Poly_Systems.Poly_Sys(p'range)
+             := DoblDobl_Complex_to_Standard_Poly_Sys(p);
+          sq : Standard_Complex_Poly_Systems.Poly_Sys(p'range);
+          sqsols : Standard_Complex_Solutions.Solution_List;
+        begin
+          if roco = d then
+            put_line(file,"START SYSTEM BASED ON TOTAL DEGREE :");
+            Start_System(sp,sq,sqsols);
+          elsif roco = bz then
+            put(file,natural32(z'length),1);
+            put_line(file,"-HOMOGENEOUS START SYSTEM :");
+            m_Homogeneous_Start_System(sp,z,sq,rq,sqsols);
+            prodform := true;
+          elsif roco = bs then
+            put_line(file,"LINEAR-PRODUCT START SYSTEM : ");
+            Standard_Linear_Product_System.Init(n);
+            Build_Random_Product_System(n);
+            sq := Standard_Linear_Product_System.Polynomial_System;
+            rq := Standard_Complex_Prod_Planes.Create;
+            prodform := true;
+            Standard_Linear_Product_System.Solve(sqsols,nl);
+            Set_Structure.Clear;
+            Standard_Linear_Product_System.Clear;
+          end if;
+          q := Standard_Poly_Sys_to_DoblDobl_Complex(sq);
+          qsols := DoblDobl_Complex_Solutions.Create(sqsols);
+          Standard_Complex_Poly_Systems.Clear(sp);
+          Standard_Complex_Poly_Systems.Clear(sq);
+          Standard_Complex_Solutions.Clear(sqsols);
+        end;
+      else
+        put_line(file,"RANDOM COEFFICIENT START SYSTEM :");
+        Black_Box_Polyhedral_Continuation
+          (nt,p,mix,stlb,lifted.all,orgmcc,stbmcc,q,qsols,qsols0);
+      end if;
+    else
+      put_line(file,"RANDOM COEFFICIENT START SYSTEM :");
+      Black_Box_Polyhedral_Continuation
+        (nt,p,mix,stlb,lifted.all,orgmcc,stbmcc,q,qsols,qsols0);
+    end if;
+    tstop(timer);
+    new_line(file);
+    if prodform
+     then put_line(file,natural32(rq'last),rq); Deep_Clear(rq);
+     else put_line(file,q);
+    end if;
+    new_line(file);
+    put_line(file,"START SOLUTIONS : ");
+    new_line(file);
+    if Is_Null(qsols0) then
+      put(file,Length_Of(qsols),natural32(q'last),qsols);
+    else
+      Push(qsols,wsols);
+      Push(qsols0,wsols);
+      put(file,Length_Of(wsols),natural32(q'last),wsols);
+    end if;
+    new_line(file);
+    print_times(file,timer,"Construction of Start System");
+    flush(file);
+    hocotime := Elapsed_User_Time(timer);
+  end Construct_Start_System;
+
+  procedure Construct_Start_System
+              ( file : in file_type; nt : in integer32;
+                p : in out QuadDobl_Complex_Poly_Systems.Poly_Sys;
+                d,bz,bs : in natural64; mv,smv : in natural32;
+                z : in Partition; mix : in Link_to_Vector;
+                stlb : in double_float; lifted : in Link_to_Array_of_Lists;
+                orgmcc,stbmcc : in Mixed_Subdivision; roco : out natural64;
+                q : in out QuadDobl_Complex_Poly_Systems.Poly_Sys;
+                qsols,qsols0 : in out QuadDobl_Complex_Solutions.Solution_List;
+                hocotime : out duration ) is
+
+    use QuadDobl_Complex_Solutions;
+
+    timer : timing_widget;
+    n : constant natural32 := natural32(p'length);
+    rq : Prod_Sys(p'range);
+    nl : natural32;
+    prodform : boolean := false;
+    wsols : Solution_List;
+    gap : constant natural32 := smv - mv;
+
+  begin
+    new_line(file);
+    tstart(timer);
+    if mv = 0 and smv = 0
+     then roco := Minimum(d,bz,bs);
+     else roco := Minimum(d,bz,bs,natural64(smv));
+    end if;
+    if gap = 0 then
+      if roco = d or roco = bz or roco = bs then
+        declare
+          sp : Standard_Complex_Poly_Systems.Poly_Sys(p'range)
+             := QuadDobl_Complex_to_Standard_Poly_Sys(p);
+          sq : Standard_Complex_Poly_Systems.Poly_Sys(p'range);
+          sqsols : Standard_Complex_Solutions.Solution_List;
+        begin
+          if roco = d then
+            put_line(file,"START SYSTEM BASED ON TOTAL DEGREE :");
+            Start_System(sp,sq,sqsols);
+          elsif roco = bz then
+            put(file,natural32(z'length),1);
+            put_line(file,"-HOMOGENEOUS START SYSTEM :");
+            m_Homogeneous_Start_System(sp,z,sq,rq,sqsols);
+            prodform := true;
+          elsif roco = bs then
+            put_line(file,"LINEAR-PRODUCT START SYSTEM : ");
+            Standard_Linear_Product_System.Init(n);
+            Build_Random_Product_System(n);
+            sq := Standard_Linear_Product_System.Polynomial_System;
+            rq := Standard_Complex_Prod_Planes.Create;
+            prodform := true;
+            Standard_Linear_Product_System.Solve(sqsols,nl);
+            Set_Structure.Clear;
+            Standard_Linear_Product_System.Clear;
+          end if;
+          q := Standard_Poly_Sys_to_QuadDobl_Complex(sq);
+          qsols := QuadDobl_Complex_Solutions.Create(sqsols);
+          Standard_Complex_Poly_Systems.Clear(sp);
+          Standard_Complex_Poly_Systems.Clear(sq);
+          Standard_Complex_Solutions.Clear(sqsols);
+        end;
+      else
+        put_line(file,"RANDOM COEFFICIENT START SYSTEM :");
+        Black_Box_Polyhedral_Continuation
+          (nt,p,mix,stlb,lifted.all,orgmcc,stbmcc,q,qsols,qsols0);
+      end if;
+    else
+      put_line(file,"RANDOM COEFFICIENT START SYSTEM :");
+      Black_Box_Polyhedral_Continuation
+        (nt,p,mix,stlb,lifted.all,orgmcc,stbmcc,q,qsols,qsols0);
     end if;
     tstop(timer);
     new_line(file);
@@ -500,7 +848,7 @@ package body Black_Box_Root_Counters is
     mv,smv : natural32;
     z : partition(1..natural32(p'last));
     nz : natural32;
-    mix,perm : Standard_Integer_Vectors.Link_to_Vector;
+    mix,perm,iprm : Standard_Integer_Vectors.Link_to_Vector;
     orgmcc,stbmcc : Mixed_Subdivision;
     stlb : double_float;
     lifsup : Link_to_Array_of_Lists;
@@ -509,12 +857,90 @@ package body Black_Box_Root_Counters is
 
   begin
     Count_Roots(p,deg,d,mptdeg,bz,bs,mv,smv,z,nz,
-                stlb,lifsup,mix,perm,orgmcc,stbmcc,rocotime);
+                stlb,lifsup,mix,perm,iprm,orgmcc,stbmcc,rocotime);
     if not silent
      then Write_Root_Counts(standard_output,no_mv,d,mptdeg,nz,bz,bs,mv,smv,z);
     end if;
     Construct_Start_System
-      (nt,p,d,bz,bs,mv,smv,z(1..nz),mix,perm,stlb,lifsup,orgmcc,stbmcc,wrc,
+      (nt,p,d,bz,bs,mv,smv,z(1..nz),mix,stlb,lifsup,orgmcc,stbmcc,wrc,
+       q,qsols,qsols0,hocotime);
+    rc := natural32(wrc);
+    Clear(z);
+    Clear(mix);
+    Deep_Clear(lifsup);
+    Deep_Clear(orgmcc);
+    Deep_Clear(stbmcc);
+  exception
+    when others => put_line("exception raised in black box root counting");
+                   raise;
+  end Black_Box_Root_Counting;
+
+  procedure Black_Box_Root_Counting
+               ( nt : in integer32; silent : in boolean;
+                 p : in out DoblDobl_Complex_Poly_Systems.Poly_Sys;
+                 deg : in boolean; rc : out natural32;
+                 q : out DoblDobl_Complex_Poly_Systems.Poly_Sys;
+                 qsols,qsols0 : out DoblDobl_Complex_Solutions.Solution_List;
+                 rocotime,hocotime : out duration ) is
+
+    d,bz,bs,wrc : natural64;
+    mv,smv : natural32;
+    z : partition(1..natural32(p'last));
+    nz : natural32;
+    mix,perm,iprm : Standard_Integer_Vectors.Link_to_Vector;
+    orgmcc,stbmcc : Mixed_Subdivision;
+    stlb : double_float;
+    lifsup : Link_to_Array_of_Lists;
+    no_mv : constant boolean := deg or (natural32(p'last) > chicken_mv);
+    mptdeg : Natural_Number;
+
+  begin
+    Count_Roots(p,deg,d,mptdeg,bz,bs,mv,smv,z,nz,
+                stlb,lifsup,mix,perm,iprm,orgmcc,stbmcc,rocotime);
+    if not silent
+     then Write_Root_Counts(standard_output,no_mv,d,mptdeg,nz,bz,bs,mv,smv,z);
+    end if;
+    Construct_Start_System
+      (nt,p,d,bz,bs,mv,smv,z(1..nz),mix,stlb,lifsup,orgmcc,stbmcc,wrc,
+       q,qsols,qsols0,hocotime);
+    rc := natural32(wrc);
+    Clear(z);
+    Clear(mix);
+    Deep_Clear(lifsup);
+    Deep_Clear(orgmcc);
+    Deep_Clear(stbmcc);
+  exception
+    when others => put_line("exception raised in black box root counting");
+                   raise;
+  end Black_Box_Root_Counting;
+
+  procedure Black_Box_Root_Counting
+               ( nt : in integer32; silent : in boolean;
+                 p : in out QuadDobl_Complex_Poly_Systems.Poly_Sys;
+                 deg : in boolean; rc : out natural32;
+                 q : out QuadDobl_Complex_Poly_Systems.Poly_Sys;
+                 qsols,qsols0 : out QuadDobl_Complex_Solutions.Solution_List;
+                 rocotime,hocotime : out duration ) is
+
+    d,bz,bs,wrc : natural64;
+    mv,smv : natural32;
+    z : partition(1..natural32(p'last));
+    nz : natural32;
+    mix,perm,iprm : Standard_Integer_Vectors.Link_to_Vector;
+    orgmcc,stbmcc : Mixed_Subdivision;
+    stlb : double_float;
+    lifsup : Link_to_Array_of_Lists;
+    no_mv : constant boolean := deg or (natural32(p'last) > chicken_mv);
+    mptdeg : Natural_Number;
+
+  begin
+    Count_Roots(p,deg,d,mptdeg,bz,bs,mv,smv,z,nz,
+                stlb,lifsup,mix,perm,iprm,orgmcc,stbmcc,rocotime);
+    if not silent
+     then Write_Root_Counts(standard_output,no_mv,d,mptdeg,nz,bz,bs,mv,smv,z);
+    end if;
+    Construct_Start_System
+      (nt,p,d,bz,bs,mv,smv,z(1..nz),mix,stlb,lifsup,orgmcc,stbmcc,wrc,
        q,qsols,qsols0,hocotime);
     rc := natural32(wrc);
     Clear(z);
@@ -539,7 +965,7 @@ package body Black_Box_Root_Counters is
     mv,smv : natural32;
     z : partition(1..natural32(p'last));
     nz : natural32;
-    mix,perm : Standard_Integer_Vectors.Link_to_Vector;
+    mix,perm,iprm : Standard_Integer_Vectors.Link_to_Vector;
     orgmcc,stbmcc : Mixed_Subdivision;
     stlb : double_float;
     lifsup : Link_to_Array_of_Lists;
@@ -547,9 +973,73 @@ package body Black_Box_Root_Counters is
 
   begin
     Count_Roots(file,p,deg,d,mptdeg,bz,bs,mv,smv,z,nz,
-                stlb,lifsup,mix,perm,orgmcc,stbmcc,rocotime);
+                stlb,lifsup,mix,perm,iprm,orgmcc,stbmcc,rocotime);
     Construct_Start_System
-      (file,nt,p,d,bz,bs,mv,smv,z(1..nz),mix,perm,stlb,lifsup,orgmcc,stbmcc,
+      (file,nt,p,d,bz,bs,mv,smv,z(1..nz),mix,stlb,lifsup,orgmcc,stbmcc,
+       wrc,q,qsols,qsols0,hocotime);
+    rc := natural32(wrc);
+    Clear(z);
+    Clear(mix);
+    Deep_Clear(lifsup);
+    Deep_Clear(orgmcc);
+    Deep_Clear(stbmcc);
+  end Black_Box_Root_Counting;
+
+  procedure Black_Box_Root_Counting
+               ( file : in file_type; nt : in integer32;
+                 p : in out DoblDobl_Complex_Poly_Systems.Poly_Sys;
+                 deg : in boolean; rc : out natural32;
+                 q : out DoblDobl_Complex_Poly_Systems.Poly_Sys;
+                 qsols,qsols0 : out DoblDobl_Complex_Solutions.Solution_List;
+                 rocotime,hocotime : out duration ) is
+
+    d,bz,bs,wrc : natural64;
+    mv,smv : natural32;
+    z : partition(1..natural32(p'last));
+    nz : natural32;
+    mix,perm,iprm : Standard_Integer_Vectors.Link_to_Vector;
+    orgmcc,stbmcc : Mixed_Subdivision;
+    stlb : double_float;
+    lifsup : Link_to_Array_of_Lists;
+    mptdeg : Natural_Number;
+
+  begin
+    Count_Roots(file,p,deg,d,mptdeg,bz,bs,mv,smv,z,nz,
+                stlb,lifsup,mix,perm,iprm,orgmcc,stbmcc,rocotime);
+    Construct_Start_System
+      (file,nt,p,d,bz,bs,mv,smv,z(1..nz),mix,stlb,lifsup,orgmcc,stbmcc,
+       wrc,q,qsols,qsols0,hocotime);
+    rc := natural32(wrc);
+    Clear(z);
+    Clear(mix);
+    Deep_Clear(lifsup);
+    Deep_Clear(orgmcc);
+    Deep_Clear(stbmcc);
+  end Black_Box_Root_Counting;
+
+  procedure Black_Box_Root_Counting
+               ( file : in file_type; nt : in integer32;
+                 p : in out QuadDobl_Complex_Poly_Systems.Poly_Sys;
+                 deg : in boolean; rc : out natural32;
+                 q : out QuadDobl_Complex_Poly_Systems.Poly_Sys;
+                 qsols,qsols0 : out QuadDobl_Complex_Solutions.Solution_List;
+                 rocotime,hocotime : out duration ) is
+
+    d,bz,bs,wrc : natural64;
+    mv,smv : natural32;
+    z : partition(1..natural32(p'last));
+    nz : natural32;
+    mix,perm,iprm : Standard_Integer_Vectors.Link_to_Vector;
+    orgmcc,stbmcc : Mixed_Subdivision;
+    stlb : double_float;
+    lifsup : Link_to_Array_of_Lists;
+    mptdeg : Natural_Number;
+
+  begin
+    Count_Roots(file,p,deg,d,mptdeg,bz,bs,mv,smv,z,nz,
+                stlb,lifsup,mix,perm,iprm,orgmcc,stbmcc,rocotime);
+    Construct_Start_System
+      (file,nt,p,d,bz,bs,mv,smv,z(1..nz),mix,stlb,lifsup,orgmcc,stbmcc,
        wrc,q,qsols,qsols0,hocotime);
     rc := natural32(wrc);
     Clear(z);
@@ -568,20 +1058,20 @@ package body Black_Box_Root_Counters is
                  rocotime,hocotime : out duration ) is
 
     timer : Timing_Widget;
-    mix,perm : Standard_Integer_Vectors.Link_to_Vector;
+    mix,perm,iprm : Standard_Integer_Vectors.Link_to_Vector;
     lifsup : Link_to_Array_of_Lists;
     mixsub : Mixed_Subdivision;
 
   begin
     tstart(timer);
-    Black_Box_Mixed_Volume_Computation(p,mix,perm,lifsup,mixsub,rc);
+    Black_Box_Mixed_Volume_Computation(p,mix,perm,iprm,lifsup,mixsub,rc);
     tstop(timer);
     if not silent
      then put("mixed volume : "); put(rc,1); new_line;
     end if;
     rocotime := Elapsed_User_Time(timer);
     tstart(timer);
-    Black_Box_Polyhedral_Continuation(nt,p,mix,perm,lifsup.all,mixsub,q,qsols);
+    Black_Box_Polyhedral_Continuation(nt,p,mix,lifsup.all,mixsub,q,qsols);
     tstop(timer);
     hocotime := Elapsed_User_Time(timer);
   end Black_Box_Root_Counting;
@@ -595,7 +1085,7 @@ package body Black_Box_Root_Counters is
                  rocotime,hocotime : out duration ) is
 
     timer : Timing_Widget;
-    mix,perm : Standard_Integer_Vectors.Link_to_Vector;
+    mix,perm,iprm : Standard_Integer_Vectors.Link_to_Vector;
     lifsup : Link_to_Array_of_Lists;
     mixsub : Mixed_Subdivision;
     sp : Standard_Complex_Laur_Systems.Laur_Sys(p'range)
@@ -603,14 +1093,14 @@ package body Black_Box_Root_Counters is
 
   begin
     tstart(timer);
-    Black_Box_Mixed_Volume_Computation(sp,mix,perm,lifsup,mixsub,rc);
+    Black_Box_Mixed_Volume_Computation(sp,mix,perm,iprm,lifsup,mixsub,rc);
     tstop(timer);
     if not silent
      then put("mixed volume : "); put(rc,1); new_line;
     end if;
     rocotime := Elapsed_User_Time(timer);
     tstart(timer);
-    Black_Box_Polyhedral_Continuation(nt,p,mix,perm,lifsup.all,mixsub,q,qsols);
+    Black_Box_Polyhedral_Continuation(nt,p,mix,lifsup.all,mixsub,q,qsols);
     tstop(timer);
     Standard_Complex_Laur_Systems.Clear(sp);
     hocotime := Elapsed_User_Time(timer);
@@ -625,7 +1115,7 @@ package body Black_Box_Root_Counters is
                  rocotime,hocotime : out duration ) is
 
     timer : Timing_Widget;
-    mix,perm : Standard_Integer_Vectors.Link_to_Vector;
+    mix,perm,iprm : Standard_Integer_Vectors.Link_to_Vector;
     lifsup : Link_to_Array_of_Lists;
     mixsub : Mixed_Subdivision;
     sp : Standard_Complex_Laur_Systems.Laur_Sys(p'range)
@@ -633,14 +1123,14 @@ package body Black_Box_Root_Counters is
 
   begin
     tstart(timer);
-    Black_Box_Mixed_Volume_Computation(sp,mix,perm,lifsup,mixsub,rc);
+    Black_Box_Mixed_Volume_Computation(sp,mix,perm,iprm,lifsup,mixsub,rc);
     tstop(timer);
     if not silent
      then put("mixed volume : "); put(rc,1); new_line;
     end if;
     rocotime := Elapsed_User_Time(timer);
     tstart(timer);
-    Black_Box_Polyhedral_Continuation(nt,p,mix,perm,lifsup.all,mixsub,q,qsols);
+    Black_Box_Polyhedral_Continuation(nt,p,mix,lifsup.all,mixsub,q,qsols);
     tstop(timer);
     Standard_Complex_Laur_Systems.Clear(sp);
     hocotime := Elapsed_User_Time(timer);
@@ -657,13 +1147,13 @@ package body Black_Box_Root_Counters is
     use Standard_Complex_Solutions;
 
     timer : Timing_Widget;
-    mix,perm : Standard_Integer_Vectors.Link_to_Vector;
+    mix,perm,iprm : Standard_Integer_Vectors.Link_to_Vector;
     lifsup : Link_to_Array_of_Lists;
     mixsub : Mixed_Subdivision;
 
   begin
     tstart(timer);
-    Black_Box_Mixed_Volume_Computation(p,mix,perm,lifsup,mixsub,rc);
+    Black_Box_Mixed_Volume_Computation(p,mix,perm,iprm,lifsup,mixsub,rc);
     tstop(timer);
     new_line(file);
     put(file,"mixed volume : "); put(file,rc,1); new_line(file);
@@ -673,7 +1163,7 @@ package body Black_Box_Root_Counters is
     rocotime := Elapsed_User_Time(timer);
     put_line(file,"RANDOM COEFFICIENT START SYSTEM :");
     tstart(timer);
-    Black_Box_Polyhedral_Continuation(nt,p,mix,perm,lifsup.all,mixsub,q,qsols);
+    Black_Box_Polyhedral_Continuation(nt,p,mix,lifsup.all,mixsub,q,qsols);
     tstop(timer);
     hocotime := Elapsed_User_Time(timer);
     new_line(file);
@@ -700,7 +1190,7 @@ package body Black_Box_Root_Counters is
     use DoblDobl_Complex_Solutions;
 
     timer : Timing_Widget;
-    mix,perm : Standard_Integer_Vectors.Link_to_Vector;
+    mix,perm,iprm : Standard_Integer_Vectors.Link_to_Vector;
     lifsup : Link_to_Array_of_Lists;
     mixsub : Mixed_Subdivision;
     sp : Standard_Complex_Laur_Systems.Laur_Sys(p'range)
@@ -708,7 +1198,7 @@ package body Black_Box_Root_Counters is
 
   begin
     tstart(timer);
-    Black_Box_Mixed_Volume_Computation(sp,mix,perm,lifsup,mixsub,rc);
+    Black_Box_Mixed_Volume_Computation(sp,mix,perm,iprm,lifsup,mixsub,rc);
     tstop(timer);
     new_line(file);
     put(file,"mixed volume : "); put(file,rc,1); new_line(file);
@@ -719,7 +1209,7 @@ package body Black_Box_Root_Counters is
     put_line(file,"RANDOM COEFFICIENT START SYSTEM :");
    -- careful to apply the permutation on p!
     tstart(timer);
-    Black_Box_Polyhedral_Continuation(nt,p,mix,perm,lifsup.all,mixsub,q,qsols);
+    Black_Box_Polyhedral_Continuation(nt,p,mix,lifsup.all,mixsub,q,qsols);
     tstop(timer);
     hocotime := Elapsed_User_Time(timer);
     new_line(file);
@@ -747,7 +1237,7 @@ package body Black_Box_Root_Counters is
     use QuadDobl_Complex_Solutions;
 
     timer : Timing_Widget;
-    mix,perm : Standard_Integer_Vectors.Link_to_Vector;
+    mix,perm,iprm : Standard_Integer_Vectors.Link_to_Vector;
     lifsup : Link_to_Array_of_Lists;
     mixsub : Mixed_Subdivision;
     sp : Standard_Complex_Laur_Systems.Laur_Sys(p'range)
@@ -755,7 +1245,7 @@ package body Black_Box_Root_Counters is
 
   begin
     tstart(timer);
-    Black_Box_Mixed_Volume_Computation(sp,mix,perm,lifsup,mixsub,rc);
+    Black_Box_Mixed_Volume_Computation(sp,mix,perm,iprm,lifsup,mixsub,rc);
     tstop(timer);
     new_line(file);
     put(file,"mixed volume : "); put(file,rc,1); new_line(file);
@@ -764,9 +1254,8 @@ package body Black_Box_Root_Counters is
     flush(file);
     rocotime := Elapsed_User_Time(timer);
     put_line(file,"RANDOM COEFFICIENT START SYSTEM :");
-   -- careful to apply the permutation on p!
     tstart(timer);
-    Black_Box_Polyhedral_Continuation(nt,p,mix,perm,lifsup.all,mixsub,q,qsols);
+    Black_Box_Polyhedral_Continuation(nt,p,mix,lifsup.all,mixsub,q,qsols);
     tstop(timer);
     hocotime := Elapsed_User_Time(timer);
     new_line(file);
