@@ -5,8 +5,8 @@
 # swap the # symbol in the following lines to use makefile_windows
 # or to use makefile_mac on a Mac OS x computer
 
-# MAKEFILE = makefile_unix
-MAKEFILE = makefile_mac
+MAKEFILE = makefile_unix
+# MAKEFILE = makefile_mac
 # MAKEFILE = makefile_windows
 
 # the main executable is phc

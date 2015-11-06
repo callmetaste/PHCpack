@@ -4,7 +4,7 @@
 
 # The makefile works on RHEL 6.6, with python2.6, openmpi, and GNATGPL 2014.
 
-PYTHON=/usr/include/python2.6
+PYTHON=/usr/include/python2.7
 # MPI_HOME=/usr/lib64/openmpi
 MPI_HOME=/usr/local/mpi/gcc/openmpi-1.4.3
 
