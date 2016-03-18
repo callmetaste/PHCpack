@@ -1,4 +1,4 @@
-Calling PHCpack from C as a state machine in PHCv2.4.03
+Calling PHCpack from C as a state machine in PHCv2.4.13
 
 This directory was created in release 2.3 as subdirectory to CtoPHC.
 The idea for using PHCpack as a state machine originated from the need
@@ -32,6 +32,7 @@ systems_pool                     : pool of systems and associated structures
 ts_syspool                       : test on the systems pool
 use_syspool                      : Ada gateway to the systems pool
 ts_use_syspool.c                 : C routine calls the Ada gateway
+------------------------------------------------------------------------------
 standard_solutions_container     : management of Ada solution lists
 dobldobl_solutions_container     : solutions with double doubles
 quaddobl_solutions_container     : solutions with quad doubles
@@ -44,6 +45,9 @@ solutions_pool                   : pool of solution lists
 ts_solpool                       : test on the solutions pool
 use_solpool                      : Ada gateway to the solutions pool
 ts_use_solpool.c                 : C routine calls the Ada gateway use_solpool
+------------------------------------------------------------------------------
+numerical_tropisms_container     : manages numerically computed tropisms
+use_numbtrop                     : interface to the tropisms container
 phcpack_operations               : PHCpack as a state machine
 phcpack_operations_io            : input/output of main data of PHCpack
 c_to_phcpack                     : Ada routine as gateway to the machine
@@ -57,10 +61,15 @@ use_c2pieri                      : Ada routine as gateway to Pieri machine
 ts_use_c2pieri                   : C test on the interactive operations
 use_c2lrhom                      : calls Littlewood-Richardson homotopies
 ------------------------------------------------------------------------------
-monodromy_permutations           : computes permutations by monodromy
-sampling_operations              : provides access to the sampling machine
+standard_sampling_operations     : provides access to the sampling machine
+dobldobl_sampling_operations     : supports monodromy with double doubles
+quaddobl_sampling_operations     : supports monodromy with quad doubles
+standard_monodromy_permutations  : computes permutations by monodromy
+dobldobl_monodromy_permutations  : permutations on double double data
+quaddobl_monodromy_permutations  : permutations on quad double data
 use_c2fac                        : Ada gateway to factorization in PHCpack
 ts_use_c2fac                     : C testing operations in use_c2fac
+use_c2mbt                        : homotopy membership test jobs for in C
 ------------------------------------------------------------------------------
 cells_container                  : manages mixed-cell configurations
 ts_celcon                        : tests the cells container
@@ -77,6 +86,10 @@ use_giftwrap                     : giftwrapping for convex hulls
 ts_use_giftwrap                  : test on use_giftwrap
 multprec_giftwrap_container      : hold results of giftwrapping method
 ts_giftwcon                      : test on giftwrapping container
+------------------------------------------------------------------------------
+parameter_homotopy_state         : definition of parameter indices
+use_sweep                        : C interface for sweep homotopy
+ts_use_sweep                     : test on use_sweep
 ------------------------------------------------------------------------------
 ts_c2phc.c                       : C routine calls the Ada gateway to PHCpack
 use_c2phc                        : bundles containers and c_to_phcpack

@@ -9,6 +9,7 @@ with Standard_Natural_Vectors;
 with Symbol_Table_io;
 with Line_Breaks;                        use Line_Breaks;
 with Parse_Polynomial_Exceptions;        use Parse_Polynomial_Exceptions;
+with Write_Factors;                      use Write_Factors;
 
 package body Standard_Complex_Polynomials_io is
 
@@ -99,8 +100,9 @@ package body Standard_Complex_Polynomials_io is
   --   if the bracket counter bc is nonzero when the delimiter is encountered.
 
     n : constant natural32 := Symbol_Table.Maximal_Size;
-    char,oper : character;
+    char,oper,nextchar : character;
     term,res,acc : Poly := Null_Poly;
+    eol : boolean;
 
   begin
     oper := '+';
@@ -132,8 +134,14 @@ package body Standard_Complex_Polynomials_io is
          -- elsif char = ')' then
          --   bc := bc - 1;
           end if;
-          if char = '^'
-           then Read_Power_Factor(file,char,term);
+          if char = '^' then
+            Read_Power_Factor(file,char,term);
+          elsif char = '*' then  -- look for the **2
+            look_ahead(file,nextchar,eol);
+            if nextchar = '*' then
+              get(file,char);
+              Read_Power_Factor(file,char,term);
+            end if;
           end if;
           case oper is
             when '+' => Add(acc,res); Clear(res); Copy(term,res);
@@ -156,8 +164,14 @@ package body Standard_Complex_Polynomials_io is
             oper := char; get(file,char);  -- skip '*'
             Read_Term(file,bc,char,n,term);
             Skip_Spaces_and_CR(file,char);
-            if char = '^'
-             then Read_Power_Factor(file,char,term);
+            if char = '^' then
+              Read_Power_Factor(file,char,term);
+            elsif char = '*' then
+              look_ahead(file,nextchar,eol);
+              if nextchar = '*' then
+                get(file,char);
+                Read_Power_Factor(file,char,term);
+              end if;
             end if;
             if char /= '(' then
               case oper is
@@ -368,58 +382,6 @@ package body Standard_Complex_Polynomials_io is
     end if;
     get(file,p);
   end get;
-
--- AUXILIARIES FOR OUTPUT ROUTINES :
-
-  procedure Write_Factor ( file : in file_type; d,i : in natural32;
-                           standard : in boolean; pow : in power ) is
-
-  -- DESCRIPTION :
-  --   Writes the factor corresponding with the ith unknown on file.
-
-    sb : Symbol;
-
-  begin
-    if standard then
-      put(file,'x');
-      if i < 10
-       then put(file,i,1);
-       else put(file,i,2);
-      end if;
-    else 
-      sb := Symbol_Table.get(i); Symbol_Table_io.put(file,sb);
-    end if;
-    if d > 1 then
-      if pow = '^'
-       then put(file,'^');
-       else put(file,"**");
-      end if;
-      if d < 10
-       then put(file,d,1);
-       else put(file,d,2);
-      end if;
-    end if;
-  end Write_Factor;
-
-  procedure Write_Factor ( file : in file_type; d : in natural32;
-                           sb : in Symbol; pow : in power ) is
-
-  -- DESCRIPTION :
-  --   Writes the factor corresponding with the ith unknown on file.
-
-  begin
-    Symbol_Table_io.put(file,sb);
-    if d > 1 then
-      if pow = '^'
-       then put(file,'^');
-       else put(file,"**");
-      end if;
-      if d < 10
-       then put(file,d,1);
-       else put(file,d,2);
-      end if;
-    end if;
-  end Write_Factor;
 
 -- THE OUTPUT OPERATIONS :
 

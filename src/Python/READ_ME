@@ -1,7 +1,13 @@
-phcpy 0.3.2 offers a simple Python interface to PHCv2.4.03
+phcpy 0.4.1 offers a simple Python interface to PHCv2.4.12
 
 This directory was added since release 2.3.41 of PHCpack,
 in collaboration with Kathy Piret.
+Release 0.3.3 of phcpy offers the new module sweepers.py,
+which exports the sweep homotopies, described in the paper
+"Sweeping Algebraic Curves for Singular Solutions"
+by Kathy Piret and Jan Verschelde, published in the
+Journal of Computational and Applied Mathematics,
+volume 234, number 4, pages 1228-1237, 2010. 
 
 The module phcpy needs the C extension module phcpy2c,
 which should be available as a shared object file.
@@ -20,7 +26,11 @@ path trackers in the trackers module of phcpy.
 See the setup.py file for the specific shared object modules needed
 to install for the specific precision levels.
 
+Version 0.3.7 provided the key tools to compute a numerical
+irreducible decomposition.
+
 The package phcpy is defined in the directory PHCpy.
+The directory PHCpy3 contains the version of phcpy for Python 3.5.
 
 ------------------------------------------------------------------------------
 file name               : short description
@@ -28,14 +38,16 @@ file name               : short description
 examples.py             : some interesting benchmark examples
 families.py             : a couple of families of systems
 interface.py            : load/store data to C interface with PHCpack
-polytopes               : convex hulls and mixed volumes of Newton polytopes
-solver.py               : use of C extension module phcpy2c
-solutions.py            : PHCpack solution string into dictionary
-trackers.py             : path trackers
 maps.py                 : monomial maps as solutions of binomials
-phcwulf.py              : client/server for beowulf clusters
-sets.py                 : manipulate algebraic sets
+polytopes               : convex hulls and mixed volumes of Newton polytopes
 schubert.py             : numerical Schubert calculus
+sets.py                 : manipulate algebraic sets
+solutions.py            : PHCpack solution string into dictionary
+solver.py               : use of C extension module phcpy2c
+sweepers.py             : homotopies to sweep through parameter space
+trackers.py             : path trackers
+tropisms.py             : numerically computed tropisms
+phcwulf.py              : client/server for beowulf clusters
 ------------------------------------------------------------------------------
 
 The modules examples, solver, solutions provide tests which are executed
@@ -43,6 +55,15 @@ by "python examples.py" (regression test), "python solver.py" (tests solver),
 and "python solutions.py" (test on checking the solutions dictionaries).
 
 Release history:
+0.4.1 : 2016-02-19 : bug fix in parsing ()**2, checkin for solver
+0.4.0 : 2016-02-12 : new module tropisms, for output of polyhedral end game
+0.3.9 : 2016-01-17 : new tuning module, to tune the settings of the trackers
+0.3.8 : 2016-01-02 : version for Python 3.5, improved documentation
+0.3.7 : 2015-12-29 : homotopy membership test in sets.py
+0.3.6 : 2015-12-24 : monodromy breakup with double doubles and quad doubles
+0.3.5 : 2015-12-11 : checkin/checkout functions in polytopes.py
+0.3.4 : 2015-11-23 : diagonal homotopies and improved documentation
+0.3.3 : 2015-11-06 : new module sweepers exports sweep homotopies
 0.3.2 : 2015-10-22 : L-R homotopies with double double and quad doubles
 0.3.1 : 2015-10-07 : blackbox solver with double doubles and quad doubles
 0.3.0 : 2015-09-24 : bug fix in passing string representations of polynomials

@@ -244,7 +244,7 @@ package body QuadDobl_Sampling_Machine is
 
   begin
     QuadDobl_Complex_Solutions.Set_Continuation_Parameter(sols,Create(ddzero));
-    Cont(sols,tt);
+    Cont(sols,target=>tt);
   end Silent_Homotopy_Continuation;
 
   procedure Silent_Homotopy_Continuation_with_Stop
@@ -327,7 +327,7 @@ package body QuadDobl_Sampling_Machine is
 
   begin
     QuadDobl_Complex_Solutions.Set_Continuation_Parameter(sols,Create(ddzero));
-    Cont(sols,tt);
+    Cont(sols,target=>tt);
   end Silent_Homotopy_Continuation_with_Stop;
 
   procedure Reporting_Homotopy_Continuation
@@ -432,7 +432,7 @@ package body QuadDobl_Sampling_Machine is
 
   begin
     QuadDobl_Complex_Solutions.Set_Continuation_Parameter(sols,create(ddzero));
-    Cont(file,sols,tt);
+    Cont(file,sols,target=>tt);
   end Reporting_Homotopy_Continuation;
 
   procedure Reporting_Homotopy_Continuation_with_Stop
@@ -516,7 +516,7 @@ package body QuadDobl_Sampling_Machine is
 
   begin
     QuadDobl_Complex_Solutions.Set_Continuation_Parameter(sols,Create(ddzero));
-    Cont(file,sols,tt);
+    Cont(file,sols,target=>tt);
   end Reporting_Homotopy_Continuation_with_Stop;
 
 -- CORRECTORS :
@@ -649,13 +649,13 @@ package body QuadDobl_Sampling_Machine is
 
   procedure Default_Tune_Sampler ( level : in natural32 ) is
   begin
-    Continuation_Parameters.Tune(level,64);
+    Continuation_Parameters.Tune(level); -- ,64); -- too restrictive !
   end Default_Tune_Sampler;
 
   procedure Default_Tune_Sampler
               ( file : in file_type; level : in natural32 ) is
   begin
-    Continuation_Parameters.Tune(level,64);
+    Continuation_Parameters.Tune(level); -- ,64);
     Continuation_Parameters_io.put;
   end Default_Tune_Sampler;
 

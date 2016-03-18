@@ -1,4 +1,4 @@
-Static lifting for mixed volumes and polyhedral continuation in PHCv2.4.02
+Static lifting for mixed volumes and polyhedral continuation in PHCv2.4.06
 
 In release 2.3, one file had to be changed for the optimizer in Mac OS X
 and default options were set to floating-point point-wise lifting.
@@ -16,6 +16,10 @@ continuation methods developed by Huber and Sturmfels.
 This library features integer-valued and floating-point lifting functions.
 The implementation of integer static lifting typically induces nested
 subdivisions, with non-fine cells recursively refined by subdivisions.
+
+In version 2.4.06, the application of heterogeneous multitasking 
+makes that the MixedVol algorithm runs in parallel with the polyhedral
+path trackers to solve a random coefficient system.
 
 There are four parts in this library:
 

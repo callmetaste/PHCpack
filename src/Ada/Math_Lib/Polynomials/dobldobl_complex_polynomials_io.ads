@@ -1,4 +1,5 @@
 with text_io;                            use text_io;
+with Symbol_Table;                       use Symbol_Table;
 with Standard_Natural_Numbers;           use Standard_Natural_Numbers;
 with DoblDobl_Complex_Polynomials;       use DoblDobl_Complex_Polynomials;
 
@@ -38,5 +39,28 @@ package DoblDobl_Complex_Polynomials_io is
   -- DESCRIPTION :
   --   Every term of the polynomial p will be written on a separate line.
   --   This is useful for polynomials with random complex coefficients.
+
+  procedure put_line ( p : in Poly; s : in Array_of_Symbols );
+  procedure put_line ( file : in file_type; p : in Poly;
+                       s : in Array_of_Symbols );
+
+  -- DESCRIPTION :
+  --   Every term of the polynomial p will be written on a separate line.
+  --   This is useful for polynomials with random complex coefficients.
+  --   Instead of the symbol table, the array of symbols will be used
+  --   for the names of the variables.
+
+  -- REQUIRED : s'range = 1..Number_of_Unknowns(p).
+
+  procedure put ( p : in Poly; s : in Array_of_Symbols );
+  procedure put ( file : in file_type;
+                  p : in Poly; s : in Array_of_Symbols );
+
+  -- DESCRIPTION :
+  --   Writes the polynomial p to standard output or to file,
+  --   using the array of symbols as the symbols for the variables
+  --   instead of the symbols stored in the symbol table.
+
+  -- REQUIRED : s'range = 1..Number_of_Unknowns(p).
 
 end DoblDobl_Complex_Polynomials_io;

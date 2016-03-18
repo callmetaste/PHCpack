@@ -158,6 +158,67 @@ package MixedVol_Algorithm is
   --   cells     stack of mixed cells;
   --   mixvol    mixed volume of the polytopes spanned by the supports,
   --             note that this is the total mixed volume, if stlb /= 0.0.
+
+  procedure mv_upto_pre4mv
+               ( nVar,nPts : in integer32;
+                 ind,cnt,sup : in Standard_Integer_Vectors.Vector;
+                 nSpt : out integer32;
+                 SptType,perm : out Standard_Integer_Vectors.Link_to_Vector;
+                 VtxIdx : out Standard_Integer_Vectors.Link_to_Vector;
+                 Vtx : out Standard_Integer_VecVecs.Link_to_VecVec;
+                 SptIdx : out Standard_integer_Vectors.Link_to_Vector;
+                 Spt : out Standard_Integer_VecVecs.Link_to_VecVec; 
+                 NuIdx2OldIdx : out Standard_Integer_Vectors.Link_to_Vector );
+
+  -- DESCRIPTION :
+  --   Executes the same code as in mv_with_callback upto the 'pre4mv'
+  --   procedure which computes the number of different supports,
+  --   the type of mixture, and a permutation of the original supports. 
+  --   This information is needed to process the cells returned by
+  --   the callback procedure next_cell in mv_with_callback.
+
+  -- ON ENTRY :
+  --   nVar      ambient dimension, length of the vectors in supports;
+  --   nPts      total number of points in the supports;
+  --   ind       ind(i) is the start of the i-th support;
+  --   cnt       cnt(i) counts the length of the i-th support;
+  --   sup       coordinates of the points in the supports.
+
+  -- ON RETURN :
+  --   nSpt      number of different supports;
+  --   SptType   type of each support;
+  --   perm      permutation of the original supports;
+  --   VtxIdx    index vector to the vertex set;
+  --   Vtx       vertices of the supports.
+  --   SptIdx    index vector to the support set;
+  --   Spt       points in the support set;
+  --   NuIdx2OldIdx relates new to old indices.
+
+  procedure mv_lift
+               ( nVar : in integer32;
+                 stlb : in double_float; nSpt : in integer32;
+                 VtxIdx : in out Standard_Integer_Vectors.Link_to_Vector;
+                 Vtx : in out Standard_Integer_VecVecs.Link_to_VecVec;
+                 lft : out Standard_Floating_Vectors.Link_to_Vector );
+
+  -- DESCRIPTION :
+  --   Performs a random lifting on the vertex set and if stlb /= 0,
+  --   then artificial origins will be added.
+
+  -- ON ENTRY :
+  --   nVar      ambient dimension, length of the vectors in supports;
+  --   stlb      lifting bound for stable mixed volumes,
+  --             equals 0.0 if no stable mixed volumes are needed.
+  --   nSpt      number of different supports;
+  --   VtxIdx    index vector to the vertex set;
+  --   Vtx       vertices of the supports.
+
+  -- ON RETURN :
+  --   VtxIdx    index vector to the vertex set,
+  --             with possible addition of artificial origins;
+  --   Vtx       vertices of the supports, 
+  --             with possible addition of artificial origins;
+  --   lft       lifting values for the vertex points.
  
   procedure mv_with_callback
                ( nVar,nPts : in integer32;
@@ -272,6 +333,33 @@ package MixedVol_Algorithm is
   --   Returns the supports of the mixed cell defined by the labels,
   --   taking the permutation into account, i.e.: the supports of the
   --   cells follow the original order of the supports.
+
+  -- ON ENTRY :
+  --   nVar      number of variables, dimension before the lifting;
+  --   nSpt      number of different supports;
+  --   SptType   type of mixture of the supports;
+  --   perm      permutation of the original support sets;
+  --   labels    indices to the point in the mixed cell;
+  --   Vtx       complete vertex set of all supports;
+  --   lft       lifting values for all points in Vtx.
+
+  function Labels_to_Mixed_Cell
+               ( nVar,nSpt : in integer32;
+                 SptType : in Standard_Integer_Vectors.Link_to_Vector;
+                 labels : in Standard_Integer_Vectors.Link_to_Vector;
+                 Vtx : in Standard_Integer_VecVecs.Link_to_VecVec;
+                 lft : in Standard_Floating_Vectors.Link_to_Vector )
+               return Mixed_Cell;
+  function Labels_to_Mixed_Cell
+               ( nVar,nSpt : in integer32;
+                 SptType,perm : in Standard_Integer_Vectors.Link_to_Vector;
+                 labels : in Standard_Integer_Vectors.Link_to_Vector;
+                 Vtx : in Standard_Integer_VecVecs.Link_to_VecVec;
+                 lft : in Standard_Floating_Vectors.Link_to_Vector )
+               return Mixed_Cell;
+
+  -- DESCRIPTION :
+  --   Returns the mixed cell defined by the labels of indices to the points.
 
   -- ON ENTRY :
   --   nVar      number of variables, dimension before the lifting;

@@ -1,3 +1,86 @@
+Wed 16 Mar 2016 : improved the drivers in multitasking_continuation.adb
+  so the start system and start solutions are written correctly to file.
+
+Tue 8 Mar 2016 : added preset precision level to the input parameters of
+  the drivers to the multitasked path trackers in multitasking_continuation.
+  Added driver for Laurent systems in multitasking_continuation.
+
+Sat 5 Mar 2016 : updates in the driver of multitasking_continuation for
+  the Gauss-Newton correctors on overdetermined homotopies.
+  More updates in multitasking_continuation to make it work.
+
+Thu 7 Jan 2016 : change single_polyhedral_trackers.adb in the call to the
+  path trackers with the extra parameter for the estimated winding number.
+
+Fri 11 Dec 2015 : to pipelined_polyhedral_drivers, added wrappers to deal
+  with ordinary polynomial systems.
+
+Thu 10 Dec 2015 : new package pipelined_polyhedral_drivers, tested by
+  ts_mtmva, with drivers to call the pipelined polyhedral trackers.
+
+Wed 9 Dec 2015 : fixed lifted_supports of pipelined_polyhedral_trackers.adb
+  so that it works for already sorted semi-mixed inputs as well.
+  No permutations have to be applied for the general semi-mixed case.
+  Silent versions in pipelined_polyhedral_trackers are tested by ts_mtmva.
+  Modified pipelined_labeled_cells and ts_mtmva for a pipelined computation
+  of the stable mixed volume.  In pipelined_polyhedral_trackers, included
+  the parameter stlb as the lifting bound for stable mixed volumes,
+  tested by ts_mtmva.
+
+Tue 8 Dec 2015 : to mixed_labels_queue added a Next procedure that returns
+  both the labels and the counter, which is useful to track the progress
+  of the processor in the monitored version of pipelined_labeled_cells.adb.
+  Changed pipelined_labeled_cells.adb, pipelined_polyhedral_trackers.adb,
+  and ts_mtmva.adb for shortened parameter list to mv_lift.
+  For fully mixed systems, must permute the polynomials and the lifted
+  supports before doing the polyhedral path tracking.  Also added versions
+  for double double and quad double precision, tested by ts_mtmva.
+
+Mon 7 Dec 2015 : pipelined_polyhedral_trackers.adb simulate path tracking
+  through a multitasked mixed volume count.  Refactored code from
+  multitasking_polyhedral_trackers into polyhedral_start_systems.
+  The pipelined polyhedral trackers work for fully mixed when the permutation
+  is the identity and only in standard double precision.
+
+Sun 6 Dec 2015 : minor change in documentation in pipelined_labeled_cells.ads.
+  New packaged pipelined_polyhedral_trackers contain specifications to apply
+  pipelining to solve a random coefficient systems, tested by ts_mtmva.
+
+Sat 5 Dec 2015 : improved pipelined_labeled_cells, tested by ts_mtmva.
+  Split pipelined procedure into two: one before and one after the
+  preprocessing and lifting.  Added idtask as parameter to argument of the
+  process procedure in the pipelined_labeled_cells.
+
+Fri 4 Dec 2015 : made the mixed volume computation of the cells in ts_mtmva
+  thread safe, avoiding type conversions.
+
+Thu 3 Dec 2015 : use only one semaphore in mixed_labels_queue.adb.
+
+Wed 2 Dec 2015 : new package pipelined_labeled_cells, with code from
+  the ts_mtmva test procedure.  Added output flag to the producer and
+  consumer in pipelined_labeled_cells, also ts_mtmva.adb changed.
+  Added callback function process in pipeline_labeled_cells,
+  tested by ts_mtmva.adb.
+
+Tue 1 Dec 2015 : new package single_polyhedral_trackers to track one path,
+  factored out from the multitasking_polyhedral_trackers.
+
+Mon 30 Nov 2015 : added 'stopped' function to mixed_labels_queue.
+  In ts_mtmva, the production of the labels to the mixed cells can happen
+  in parallel with the making of the mixed cells.
+
+Sun 29 Nov 2015 : new test procedure ts_mtmva to develop an interlacing of
+  the producing of mixed cells with the processing of the mixed cells.
+  New package mixed_labels_queue with thread safe queue for ts_mtmva.
+
+Fri 27 Nov 2015 : refactored code in multitasking_polyhedral_trackers;
+  also for double double and quad double precision.
+
+Thu 26 Nov 2015 : factored out queues out of multitasking_continuation
+  in the new packages {standard,dobldobl,quaddobl}_solutions_queue.
+  Similarly, the new package mixed_cells_queue is factored out the
+  package multitasking_polyhedral_trackers.adb.
+
 Fri 9 Oct 2015 : extended multitasking_root_refiners with procedures in
   double double and quad double precision, tested by ts_mtverify.
 

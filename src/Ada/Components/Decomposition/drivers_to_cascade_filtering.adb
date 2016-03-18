@@ -5,24 +5,36 @@ with Characters_and_Numbers;             use Characters_and_Numbers;
 with Numbers_io;                         use Numbers_io;
 with Standard_Natural_Numbers_io;        use Standard_Natural_Numbers_io;
 with Standard_Integer_Numbers_io;        use Standard_Integer_Numbers_io;
-with Standard_Complex_Numbers;           use Standard_Complex_Numbers;
+with Standard_Complex_Numbers;
 with Standard_Complex_Numbers_io;        use Standard_Complex_Numbers_io;
+with DoblDobl_Complex_Numbers;
+with QuadDobl_Complex_Numbers;
 with Standard_Natural_Vectors;
 with Standard_Integer_Vectors;
 with Standard_Complex_VecVecs;           use Standard_Complex_VecVecs;
-with Standard_Complex_Polynomials;       use Standard_Complex_Polynomials;
-with Symbol_Table;                       use Symbol_Table;
+with Standard_Complex_Polynomials;
 with Standard_Complex_Poly_Systems_io;   use Standard_Complex_Poly_Systems_io;
+with DoblDobl_Complex_Polynomials;
+with DoblDobl_Complex_Poly_Systems_io;   use DoblDobl_Complex_Poly_Systems_io;
+with QuadDobl_Complex_Polynomials;
+with QuadDobl_Complex_Poly_Systems_io;   use QuadDobl_Complex_Poly_Systems_io;
 with Standard_to_Multprec_Convertors;    use Standard_to_Multprec_Convertors;
 with Multprec_Complex_Poly_Systems;
 with Multprec_Complex_Poly_Systems_io;   use Multprec_Complex_Poly_Systems_io;
 with Standard_Complex_Solutions_io;      use Standard_Complex_Solutions_io;
 with Standard_Solution_Splitters;        use Standard_Solution_Splitters;
+with DoblDobl_Complex_Solutions_io;      use DoblDobl_Complex_Solutions_io;
+with DoblDobl_Solution_Splitters;        use DoblDobl_Solution_Splitters;
+with QuadDobl_Solution_Splitters;        use QuadDobl_Solution_Splitters;
+with QuadDobl_Complex_Solutions_io;      use QuadDobl_Complex_Solutions_io;
 with Standard_Scaling;                   use Standard_Scaling;
 with Black_Box_Root_Counters;            use Black_Box_Root_Counters;
-with Black_Box_Poly_Continuations;       use Black_Box_Poly_Continuations;
+with Standard_BlackBox_Continuations;    use Standard_BlackBox_Continuations;
+with DoblDobl_BlackBox_Continuations;    use DoblDobl_BlackBox_Continuations;
+with QuadDobl_BlackBox_Continuations;    use QuadDobl_BlackBox_Continuations;
 with Black_Box_Solvers;
 with Witness_Sets,Witness_Sets_io;       use Witness_Sets,Witness_Sets_io;
+with Square_and_Embed_Systems;           use Square_and_Embed_Systems;
 with Standard_Irreducible_Decomp;
 with Standard_Irreducible_Decomp_io;     use Standard_Irreducible_Decomp_io;
 with Multprec_Irreducible_Decomp;
@@ -35,283 +47,9 @@ with Drivers_to_Breakup_Components;      use Drivers_to_Breakup_Components;
 
 package body Drivers_to_Cascade_Filtering is
 
--- UTILITIES TO RESTRICT POLYNOMIALS :
+  procedure Standard_Square_and_Embed is
 
-  function Restrict ( t : Term; m,k : integer32 ) return Term is
-
-  -- DESCRIPTION :
-  --   Only the first m variables and the last k variables remain.
-
-    rt : Term;
-
-  begin
-    rt.cf := t.cf;
-    rt.dg := new Standard_Natural_Vectors.Vector'(t.dg.all);
-    for i in m+1..rt.dg'last-k loop
-      rt.dg(i) := 0;
-    end loop;
-    return rt;
-  end Restrict;
-
-  function Restrict ( p : Poly; m,k : integer32 ) return Poly is
-
-  -- DESCRIPTION :
-  --   Restricts the polynomial to an m-dimensional subspace, spanned
-  --   by the first m variables, leaving the k last slack variables intact.
-
-    res : Poly := Null_Poly;
-
-    procedure Restrict_Term ( t : in Term; continue : out boolean ) is
-
-      rt : Term := Restrict(t,m,k);
-
-    begin
-      Add(res,rt);
-      Clear(rt);
-      continue := true;
-    end Restrict_Term;
-    procedure Restrict_Terms is new Visiting_Iterator(Restrict_Term);      
-
-  begin
-    Restrict_Terms(p);
-    return res;
-  end Restrict;
-
--- CODE WITH THE NEW MODULAR APPROACH :
-
-  function Maximum ( a,b : natural32 ) return natural32 is
-
-  -- DESCRIPTION :
-  --   Returns the maximum of a and b.
-
-  begin
-    if a > b
-     then return a;
-     else return b;
-    end if;
-  end Maximum;
-
-  procedure Interactive_Embed_Square_System 
-              ( file : in file_type; p : in Poly_Sys;
-                embsys : out Link_to_Poly_Sys; topdim : out natural32 ) is
-
-  -- DESCRIPTION :
-  --   Prompts the user to enter the expected top dimension, 
-  --   which is returned in topdim,
-  --   creates the embedded system and writes it on file.
-
-    k,m : natural32 := 0;
-    ans : character;
-
-  begin
-    put("Give the expected top dimension : "); Read_Natural(k);
-    Add_Embed_Symbols(k); topdim := k;
-    declare
-      ep : Poly_Sys(p'first..p'last+integer32(k));
-    begin
-      ep := Slice_and_Embed(p,k);
-      put("Should the slices be restricted to a subspace ? (y/n) ");
-      Ask_Yes_or_No(ans);
-      if ans = 'y' then
-        put("Give the dimension of the subspace : "); Read_Natural(m);
-        put("The first "); put(m,1);
-        put_line(" variables span the subspace...");
-        Determine_Order(ep);
-        for i in ep'last-integer32(k)+1..ep'last loop
-          declare
-            rp : constant Poly := Restrict(ep(i),integer32(m),integer32(k));
-          begin
-            Clear(ep(i));
-            ep(i) := rp;
-          end;
-        end loop;
-      end if;
-      put_line(file,ep);
-      embsys := new Poly_Sys'(ep);
-    end;
-  end Interactive_Embed_Square_System;
-
-  procedure Embed_Square_System 
-              ( p : in Poly_Sys; topdim : in natural32;
-                embsys : out Link_to_Poly_Sys ) is
-  begin
-    Add_Embed_Symbols(topdim);
-    declare
-      ep : Poly_Sys(p'first..p'last+integer32(topdim));
-    begin
-      ep := Slice_and_Embed(p,topdim);
-      embsys := new Poly_Sys'(ep);
-    end;
-  end Embed_Square_System;
-
-  function Full_Embed_Nonsquare_System
-               ( p : Poly_Sys; nq,nv,k : natural32 ) return Poly_Sys is
-
-  -- DESCRIPTION :
-  --   Constructs an embedding of a nonsquare system,
-  --   using slices not restricted to any particular subspace.
-
-  -- ON ENTRY :
-  --   p         nonsquare polynomial system;
-  --   nq        number of equations;
-  --   nv        number of variables;
-  --   k         number of slices to be added to the system.
-
-  -- ON RETURN :
-  --   Square polynomial system with k additional linear equations.
- 
-    embedded : Poly_Sys(p'first..p'last+integer32(k));
-    d : constant integer32 := integer32(nv - nq);
-
-  begin
-    if nv < nq then
-      declare
-        sp : constant Poly_Sys := Square(p);
-      begin
-        embedded := Slice_and_Embed(sp,k);
-      end;
-    else
-      if integer32(k) <= d then
-        embedded := Embed_with_Dummies(p,k);
-      else
-        declare
-          aux : Poly_Sys(p'first..p'last+d);
-        begin
-          aux := Embed_with_Dummies(p,natural32(d));
-          embedded := Slice_and_Embed(aux,k-natural32(d));
-        end;
-      end if;
-    end if;
-    return embedded;
-  end Full_Embed_Nonsquare_System;
-
-  procedure Interactive_Embed_Nonsquare_System
-              ( file : in file_type; p : in Poly_Sys;
-                nbequ,nbunk : in natural32;
-                embsys : out Link_to_Poly_Sys; topdim : out natural32 ) is
-
-  -- DESCRIPTION :
-  --   Constructs an embedding of a nonsquare system with number of
-  --   equations in nbequ and number of unknowns in nbunk.
-  --   The user is prompted for the expected top dimension.
-  --   Slack variables are added for overdetermined systems.
-  --   Dummy variables are added for underdetermined systems.
-  --   The embedded system is written to file.
-
-    max : constant natural32 := Maximum(nbequ,nbunk);
-    sp : constant Poly_Sys(1..integer32(max)) := Square(p);
-    m,ns : natural32;
-    k,a : integer32 := 0;
-    ans : character;
-
-  begin
-    if nbequ > nbunk
-     then Add_Slack_Symbols(nbequ-nbunk);
-    end if;
-    put("Give the expected top dimension : "); get(k);
-    ns := Symbol_Table.Number;
-    if ns < nbunk
-     then Add_Extra_Symbols(nbunk-ns);
-    end if;
-    Add_Embed_Symbols(natural32(k));
-    topdim := natural32(k);
-    declare
-      ep : Poly_Sys(sp'first..sp'last+k)
-         := Full_Embed_Nonsquare_System(sp,nbequ,nbunk,natural32(k));
-    begin
-      put("Should the slices be restricted to a subspace ? (y/n) ");
-      Ask_Yes_or_No(ans);
-      if ans = 'y' then
-        put("Give the dimension of the subspace : "); Read_Natural(m);
-        put("The first "); put(m,1);
-        put_line(" variables span the subspace...");
-        Determine_Order(ep);
-        for i in ep'last-k+1..ep'last loop
-          declare
-            rp : constant Poly := Restrict(ep(i),integer32(m),k);
-          begin
-            Clear(ep(i));
-            ep(i) := rp;
-          end;
-        end loop;
-        a := integer32(nbunk - nbequ) - k;
-        if a > 0 then
-          for i in ep'last-2*k-a+1..ep'last-2*k loop
-            declare
-              rp : constant Poly := Restrict(ep(i),integer32(m),k);
-            begin
-              Clear(ep(i));
-              ep(i) := rp;
-            end;
-          end loop;
-        end if; 
-      end if;
-      put_line(file,ep);
-      embsys := new Poly_Sys'(ep);
-    end;
-  end Interactive_Embed_Nonsquare_System;
-
-  procedure Embed_Nonsquare_System
-              ( p : in Poly_Sys;
-                nbequ,nbunk,topdim : in natural32;
-                embsys : out Link_to_Poly_Sys ) is
-
-    max : constant natural32 := Maximum(nbequ,nbunk);
-    sp : constant Poly_Sys(1..integer32(max)) := Square(p);
-    ns : natural32;
-
-  begin
-    if nbequ > nbunk then
-      Add_Slack_Symbols(nbequ-nbunk);
-     -- put("added "); put(nbequ - nbunk,1); put_line(" slack variables");
-    end if;
-   -- put_line("The squared polynomial system :"); put_line(sp);
-    ns := Symbol_Table.Number;
-    if ns < nbunk
-     then Add_Extra_Symbols(nbunk-ns);
-    end if;
-    Add_Embed_Symbols(topdim);
-    declare
-      ep : Poly_Sys(sp'first..sp'last+integer32(topdim))
-         := Full_Embed_Nonsquare_System(sp,nbequ,nbunk,topdim);
-    begin
-      embsys := new Poly_Sys'(ep);
-    end;
-  end Embed_Nonsquare_System;
-
-  procedure Interactive_Square_and_Embed
-              ( file : in file_type; p : in Poly_Sys;
-                ep : out Link_to_Poly_Sys; k : out natural32 ) is
-
-    nq : constant natural32 := natural32(p'last);
-    nv : constant natural32 := Number_of_Unknowns(p(p'first));
-
-  begin
-    put("The number of equations : "); put(nq,1); new_line;
-    put("The number of variables : "); put(nv,1); new_line;
-    if nq /= nv
-     then Interactive_Embed_Nonsquare_System(file,p,nq,nv,ep,k);
-     else Interactive_Embed_Square_System(file,p,ep,k);
-    end if;
-  end Interactive_Square_and_Embed;
-
-  procedure Square_and_Embed
-              ( p : in Poly_Sys; topdim : in natural32;
-                ep : out Link_to_Poly_Sys ) is
-
-    nq : constant natural32 := natural32(p'last);
-    nv : constant natural32 := Number_of_Unknowns(p(p'first));
-
-  begin
-   -- put("The number of equations : "); put(nq,1); new_line;
-   -- put("The number of variables : "); put(nv,1); new_line;
-    if nq /= nv
-     then Embed_Nonsquare_System(p,nq,nv,topdim,ep);
-     else Embed_Square_System(p,topdim,ep);
-    end if;
-  end Square_and_Embed;
-
-  procedure Driver_to_Square_and_Embed is
+    use Standard_Complex_Poly_Systems;
 
     lp,ep : Link_to_Poly_Sys;
     file : file_type;
@@ -328,77 +66,68 @@ package body Drivers_to_Cascade_Filtering is
     new_line;
     put_line("See the output file for results...");
     new_line;
+  end Standard_Square_and_Embed;
+
+  procedure DoblDobl_Square_and_Embed is
+
+    use DoblDobl_Complex_Poly_Systems;
+
+    lp,ep : Link_to_Poly_Sys;
+    file : file_type;
+    k : natural32;
+
+  begin
+    new_line;
+    get(lp);
+    new_line;
+    put_line("Reading the name of the output file.");
+    Read_Name_and_Create_File(file);
+    new_line;
+    Interactive_Square_and_Embed(file,lp.all,ep,k);
+    new_line;
+    put_line("See the output file for results...");
+    new_line;
+  end DoblDobl_Square_and_Embed;
+
+  procedure QuadDobl_Square_and_Embed is
+
+    use QuadDobl_Complex_Poly_Systems;
+
+    lp,ep : Link_to_Poly_Sys;
+    file : file_type;
+    k : natural32;
+
+  begin
+    new_line;
+    get(lp);
+    new_line;
+    put_line("Reading the name of the output file.");
+    Read_Name_and_Create_File(file);
+    new_line;
+    Interactive_Square_and_Embed(file,lp.all,ep,k);
+    new_line;
+    put_line("See the output file for results...");
+    new_line;
+  end QuadDobl_Square_and_Embed;
+
+  procedure Driver_to_Square_and_Embed is
+
+    p : constant character := Prompt_for_Precision;
+
+  begin
+    case p is
+      when '0' => Standard_Square_and_Embed;
+      when '1' => DoblDobl_Square_and_Embed;
+      when '2' => QuadDobl_Square_and_Embed;
+      when others => null;
+    end case;
   end Driver_to_Square_and_Embed;
 
-  function Remove_Last_Variables
-             ( p : Poly_Sys; n : natural32 ) return Poly_Sys is
+  procedure Standard_Remove_Embedding is
 
-  -- DESCRIPTION :
-  --   Removes the last n variables of the system p.
-
-  -- REQUIRED : n >= Number_of_Unknowns(p(i)), for i in p'range.
-
-    res : Poly_Sys(p'range);
-
-  begin
-    for i in p'range loop
-      res(i) := Remove_Embedding(p(i),n);
-    end loop;
-    return res;
-  end Remove_Last_Variables;
-
-  procedure Remove_Last_Variables ( p : in out Poly_Sys; n : in natural32 ) is
-
-  -- DESCRIPTION :
-  --   Removes the last n variables of the system p.
-
-  -- REQUIRED : n >= Number_of_Unknowns(p(i)), for i in p'range.
-
-    res : Poly;
-
-  begin
-    for i in p'range loop
-      res := Remove_Embedding(p(i),n);
-      Copy(res,p(i)); Clear(res);
-    end loop;
-  end Remove_Last_Variables;
-
-  function Remove_Embedding
-             ( p : Poly_Sys; dim,ns : natural32 ) return Poly_Sys is
-
-  -- DESCRIPTION :
-  --   Removes the embedding and extra slack variables from the system p.
-
-  -- ON ENTRY :
-  --   p       an embedded polynomial system;
-  --   dim     dimension of the solution set used in the embedding;
-  --   ns      number of extra slack variables which need to be removed.
-
-  -- REQUIRED :
-  --   All slack variables are located as last variables in p.
-
-    res : Poly_Sys(p'range);
-
-  begin
-    if dim > 0 then
-      declare
-        wrk : constant Poly_Sys := Remove_Embedding1(p,dim);
-        nz : constant natural32 := Number_of_Zero_Equations(wrk);
-        res1 : Poly_Sys(1..wrk'last-integer32(nz))
-             := wrk(1..wrk'last-integer32(nz));
-      begin
-        if ns > 0 then
-          Remove_Last_Variables(res1,ns);
-        end if;
-        return res1;
-      end;
-    elsif ns > 0 then
-      res := Remove_Last_Variables(p,ns);
-    end if;
-    return res;
-  end Remove_Embedding;
-
-  procedure Driver_to_Remove_Embedding is
+    use Standard_Complex_Polynomials;
+    use Standard_Complex_Poly_Systems;
+    use Standard_Complex_Solutions;
 
     lp : Link_to_Poly_Sys;
     sols : Solution_List;
@@ -440,10 +169,149 @@ package body Drivers_to_Cascade_Filtering is
       put(file,Length_Of(rsols),natural32(Head_Of(rsols).n),rsols);
     end;
     Close(file);
+  end Standard_Remove_Embedding;
+
+  procedure DoblDobl_Remove_Embedding is
+
+    use DoblDobl_Complex_Polynomials;
+    use DoblDobl_Complex_Poly_Systems;
+    use DoblDobl_Complex_Solutions;
+
+    lp : Link_to_Poly_Sys;
+    sols : Solution_List;
+    file : file_type;
+    k,ns : natural32 := 0;
+
+  begin
+    new_line;
+    put_line("Removing an Embedding of a Polynomial System.");
+    DoblDobl_Read_Embedding(lp,sols,k,ns);
+    new_line;
+    put_line("Reading the name of the output file.");
+    Read_Name_and_Create_File(file);
+    new_line;
+    put("Number of embed variables in the system : ");
+    put(k,1); new_line;
+    put("Number of extra slack variables to remove : ");
+    put(ns,1); new_line;
+    new_line;
+    put_line("See the output file for the system...");
+    new_line;
+    declare
+      rp : constant Poly_Sys := Remove_Embedding(lp.all,k,ns);
+      nq : constant natural32 := natural32(rp'last);
+      nv : constant natural32 := Number_of_Unknowns(rp(rp'first));
+      rsols : Solution_List;
+    begin
+      if k + ns > 0
+       then rsols := Remove_Embedding(sols,k+ns);
+       else rsols := sols;
+      end if;
+      put(file,nq,1);
+      put(file," ");
+      put(file,nv,1);
+      new_line(file);
+      put(file,rp);
+      new_line(file);
+      put_line(file,"THE SOLUTIONS :");
+      put(file,Length_Of(rsols),natural32(Head_Of(rsols).n),rsols);
+    end;
+    Close(file);
+  end DoblDobl_Remove_Embedding;
+
+  procedure QuadDobl_Remove_Embedding is
+
+    use QuadDobl_Complex_Polynomials;
+    use QuadDobl_Complex_Poly_Systems;
+    use QuadDobl_Complex_Solutions;
+
+    lp : Link_to_Poly_Sys;
+    sols : Solution_List;
+    file : file_type;
+    k,ns : natural32 := 0;
+
+  begin
+    new_line;
+    put_line("Removing an Embedding of a Polynomial System.");
+    QuadDobl_Read_Embedding(lp,sols,k,ns);
+    new_line;
+    put_line("Reading the name of the output file.");
+    Read_Name_and_Create_File(file);
+    new_line;
+    put("Number of embed variables in the system : ");
+    put(k,1); new_line;
+    put("Number of extra slack variables to remove : ");
+    put(ns,1); new_line;
+    new_line;
+    put_line("See the output file for the system...");
+    new_line;
+    declare
+      rp : constant Poly_Sys := Remove_Embedding(lp.all,k,ns);
+      nq : constant natural32 := natural32(rp'last);
+      nv : constant natural32 := Number_of_Unknowns(rp(rp'first));
+      rsols : Solution_List;
+    begin
+      if k + ns > 0
+       then rsols := Remove_Embedding(sols,k+ns);
+       else rsols := sols;
+      end if;
+      put(file,nq,1);
+      put(file," ");
+      put(file,nv,1);
+      new_line(file);
+      put(file,rp);
+      new_line(file);
+      put_line(file,"THE SOLUTIONS :");
+      put(file,Length_Of(rsols),natural32(Head_Of(rsols).n),rsols);
+    end;
+    Close(file);
+  end QuadDobl_Remove_Embedding;
+
+  procedure Driver_to_Remove_Embedding is
+
+    p : constant character := Prompt_for_Precision;
+
+  begin
+    case p is
+      when '0' => Standard_Remove_Embedding;
+      when others => null;
+    end case;
   end Driver_to_Remove_Embedding;
 
   procedure Write_Witness_Points
-               ( file : in file_type; sols : in Solution_List ) is
+              ( file : in file_type;
+                sols : in Standard_Complex_Solutions.Solution_List ) is
+
+    use Standard_Complex_Solutions;
+
+  begin
+    if not Is_Null(sols) then
+      new_line(file);
+      put_line(file,"THE SOLUTIONS with zz = 0 :");
+      put(file,Length_Of(sols),natural32(Head_Of(sols).n),sols);
+    end if;
+  end Write_Witness_Points;
+
+  procedure Write_Witness_Points
+              ( file : in file_type;
+                sols : in DoblDobl_Complex_Solutions.Solution_List ) is
+
+    use DoblDobl_Complex_Solutions;
+
+  begin
+    if not Is_Null(sols) then
+      new_line(file);
+      put_line(file,"THE SOLUTIONS with zz = 0 :");
+      put(file,Length_Of(sols),natural32(Head_Of(sols).n),sols);
+    end if;
+  end Write_Witness_Points;
+
+  procedure Write_Witness_Points
+              ( file : in file_type;
+                sols : in QuadDobl_Complex_Solutions.Solution_List ) is
+
+    use QuadDobl_Complex_Solutions;
+
   begin
     if not Is_Null(sols) then
       new_line(file);
@@ -455,13 +323,12 @@ package body Drivers_to_Cascade_Filtering is
   procedure Down_Continuation
               ( file : in file_type;
                 embsys : in Standard_Complex_Poly_Systems.Poly_Sys;
-                level : in natural32; sols : in out Solution_List;
+                level : in natural32;
+                sols : in out Standard_Complex_Solutions.Solution_List;
                 pocotime : out duration ) is
 
-  -- DESCRIPTION :
-  --   Performs a continuation to remove the slice from the embedded system.
-  --   On entry, sols contains the start solutions, on return, the
-  --   computed solutions are in the list sols.
+    use Standard_Complex_Numbers;
+    use Standard_Complex_Solutions;
 
     target : constant Standard_Complex_Poly_Systems.Poly_Sys(embsys'range)
            := Remove_Slice(embsys);
@@ -476,10 +343,183 @@ package body Drivers_to_Cascade_Filtering is
     Black_Box_Polynomial_Continuation(file,target,embsys,sols,pocotime);
   end Down_Continuation;
 
+  procedure Down_Continuation
+              ( file : in file_type;
+                embsys : in DoblDobl_Complex_Poly_Systems.Poly_Sys;
+                level : in natural32;
+                sols : in out DoblDobl_Complex_Solutions.Solution_List;
+                pocotime : out duration ) is
+
+    use DoblDobl_Complex_Numbers;
+    use DoblDobl_Complex_Solutions;
+
+    target : constant DoblDobl_Complex_Poly_Systems.Poly_Sys(embsys'range)
+           := Remove_Slice(embsys);
+
+  begin
+    put(file,"START SYSTEM at level "); put(file,level,1);
+    put_line(file," :"); put_line(file,embsys);
+    new_line(file);
+    put(file,"TARGET SYSTEM at level "); put(file,level,1);
+    put_line(file," :"); put_line(file,target);
+    Set_Continuation_Parameter(sols,Create(integer(0)));
+    Black_Box_Polynomial_Continuation(file,target,embsys,sols,pocotime);
+  end Down_Continuation;
+
+  procedure Down_Continuation
+              ( file : in file_type;
+                embsys : in QuadDobl_Complex_Poly_Systems.Poly_Sys;
+                level : in natural32;
+                sols : in out QuadDobl_Complex_Solutions.Solution_List;
+                pocotime : out duration ) is
+
+    use QuadDobl_Complex_Numbers;
+    use QuadDobl_Complex_Solutions;
+
+    target : constant QuadDobl_Complex_Poly_Systems.Poly_Sys(embsys'range)
+           := Remove_Slice(embsys);
+
+  begin
+    put(file,"START SYSTEM at level "); put(file,level,1);
+    put_line(file," :"); put_line(file,embsys);
+    new_line(file);
+    put(file,"TARGET SYSTEM at level "); put(file,level,1);
+    put_line(file," :"); put_line(file,target);
+    Set_Continuation_Parameter(sols,Create(integer(0)));
+    Black_Box_Polynomial_Continuation(file,target,embsys,sols,pocotime);
+  end Down_Continuation;
+
   procedure Witness_Generate
-               ( outfile,resfile : in file_type; ep : in Poly_Sys;
-                 sols : in Solution_List; k : in natural32;
-                 zerotol : in double_float ) is
+              ( outfile,resfile : in file_type;
+                ep : in Standard_Complex_Poly_Systems.Poly_Sys;
+                sols : in Standard_Complex_Solutions.Solution_List;
+                k : in natural32;
+                zerotol : in double_float ) is
+
+    use Standard_Complex_Poly_Systems;
+    use Standard_Complex_Solutions;
+
+    timer : Timing_Widget;
+    wsols,sols0,sols1 : Solution_List;
+    n : constant natural32 := natural32(ep'last)-k;
+    pocotime : duration;
+    embsys : Array_of_Poly_Sys(0..integer32(k));
+
+  begin
+    tstart(timer);
+    embsys(integer32(k)) := new Poly_Sys'(ep);
+    for i in 0..k-1 loop
+      embsys(integer32(i)) := new Poly_Sys'(Remove_Embedding1(ep,k-i));
+    end loop;
+    Filter_and_Split_Solutions
+      (outfile,sols,integer32(n),integer32(k),zerotol,sols0,sols1);
+    put_line(resfile,ep);
+    Write_Witness_Points(resfile,sols0);
+    if not Is_Null(sols1) then
+      Copy(sols1,wsols);
+      for i in reverse 1..integer32(k) loop
+        Down_Continuation(outfile,embsys(i).all,natural32(i),wsols,pocotime);
+        Clear(sols0); Clear(sols1);
+        Filter_and_Split_Solutions
+          (outfile,wsols,integer32(n),i-1,zerotol,sols0,sols1);
+        new_line(resfile);
+        put_line(resfile,embsys(i-1).all);
+        if i = 1 then
+          if not Is_Null(sols1) then
+            declare
+              rsols1 : constant Solution_List := Remove_Component(sols1);
+            begin
+              Write_Witness_Points(resfile,rsols1);
+            end;
+          end if;
+        elsif not Is_Null(sols0) then
+          declare
+            rsols0 : constant Solution_List := Remove_Component(sols0);
+          begin
+            Write_Witness_Points(resfile,rsols0);
+          end;
+        end if;
+        Clear(wsols);
+        exit when Is_Null(sols1);
+        wsols := Remove_Component(sols1);
+      end loop;
+      Clear(sols0);
+    end if;
+    tstop(timer);
+    new_line(outfile);
+    print_times(outfile,timer,"Witness Generate with Cascade of Homotopies");
+  end Witness_Generate;
+
+  procedure Witness_Generate
+              ( outfile,resfile : in file_type;
+                ep : in DoblDobl_Complex_Poly_Systems.Poly_Sys;
+                sols : in DoblDobl_Complex_Solutions.Solution_List;
+                k : in natural32;
+                zerotol : in double_float ) is
+
+    use DoblDobl_Complex_Poly_Systems;
+    use DoblDobl_Complex_Solutions;
+
+    timer : Timing_Widget;
+    wsols,sols0,sols1 : Solution_List;
+    n : constant natural32 := natural32(ep'last)-k;
+    pocotime : duration;
+    embsys : Array_of_Poly_Sys(0..integer32(k));
+
+  begin
+    tstart(timer);
+    embsys(integer32(k)) := new Poly_Sys'(ep);
+    for i in 0..k-1 loop
+      embsys(integer32(i)) := new Poly_Sys'(Remove_Embedding1(ep,k-i));
+    end loop;
+    Filter_and_Split_Solutions
+      (outfile,sols,integer32(n),integer32(k),zerotol,sols0,sols1);
+    put_line(resfile,ep);
+    Write_Witness_Points(resfile,sols0);
+    if not Is_Null(sols1) then
+      Copy(sols1,wsols);
+      for i in reverse 1..integer32(k) loop
+        Down_Continuation(outfile,embsys(i).all,natural32(i),wsols,pocotime);
+        Clear(sols0); Clear(sols1);
+        Filter_and_Split_Solutions
+          (outfile,wsols,integer32(n),i-1,zerotol,sols0,sols1);
+        new_line(resfile);
+        put_line(resfile,embsys(i-1).all);
+        if i = 1 then
+          if not Is_Null(sols1) then
+            declare
+              rsols1 : constant Solution_List := Remove_Component(sols1);
+            begin
+              Write_Witness_Points(resfile,rsols1);
+            end;
+          end if;
+        elsif not Is_Null(sols0) then
+          declare
+            rsols0 : constant Solution_List := Remove_Component(sols0);
+          begin
+            Write_Witness_Points(resfile,rsols0);
+          end;
+        end if;
+        Clear(wsols);
+        exit when Is_Null(sols1);
+        wsols := Remove_Component(sols1);
+      end loop;
+      Clear(sols0);
+    end if;
+    tstop(timer);
+    new_line(outfile);
+    print_times(outfile,timer,"Witness Generate with Cascade of Homotopies");
+  end Witness_Generate;
+
+  procedure Witness_Generate
+              ( outfile,resfile : in file_type;
+                ep : in QuadDobl_Complex_Poly_Systems.Poly_Sys;
+                sols : in QuadDobl_Complex_Solutions.Solution_List;
+                k : in natural32;
+                zerotol : in double_float ) is
+
+    use QuadDobl_Complex_Poly_Systems;
+    use QuadDobl_Complex_Solutions;
 
     timer : Timing_Widget;
     wsols,sols0,sols1 : Solution_List;
@@ -544,8 +584,52 @@ package body Drivers_to_Cascade_Filtering is
   end Append_ck;
 
   procedure Write_Witness_Superset
-               ( name : in string; p : in Poly_Sys;
-                 sols : in Solution_List; k : in natural32 ) is
+              ( name : in string;
+                p : in Standard_Complex_Poly_Systems.Poly_Sys;
+                sols : in Standard_Complex_Solutions.Solution_List;
+                k : in natural32 ) is
+
+  -- DESCRIPTION :
+  --   Writes the embedded polynomial system along with its
+  --   candidate witness points on the file name_ck.
+
+    filename : constant string := Append_ck(name,k);
+    file : file_type;
+
+  begin
+   -- put_line("Writing to file" & filename);
+    create(file,out_file,filename);
+    put_line(file,p);
+    Write_Witness_Points(file,sols);
+    close(file);
+  end Write_Witness_Superset;
+
+  procedure Write_Witness_Superset
+              ( name : in string;
+                p : in DoblDobl_Complex_Poly_Systems.Poly_Sys;
+                sols : in DoblDobl_Complex_Solutions.Solution_List;
+                k : in natural32 ) is
+
+  -- DESCRIPTION :
+  --   Writes the embedded polynomial system along with its
+  --   candidate witness points on the file name_ck.
+
+    filename : constant string := Append_ck(name,k);
+    file : file_type;
+
+  begin
+   -- put_line("Writing to file" & filename);
+    create(file,out_file,filename);
+    put_line(file,p);
+    Write_Witness_Points(file,sols);
+    close(file);
+  end Write_Witness_Superset;
+
+  procedure Write_Witness_Superset
+              ( name : in string;
+                p : in QuadDobl_Complex_Poly_Systems.Poly_Sys;
+                sols : in QuadDobl_Complex_Solutions.Solution_List;
+                k : in natural32 ) is
 
   -- DESCRIPTION :
   --   Writes the embedded polynomial system along with its
@@ -563,9 +647,13 @@ package body Drivers_to_Cascade_Filtering is
   end Write_Witness_Superset;
 
   procedure Witness_Generate
-               ( name : in string; outfile : in file_type;
-                 ep : in Poly_Sys; sols : in Solution_List;
-                 k : in natural32; zerotol : in double_float ) is
+              ( name : in string; outfile : in file_type;
+                ep : in Standard_Complex_Poly_Systems.Poly_Sys;
+                sols : in Standard_Complex_Solutions.Solution_List;
+                k : in natural32; zerotol : in double_float ) is
+
+    use Standard_Complex_Poly_Systems;
+    use Standard_Complex_Solutions;
 
     timer : Timing_Widget;
     wsols,sols0,sols1 : Solution_List;
@@ -615,7 +703,124 @@ package body Drivers_to_Cascade_Filtering is
     print_times(outfile,timer,"Witness Generate with Cascade of Homotopies");
   end Witness_Generate;
 
-  procedure Driver_to_Witness_Generate is
+  procedure Witness_Generate
+              ( name : in string; outfile : in file_type;
+                ep : in DoblDobl_Complex_Poly_Systems.Poly_Sys;
+                sols : in DoblDobl_Complex_Solutions.Solution_List;
+                k : in natural32; zerotol : in double_float ) is
+
+    use DoblDobl_Complex_Poly_Systems;
+    use DoblDobl_Complex_Solutions;
+
+    timer : Timing_Widget;
+    wsols,sols0,sols1 : Solution_List;
+    n : constant natural32 := natural32(ep'last)-k;
+    pocotime : duration;
+    embsys : Array_of_Poly_Sys(0..integer32(k));
+
+  begin
+    tstart(timer);
+    embsys(integer32(k)) := new Poly_Sys'(ep);
+    for i in 0..k-1 loop
+      embsys(integer32(i)) := new Poly_Sys'(Remove_Embedding1(ep,k-i));
+    end loop;
+    Filter_and_Split_Solutions
+      (outfile,sols,integer32(n),integer32(k),zerotol,sols0,sols1);
+    Write_Witness_Superset(name,ep,sols0,k);
+    if not Is_Null(sols1) then
+      Copy(sols1,wsols);
+      for i in reverse 1..integer32(k) loop
+        Down_Continuation(outfile,embsys(i).all,natural32(i),wsols,pocotime);
+        Clear(sols0); Clear(sols1);
+        Filter_and_Split_Solutions
+          (outfile,wsols,integer32(n),i-1,zerotol,sols0,sols1);
+        if i = 1 then
+          if not Is_Null(sols1) then
+            declare
+              rsols1 : constant Solution_List := Remove_Component(sols1);
+            begin
+              Write_Witness_Superset(name,embsys(i-1).all,rsols1,0);
+            end;
+          end if;
+        elsif not Is_Null(sols0) then
+          declare
+            rsols0 : constant Solution_List := Remove_Component(sols0);
+          begin
+            Write_Witness_Superset(name,embsys(i-1).all,rsols0,natural32(i-1));
+          end;
+        end if;
+        Clear(wsols);
+        exit when Is_Null(sols1);
+        wsols := Remove_Component(sols1);
+      end loop;
+      Clear(sols0);
+    end if;
+    tstop(timer);
+    new_line(outfile);
+    print_times(outfile,timer,"Witness Generate with Cascade of Homotopies");
+  end Witness_Generate;
+
+  procedure Witness_Generate
+              ( name : in string; outfile : in file_type;
+                ep : in QuadDobl_Complex_Poly_Systems.Poly_Sys;
+                sols : in QuadDobl_Complex_Solutions.Solution_List;
+                k : in natural32; zerotol : in double_float ) is
+
+    use QuadDobl_Complex_Poly_Systems;
+    use QuadDobl_Complex_Solutions;
+
+    timer : Timing_Widget;
+    wsols,sols0,sols1 : Solution_List;
+    n : constant natural32 := natural32(ep'last)-k;
+    pocotime : duration;
+    embsys : Array_of_Poly_Sys(0..integer32(k));
+
+  begin
+    tstart(timer);
+    embsys(integer32(k)) := new Poly_Sys'(ep);
+    for i in 0..k-1 loop
+      embsys(integer32(i)) := new Poly_Sys'(Remove_Embedding1(ep,k-i));
+    end loop;
+    Filter_and_Split_Solutions
+      (outfile,sols,integer32(n),integer32(k),zerotol,sols0,sols1);
+    Write_Witness_Superset(name,ep,sols0,k);
+    if not Is_Null(sols1) then
+      Copy(sols1,wsols);
+      for i in reverse 1..integer32(k) loop
+        Down_Continuation(outfile,embsys(i).all,natural32(i),wsols,pocotime);
+        Clear(sols0); Clear(sols1);
+        Filter_and_Split_Solutions
+          (outfile,wsols,integer32(n),i-1,zerotol,sols0,sols1);
+        if i = 1 then
+          if not Is_Null(sols1) then
+            declare
+              rsols1 : constant Solution_List := Remove_Component(sols1);
+            begin
+              Write_Witness_Superset(name,embsys(i-1).all,rsols1,0);
+            end;
+          end if;
+        elsif not Is_Null(sols0) then
+          declare
+            rsols0 : constant Solution_List := Remove_Component(sols0);
+          begin
+            Write_Witness_Superset(name,embsys(i-1).all,rsols0,natural32(i-1));
+          end;
+        end if;
+        Clear(wsols);
+        exit when Is_Null(sols1);
+        wsols := Remove_Component(sols1);
+      end loop;
+      Clear(sols0);
+    end if;
+    tstop(timer);
+    new_line(outfile);
+    print_times(outfile,timer,"Witness Generate with Cascade of Homotopies");
+  end Witness_Generate;
+
+  procedure Standard_Witness_Generate is
+
+    use Standard_Complex_Poly_Systems;
+    use Standard_Complex_Solutions;
 
     infile,outfile : file_type;
     lp : Link_to_Poly_Sys;
@@ -644,6 +849,87 @@ package body Drivers_to_Cascade_Filtering is
      -- Witness_Generate(outfile,infile,lp.all,sols,dim,1.0E-8);
       Witness_Generate(name,outfile,lp.all,sols,dim,1.0E-8);
     end;
+  end Standard_Witness_Generate;
+
+  procedure DoblDobl_Witness_Generate is
+
+    use DoblDobl_Complex_Poly_Systems;
+    use DoblDobl_Complex_Solutions;
+
+    infile,outfile : file_type;
+    lp : Link_to_Poly_Sys;
+    sols : Solution_List;
+    dim : natural32;
+
+  begin
+    new_line;
+    put_line("Reading the name of the file with the embedding...");
+    declare
+      name : constant string := Read_String;
+    begin
+      Open_Input_File(infile,name);
+      DoblDobl_Read_Embedding(infile,lp,sols,dim);
+      new_line;
+      put_line("Reading the name of the output file.");
+      Read_Name_and_Create_File(outfile);
+      new_line;
+      Continuation_Parameters.Tune(0);
+      Driver_for_Continuation_Parameters(outfile);
+      new_line;
+      put_line("See the input and output file for results...");
+      new_line;
+      close(infile);
+     -- open(infile,out_file,name);
+     -- Witness_Generate(outfile,infile,lp.all,sols,dim,1.0E-8);
+      Witness_Generate(name,outfile,lp.all,sols,dim,1.0E-8);
+    end;
+  end DoblDobl_Witness_Generate;
+
+  procedure QuadDobl_Witness_Generate is
+
+    use QuadDobl_Complex_Poly_Systems;
+    use QuadDobl_Complex_Solutions;
+
+    infile,outfile : file_type;
+    lp : Link_to_Poly_Sys;
+    sols : Solution_List;
+    dim : natural32;
+
+  begin
+    new_line;
+    put_line("Reading the name of the file with the embedding...");
+    declare
+      name : constant string := Read_String;
+    begin
+      Open_Input_File(infile,name);
+      QuadDobl_Read_Embedding(infile,lp,sols,dim);
+      new_line;
+      put_line("Reading the name of the output file.");
+      Read_Name_and_Create_File(outfile);
+      new_line;
+      Continuation_Parameters.Tune(0);
+      Driver_for_Continuation_Parameters(outfile);
+      new_line;
+      put_line("See the input and output file for results...");
+      new_line;
+      close(infile);
+     -- open(infile,out_file,name);
+     -- Witness_Generate(outfile,infile,lp.all,sols,dim,1.0E-8);
+      Witness_Generate(name,outfile,lp.all,sols,dim,1.0E-8);
+    end;
+  end QuadDobl_Witness_Generate;
+
+  procedure Driver_to_Witness_Generate is
+
+    p : constant character := Prompt_for_Precision;
+
+  begin
+    case p is
+      when '0' => Standard_Witness_Generate;
+      when '1' => DoblDobl_Witness_Generate;
+      when '2' => QuadDobl_Witness_Generate;
+      when others => null;
+    end case;
   end Driver_to_Witness_Generate;
 
 -- OLD CODE FOR WITNESS GENERATE + CLASSIFY:
@@ -678,9 +964,14 @@ package body Drivers_to_Cascade_Filtering is
   end Timing_Summary;
 
   procedure Black_Box_Solver
-               ( file : in file_type; sys : in Poly_Sys;
-                 deg : in boolean; sols : out Solution_List;
-                 rc : out natural32; totaltime : out duration ) is
+              ( file : in file_type;
+                sys : in Standard_Complex_Poly_Systems.Poly_Sys;
+                deg : in boolean;
+                sols : out Standard_Complex_Solutions.Solution_List;
+                rc : out natural32; totaltime : out duration ) is
+
+    use Standard_Complex_Poly_Systems;
+    use Standard_Complex_Solutions;
 
     timer : Timing_Widget;
     q : Poly_Sys(sys'range);
@@ -849,7 +1140,12 @@ package body Drivers_to_Cascade_Filtering is
   end Write_Classify_Summary;
 
   procedure Driver_for_Cascade_Filter
-              ( file : in file_type; p : in Poly_Sys; k : in integer32 ) is
+              ( file : in file_type;
+                p : in Standard_Complex_Poly_Systems.Poly_Sys;
+                k : in integer32 ) is
+
+    use Standard_Complex_Polynomials;
+    use Standard_Complex_Poly_Systems;
 
     nbequ : constant natural32 := natural32(p'length);
     nbunk : constant natural32 := Number_of_Unknowns(p(p'first));
@@ -870,13 +1166,17 @@ package body Drivers_to_Cascade_Filtering is
     end Max_Dim;
 
     function Eliminate_Slices
-                ( sqp : Poly_Sys; m : natural32 ) return Poly_Sys is
+                ( sqp : Standard_Complex_Poly_Systems.Poly_Sys;
+                  m : natural32 )
+                return Standard_Complex_Poly_Systems.Poly_Sys is
 
     -- DESCRIPTION :
     --   Given is a polynomial system sqp that is the result of making
     --   p square with nbunk - nbequ additional slices.  The system on
     --   return will have min(nbunk-nbequ-2,m) slices and variables less.
     --   The last two slices remain.
+
+      use Standard_Complex_Polynomials;
 
       res : Poly_Sys(sqp'range);
       cnt : natural32 := nbunk - nbequ;
@@ -954,6 +1254,8 @@ package body Drivers_to_Cascade_Filtering is
     --   size     size of the numbers;
     --   itp      interpolator type;
     --   deg      if true, only degree based root counting, otherwise full;
+
+      use Standard_Complex_Solutions;
 
       k : constant integer32 := embp'last;
       sols,sols0,sols1 : Solution_List;
@@ -1088,6 +1390,9 @@ package body Drivers_to_Cascade_Filtering is
   end Driver_for_Cascade_Filter;
 
   procedure Embed_and_Cascade is
+
+    use Standard_Complex_Poly_Systems;
+    use Standard_Complex_Solutions;
 
     lp,ep : Link_to_Poly_Sys;
     file : file_type;

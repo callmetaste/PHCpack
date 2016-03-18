@@ -1,4 +1,4 @@
-Multitasking linear algebra, evaluation and path tracking in PHCv2.4.03
+Multitasking linear algebra, evaluation and path tracking in PHCv2.4.13
 
 This directory is entirely new in release 2.3.45 of PHCpack.
 Tasks in Ada are mapped to kernel threads.
@@ -14,9 +14,17 @@ of a polynomial system and all its derivatives can be performed much faster
 than when evaluated as separated polynomials (even with nested Horner).
 In v2.3.69, this code was moved to the new directory Functions.
 
-Release 2.3.78 offered a new multithreaded implementation
-of polyhedral homotopies.  New in release 2.3.79 are the
-multitasking root refiners.
+Release 2.3.78 offered a new multithreaded implementation of polyhedral 
+homotopies.  New in release 2.3.79 are the multitasking root refiners.
+
+Pipelined polyhedral trackers were introduced in version 2.4.06.
+The pipelined solving a random coefficient system by polyhedral homotopies
+applies a heterogeneous multitasking.  The first task runs MixedVol with
+a callback function.  Each time a new mixed cell is computed, other tasks
+process that cell by tracking the new paths originating at the initial
+form system determined by the inner normal to that new mixed cell.
+With this pipelining, the tracking of the paths is interlaced with the
+mixed volume computation.
 
 -------------------------------------------------------------------------------
 file name                         : short description
@@ -39,6 +47,9 @@ ts_mtstref                        : multitasking solution refinement
 ts_mtddref                        : multitasking refiner with dd cmplx numbers
 ts_mtqdref                        : multitasking refiner with qd cmplx numbers
 ts_mtsharp                        : multitasking multiprecision refinement
+standard_solutions_queue          : thread safe queue for standard solutions
+dobldobl_solutions_queue          : thread safe queue for dobldobl solutions
+quaddobl_solutions_queue          : thread safe queue for quaddobl solutions
 multitasking_continuation         : path trackers with multiple tasks
 ts_mtcont                         : test on multitasking continuation
 multitasking_sampling             : sampling solution sets with tasks
@@ -48,8 +59,14 @@ multitasking_volume_computation   : computing mixed volumes with threads
 ts_mtvol                          : test on multitasking volume computation
 polyhedral_start_systems          : inline binomial solvers
 multitasking_polyhedral_starters  : test to start up polyhedral homotopies
+mixed_cells_queue                 : thread safe queue for mixed cells
+single_polyhedral_trackers        : track one path in polyhedral homotopy
 multitasking_polyhedral_trackers  : multithreaded polyhedral continuation
 ts_mtvolcon                       : test on polyhedral path trackers
+mixed_labels_queue                : thread safe queue of labels to mixed cells
+pipelined_labeled_cells           : pipelined production of mixed cells
+pipelined_polyhedral_trackers     : pipelining polyhedral continuation
+ts_mtmva                          : interlace cell production with processing
 multitasking_root_refiners        : root refinement by multiple tasks
 ts_mtverify                       : test on multitasked root refinement
 -------------------------------------------------------------------------------

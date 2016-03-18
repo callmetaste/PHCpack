@@ -57,8 +57,9 @@ function use_track ( job : integer32;
 --                  is given in b, in a is the number of characters;
 --          =  14 : create a cascade homotopy from the stored systems;
 --          =  15 : create a diagonal homotopy from the systems stored
---                  as target and start systems, the input parameters
---                  a and b are the dimensions of the witness sets;
+--                  as target and start systems in standard double precision,
+--                  the input parameters a and b are the dimensions of 
+--                  the witness sets;
 --          =  16 : reads first or second witness set from file,
 --                  depending on whether the value of a equals 1 or 2,
 --                  and returns in a the dimension of the ambient space
@@ -80,7 +81,8 @@ function use_track ( job : integer32;
 --                    a[1] : number of characters in the string b;
 --                    b : characters of the name of the output file.
 --          =  20 : eliminates the extrinsic diagonal for the system
---                  and the solutions in the container, on entry are
+--                  and the solutions in the container,
+--                  in standard double precision, on entry are
 --                    a[0] : current number of slack variables,
 --                    a[1] : number of slack variables to be added.
 --          =  21 : removes the last slack variable for the system
@@ -141,9 +143,56 @@ function use_track ( job : integer32;
 --                        in a[1] the number of characters stored in b,
 --                  where b represents a polynomial in n variables,
 --                  places a witness set in the systems and solutions
---                  container for the polynomial stored in b.
+--                  container in standard double precision for the polynomial
+--                  stored in b;
 --          =  41 : makes the solutions to start the cascade to intersect
---                  two witness sets of dimensions in a[0] and b[0].
+--                  two witness sets of dimensions in a[0] and b[0],
+--                  in standard double precision;
+--          =  42 : doubles the number of symbols in the symbol table
+--                  needed to write the target system solved to start the
+--                  cascade of diagonal homotopies in extrinsic coordinates,
+--                  given in a[0] the ambient dimension, original #variables,
+--                        in a[1] the top dimension of the set,
+--                        in a[2] the number of characters stored in b,
+--                  where b stores the names of the symbols in the first set,
+--                  on a successful return, the symbol table will contain the
+--                  suffixed symbols to write the target system properly;
+--          =  43 : create a diagonal homotopy from the systems stored
+--                  as target and start systems in double double precision,
+--                  the input parameters a and b are the dimensions of 
+--                  the witness sets;
+--          =  44 : create a diagonal homotopy from the systems stored
+--                  as target and start systems in quad double precision,
+--                  the input parameters a and b are the dimensions of 
+--                  the witness sets;
+--          =  45 : makes the solutions to start the cascade to intersect
+--                  two witness sets of dimensions in a[0] and b[0],
+--                  in double double precision;
+--          =  46 : makes the solutions to start the cascade to intersect
+--                  two witness sets of dimensions in a[0] and b[0],
+--                  in quad double precision;
+--          =  47 : eliminates the extrinsic diagonal for the system
+--                  and the solutions in the container,
+--                  in double double precision, on entry are
+--                    a[0] : current number of slack variables,
+--                    a[1] : number of slack variables to be added;
+--          =  48 : eliminates the extrinsic diagonal for the system
+--                  and the solutions in the container,
+--                  in quad double precision, on entry are
+--                    a[0] : current number of slack variables,
+--                    a[1] : number of slack variables to be added;
+--          =  49 : given in a[0] the number n of variables, 
+--                        in a[1] the number of characters stored in b,
+--                  where b represents a polynomial in n variables,
+--                  places a witness set in the systems and solutions
+--                  container in double double precision for the polynomial
+--                  stored in b;
+--          =  50 : given in a[0] the number n of variables, 
+--                        in a[1] the number of characters stored in b,
+--                  where b represents a polynomial in n variables,
+--                  places a witness set in the systems and solutions
+--                  container in quad double precision for the polynomial
+--                  stored in b;
 --
 -- multiprecision versions to create homotopy :
 --

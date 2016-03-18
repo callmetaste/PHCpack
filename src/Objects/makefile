@@ -14,10 +14,15 @@ MAKEFILE = makefile_unix
 phc:
 	make -f $(MAKEFILE) phc
 
-# for phcpy, make phcpy2c.so
+# for phcpy for Python 2.6 and 2.7, make phcpy2c2.so
 
-phcpy2c.so:
-	make -f $(MAKEFILE) phcpy2c.so
+phcpy2c2.so:
+	make -f $(MAKEFILE) phcpy2c2.so
+
+# for phcpy on Python 3.5, make phcpy2c3.so
+
+phcpy2c3.so:
+	make -f $(MAKEFILE) phcpy2c3.so
 
 phcpy2c.a:
 	make -f $(MAKEFILE) phcpy2c.a
@@ -300,7 +305,7 @@ ts_vmplu:
 
 test_polynomials: ts_poly ts_laurpoly ts_laurlist ts_rpol ts_ddpol ts_qdpol \
                   ts_polmat ts_jaco ts_parse ts_subs ts_tabform ts_randpoly \
-                  ts_str2pol ts_termlist ts_rwspol
+                  ts_str2pol ts_termlist ts_rwspol ts_nbrvar
 
 ts_poly:
 	make -f $(MAKEFILE) ts_poly
@@ -346,6 +351,9 @@ ts_termlist:
 
 ts_rwspol:
 	make -f $(MAKEFILE) ts_rwspol
+
+ts_nbrvar:
+	make -f $(MAKEFILE) ts_nbrvar
 
 # Test programs for Math_Lib/Functions :
 
@@ -614,13 +622,16 @@ ts_realcont:
 
 # Test programs for the Deformations/Trackers library :
 
-test_trackers: ts_preco ts_correct ts_track ts_path ts_nxtsol
+test_trackers: ts_preco ts_correct ts_ortocor ts_track ts_path ts_nxtsol
 
 ts_preco:
 	make -f $(MAKEFILE) ts_preco
 
 ts_correct:
 	make -f $(MAKEFILE) ts_correct
+
+ts_ortocor:
+	make -f $(MAKEFILE) ts_ortocor
 
 ts_path:
 	make -f $(MAKEFILE) ts_path
@@ -1269,7 +1280,7 @@ test_state: ts_filman ts_solcon ts_use_solcon ts_solpool ts_use_solpool \
             ts_syscon ts_use_syscon ts_syspool ts_use_syspool \
             ts_celcon ts_use_celcon ts_pirhom ts_use_c2pieri ts_c2phc \
             ts_c2str ts_use_c2phc ts_use_c2fac ts_unisolve ts_use_giftwrap \
-            ts_giftwcon
+            ts_giftwcon ts_use_sweep
 
 ts_filman:
 	make -f $(MAKEFILE) ts_filman
@@ -1330,6 +1341,9 @@ ts_use_giftwrap:
 
 ts_giftwcon:
 	make -f $(MAKEFILE) ts_giftwcon
+
+ts_use_sweep:
+	make -f $(MAKEFILE) ts_use_sweep
 
 # files in feedback :
 
@@ -1401,7 +1415,8 @@ ts_adepath_qd:
 
 # Test programs for the Tasking:
 
-test_tasking: ts_mutex ts_jobs ts_mtvol ts_mtvolcon ts_mtverify ts_mtcont
+test_tasking: ts_mutex ts_jobs ts_mtvol ts_mtvolcon ts_mtverify ts_mtcont \
+              ts_mtmva
 #             ts_mtmatvec ts_mtpolval ts_mtlinsol
 
 ts_mtmatvec:
@@ -1461,6 +1476,9 @@ ts_mtvolcon:
 ts_mtverify:
 	make -f $(MAKEFILE) ts_mtverify
 
+ts_mtmva:
+	make -f $(MAKEFILE) ts_mtmva
+
 # Test programs for the Main interactive drivers :
 
 test_main: ts_drivroco ts_greet use_phc
@@ -1482,7 +1500,9 @@ test_lib: lib_syscon lib_syscon_cpp lib_solcon lib_solcon_cpp \
           lib_celphc lib_celphc_cpp lib_scale lib_scale_cpp \
           lib_conpar lib_conpar_cpp lib_poco lib_poco_cpp \
           lib_track lib_track_cpp lib_nxtsol lib_nxtsol_cpp \
-          lib_factor lib_factor_cpp lib_pieri lib_pieri_cpp \
+          lib_sweep lib_sweep_cpp lib_nbrvar lib_nbrvar_cpp \
+          lib_factor lib_factor_cpp lib_member lib_member_cpp \
+          lib_pieri lib_pieri_cpp lib_numbtrop lib_numbrop_cpp \
           lib_lrhom lib_lrhom_cpp phc_solve phc_solve_cpp \
           lib_usolve lib_usolve_cpp lib_giftwrap lib_giftwrap_cpp ts_list2str \
           lib_adepath_d lib_adepath_dd lib_adepath_qd
@@ -1562,11 +1582,23 @@ lib_nxtsol:
 lib_nxtsol_cpp:
 	make -f $(MAKEFILE) lib_nxtsol_cpp
 
+lib_sweep:
+	make -f $(MAKEFILE) lib_sweep
+
+lib_sweep_cpp:
+	make -f $(MAKEFILE) lib_sweep_cpp
+
 lib_factor:
 	make -f $(MAKEFILE) lib_factor
 
 lib_factor_cpp:
 	make -f $(MAKEFILE) lib_factor_cpp
+
+lib_member:
+	make -f $(MAKEFILE) lib_member
+
+lib_member_cpp:
+	make -f $(MAKEFILE) lib_member_cpp
 
 lib_pieri:
 	make -f $(MAKEFILE) lib_pieri
@@ -1591,6 +1623,18 @@ lib_giftwrap:
 
 lib_giftwrap_cpp:
 	make -f $(MAKEFILE) lib_giftwrap_cpp
+
+lib_numbtrop:
+	make -f $(MAKEFILE) lib_numbtrop
+
+lib_numbtrop_cpp:
+	make -f $(MAKEFILE) lib_numbtrop_cpp
+
+lib_nbrvar:
+	make -f $(MAKEFILE) lib_nbrvar
+
+lib_nbrvar_cpp:
+	make -f $(MAKEFILE) lib_nbrvar_cpp
 
 lib_adepath_d:
 	make -f $(MAKEFILE) lib_adepath_d

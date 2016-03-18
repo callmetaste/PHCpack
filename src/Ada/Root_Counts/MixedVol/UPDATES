@@ -1,3 +1,12 @@
+Tue 8 Dec 2015 : mv_lift had too many parameters on input.
+
+Mon 30 Nov 2015 : new procedure in mixedvol_algorithm to split off the
+  prepare for mixed volume computation stage for the callback procedure.
+  Also the lifting is split off and the callback procedure is refactored.
+
+Sun 29 Nov 2015 : new function to make a mixed cell from labels to points
+  from refactored code in the package mixedvol_algorithm.
+
 Tue 1 Sep 2015 : added callback procedure to the mixed volume calcuation,
   adding a new procedure to the packages mixedvol_algorithm and mixed_volume,
   tested by ts_mva.adb.

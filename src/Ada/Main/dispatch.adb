@@ -1,3 +1,6 @@
+with Standard_Natural_Numbers_io;
+ use Standard_Natural_Numbers_io;
+
 with text_io;                            use text_io;
 with Unix_Command_Line;
 with Standard_Natural_Numbers;           use Standard_Natural_Numbers;
@@ -10,6 +13,7 @@ with mainroco,bablroco;       -- general root counting
 with mainsmvc,babldmvc;       -- mixed-volume computation
 with maintrack;               -- path tracking
 with mainpoco,bablpoco;       -- polynomial continuation
+with bablpoco2,bablpoco4;     -- double double and quad double continuation
 with mainphc,bablphc;         -- main phc driver + blackbox
 with bablphc2,bablphc4;       -- blackbox in double double and quad double
 with mainvali,bablvali;       -- validation tool
@@ -24,6 +28,7 @@ with mainwit;                 -- witness set intersection
 with maingood;                -- to test if a system is good
 with mainsymb;                -- to get the symbol table contents
 with mainhyp;                 -- witness set for hypersurface
+with mainhyp2,mainhyp4;       -- double double and quad double versions
 -- NOTE (added for pieri_solver.ali) :
 with Interfaces.C;
 with Complex_Polynomial_Matrices;        use Complex_Polynomial_Matrices;
@@ -209,13 +214,13 @@ procedure Dispatch is
     return res;
   end Number_of_Tasks;
 
-  function BlackBox_Precision return natural32 is
+  function Scan_Precision ( opt : character ) return natural32 is
 
   -- DESCRIPTION :
-  --   Returns the precision of the blackbox solver:
-  --   1 : the -b is followed by a space (or nothing);
-  --   2 : double double precision, as we have -b2 at the command line;
-  --   4 : quad double precision is given as -b4 at the command line.
+  --   Returns the precision of the option defined by the charactor opt.
+  --   1 : the -opt is followed by a space (or nothing);
+  --   2 : double double precision, as we have -opt2 at the command line;
+  --   4 : quad double precision is given as -opt4 at the command line.
 
     res : natural32 := 1;
 
@@ -224,7 +229,7 @@ procedure Dispatch is
       declare
         s : constant string := Unix_Command_Line.Argument(i);
       begin
-        if s(2) = 'b' then
+        if s(2) = opt then
           if s'last > 2 
            then res := Convert(s(3..s'last)); exit;
           end if;
@@ -232,7 +237,7 @@ procedure Dispatch is
       end;
     end loop;
     return res;
-  end BlackBox_Precision;
+  end Scan_Precision;
 
   function Find_Seed return natural32 is
 
@@ -283,7 +288,8 @@ procedure Dispatch is
   --   When the first option is 'b', then this routine handles the
   --   second option and calls the appropriate main driver.
 
-    bbprc : constant natural32 := BlackBox_Precision;
+    bbprc : constant natural32 := Scan_Precision('b');
+    contprc : constant natural32 := Scan_Precision('p');
 
   begin
    -- put("The blackbox precision : "); put(bbprc,1); new_line;
@@ -300,7 +306,14 @@ procedure Dispatch is
           when 't' => babldmvc(Number_of_Tasks,file1,file2);
           when others => babldmvc(0,file1,file2);
         end case;
-      when 'p'    => bablpoco(file1,file2,file3);
+      when 'p' =>
+        if bbprc = 2 or contprc = 2 then
+          bablpoco2(file1,file2,file3);
+        elsif bbprc = 4 or contprc = 4 then
+          bablpoco4(file1,file2,file3);
+        else
+          bablpoco(file1,file2,file3);
+        end if;
       when 'v'    => bablvali(file1,file2);
       when 'e'    => bablenum(file1,file2);
       when 't'    => 
@@ -407,9 +420,20 @@ procedure Dispatch is
   -- DESCRIPTION :
   --   Invokes the path trackers in PHCpack.
 
+    contprc : constant natural32 := Scan_Precision('p');
+    bbprc : constant natural32 := Scan_Precision('b');
+
   begin
     case o2 is
-      when 'b' => bablpoco(file1,file2,file3);
+      when 'b' =>
+        put("The value of contprc : "); put(contprc,1); new_line;
+        if contprc = 2 or bbprc = 2 then
+          bablpoco2(file1,file2,file3);
+        elsif contprc = 4 or bbprc = 4 then
+          bablpoco4(file1,file2,file3);
+        else
+          bablpoco(file1,file2,file3);
+        end if;
       when 't'
         => declare
             -- nt : constant natural := Number_of_Tasks(2);
@@ -417,11 +441,11 @@ procedure Dispatch is
              ns : constant string := Convert(integer32(nt));
            begin
              put_line(welcome); put_line(pocoban & ", with " & ns & " tasks");
-             mainpoco(nt,file1,file2);
+             mainpoco(nt,file1,file2,contprc);
            end;
       when others
         => put_line(welcome); put_line(pocoban & ", no multitasking");
-           mainpoco(0,file1,file2);
+           mainpoco(0,file1,file2,contprc);
     end case;
   end Continuation_Dispatcher;
 
@@ -482,7 +506,8 @@ procedure Dispatch is
    -- nt : constant natural := Number_of_Tasks(1);
     nt : constant natural32 := Number_of_Tasks;
     ns : constant string := Convert(integer32(nt));
-    bbprc : constant natural32 := BlackBox_Precision;
+    bbprc : constant natural32 := Scan_Precision('b');
+    contprc : constant natural32 := Scan_Precision('p');
 
   begin
     case o2 is
@@ -495,7 +520,7 @@ procedure Dispatch is
         end case;
       when 'p' =>
         put_line(welcome); put_line(pocoban & ", with " & ns & " tasks");
-        mainpoco(nt,infile,outfile);
+        mainpoco(nt,infile,outfile,contprc);
       when 'b' =>
         case o3 is
           when 'm' => babldmvc(nt,infile,outfile);
@@ -527,13 +552,21 @@ procedure Dispatch is
               ( polyfile,logfile : in string ) is
 
   -- DESCRIPTION :
-  --   Creation of witness set for hypersurface.
+  --   Scans the command line arguments for the precision
+  --   and then makes a witness set for a hypersurface.
+
+    precision : constant natural32 := Scan_Precision('l');
 
   begin
     if polyfile = "" or logfile = ""
      then put_line(welcome); put_line(hypban);
     end if;
-    mainhyp(polyfile,logfile);
+    case precision is
+      when 1 => mainhyp(polyfile,logfile);
+      when 2 => mainhyp2(polyfile,logfile);
+      when 4 => mainhyp4(polyfile,logfile);
+      when others => null;
+    end case;
   end Witness_Set_for_Hypersurface_Dispatcher;
 
   procedure Test_if_System_is_Good ( infile,outfile : in string ) is

@@ -29,7 +29,7 @@ with Drivers_for_Root_Counts;            use Drivers_for_Root_Counts;
 with Drivers_for_Homotopy_Creation;      use Drivers_for_Homotopy_Creation;
 with Driver_for_Root_Refining;
 with String_System_Readers;
-with Black_Box_Poly_Continuations;       use Black_Box_Poly_Continuations;
+with Standard_BlackBox_Continuations;    use Standard_BlackBox_Continuations;
 with Greeting_Banners;
 --with Bye_Bye_Message;
 
@@ -78,6 +78,8 @@ procedure mainphc ( nt : in natural32; infilename,outfilename : in string ) is
       put_line(o(i));
     end loop;
     put_line("Options may be combined, e.g.: phc -b -0 or phc -0 -b.");
+    put_line("To run the blackbox solver with 8 threads, do phc -b -t8.");
+    put_line("Use -b2 or -b4 for double double or quad double precision.");
   end Display_Options;
 
   procedure Main_Polynomial_Solver 
@@ -90,7 +92,7 @@ procedure mainphc ( nt : in natural32; infilename,outfilename : in string ) is
 
     q,scalp,projp : Poly_Sys(p'range);
     target : Complex_Number;
-    basis,roco,deci,size : natural32;
+    basis,roco,deci,size : natural32 := 0;
     scalvec : Link_to_Vector;
     sols : Solution_List;
     ddsols : DoblDobl_Complex_Solutions.Solution_List;
@@ -111,14 +113,14 @@ procedure mainphc ( nt : in natural32; infilename,outfilename : in string ) is
        then Set_Continuation_Parameter(sols,Create(0.0));
       end if;
       if deci <= 16 then
-        Driver_for_Standard_Continuation(file,sols,proj,target);
+        Driver_for_Standard_Continuation(file,sols,proj,target=>target);
         Driver_for_Root_Refining(file,scalp,p,basis,scalvec,sols);
       elsif deci <= 32 then
         ddsols := DoblDobl_Complex_Solutions.Create(sols);
-        Driver_for_DoblDobl_Continuation(file,ddsols,target);
+        Driver_for_DoblDobl_Continuation(file,ddsols,target=>target);
       elsif deci <= 64 then
         qdsols := QuadDobl_Complex_Solutions.Create(sols);
-        Driver_for_QuadDobl_Continuation(file,qdsols,target);
+        Driver_for_QuadDobl_Continuation(file,qdsols,target=>target);
       else
         mpsols := Multprec_Complex_Solutions.Create(sols);
         size := Multprec_Floating_Numbers.Decimal_to_Size(deci);

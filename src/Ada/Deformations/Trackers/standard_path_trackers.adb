@@ -11,6 +11,7 @@ with Standard_Complex_Norms_Equals;      use Standard_Complex_Norms_Equals;
 with Standard_Complex_Solutions;         use Standard_Complex_Solutions;
 with Standard_Predictors;                use Standard_Predictors;
 with Standard_Correctors;                use Standard_Correctors;
+with Standard_Orthogonal_Correctors;     use Standard_Orthogonal_Correctors;
 with Standard_Dispatch_Predictors;       use Standard_Dispatch_Predictors;
 with Process_io;                         use Process_io;
 with Standard_Data_on_Path;              use Standard_Data_on_Path;
@@ -22,7 +23,7 @@ package body Standard_Path_Trackers is
   procedure Linear_Single_Normal_Silent_Continue
               ( s : in out Solu_Info; target : in Complex_Number;
                 tol : in double_float; proj : in boolean;
-                p : in Pred_Pars; c : in Corr_Pars;
+                p : in Pred_Pars; c : in Corr_Pars; nbq : in integer32 := 0;
                 f : access procedure ( s : in Solu_Info ) := null ) is
  
     old_t,prev_t,prev_t2,prev_t1,prev_t0 : Complex_Number;
@@ -40,11 +41,16 @@ package body Standard_Path_Trackers is
         new Affine_Single_Severe_Normal_Silent_Corrector(Norm,H,dH);
       procedure Projective_Corrector is
         new Projective_Single_Severe_Normal_Silent_Corrector(Norm,H,dH);
+      procedure QRLS_Corrector is
+        new Silent_QRLS_Corrector(Norm,H,dH);
 
     begin
-      if proj
-       then Projective_Corrector(s,c);
-       else Affine_Corrector(s,c);
+      if proj then
+        Projective_Corrector(s,c);
+      elsif nbq = 0 then
+        Affine_Corrector(s,c);
+      else
+        QRLS_Corrector(nbq,s,c);
       end if;
     end Corrector;
 
@@ -101,9 +107,10 @@ package body Standard_Path_Trackers is
   end Linear_Single_Normal_Silent_Continue;
 
   procedure Linear_Single_Normal_Reporting_Continue
-              ( file : in file_type; s : in out Solu_Info;
-                target : in Complex_Number; tol : in double_float;
-                proj : in boolean; p : in Pred_Pars; c : in Corr_Pars;
+              ( file : in file_type;
+                s : in out Solu_Info; target : in Complex_Number;
+                tol : in double_float; proj : in boolean;
+                p : in Pred_Pars; c : in Corr_Pars; nbq : in integer32 := 0;
                 f : access procedure ( s : in Solu_Info ) := null ) is
  
     old_t,prev_t,prev_t0,prev_t1,prev_t2 : Complex_Number;
@@ -121,11 +128,16 @@ package body Standard_Path_Trackers is
         new Affine_Single_Severe_Normal_Reporting_Corrector(Norm,H,dH);
       procedure Projective_Corrector is
         new Projective_Single_Severe_Normal_Reporting_Corrector(Norm,H,dH);
+      procedure QRLS_Corrector is
+        new Reporting_QRLS_Corrector(Norm,H,dH);
 
     begin
-      if proj
-       then Projective_Corrector(file,s,c);
-       else Affine_Corrector(file,s,c);
+      if proj then
+        Projective_Corrector(file,s,c);
+      elsif nbq = 0 then
+        Affine_Corrector(file,s,c);
+      else
+        QRLS_Corrector(file,nbq,s,c);
       end if;
     end Corrector;
 
@@ -192,10 +204,10 @@ package body Standard_Path_Trackers is
   procedure Linear_Single_Conditioned_Silent_Continue
               ( s : in out Solu_Info; target : in Complex_Number;
                 tol : in double_float; proj : in boolean;
-                rtoric : in integer32; 
+                rtoric : in integer32;  w : in out integer32;
                 v : in out Standard_Floating_Vectors.Link_to_Vector;
                 errorv : in out double_float;
-                p : in Pred_Pars; c : in Corr_Pars;
+                p : in Pred_Pars; c : in Corr_Pars; nbq : in integer32 := 0;
                 f : access procedure ( s : in Solu_Info ) := null ) is
 
     old_t,prev_t,prev_t0,prev_t1,prev_t2 : Complex_Number;
@@ -228,11 +240,16 @@ package body Standard_Path_Trackers is
         new Affine_Single_Severe_Conditioned_Silent_Corrector(Norm,H,dH);
       procedure Projective_Corrector is
         new Projective_Single_Severe_Conditioned_Silent_Corrector(Norm,H,dH);
+      procedure SVD_Corrector is
+        new Silent_SVD_Corrector(Norm,H,dH);
 
     begin
-      if proj
-       then Projective_Corrector(s,c);
-       else Affine_Corrector(s,c);
+      if proj then
+        Projective_Corrector(s,c);
+      elsif nbq = 0 then
+        Affine_Corrector(s,c);
+      else
+        SVD_Corrector(nbq,s,c);
       end if;
     end Corrector;
 
@@ -254,6 +271,7 @@ package body Standard_Path_Trackers is
          then Update_Direction
                 (proj,fcnt,defer,r,s.sol.m,estm,cntm,thresm,er,s.sol.t,target,
                  s.sol.v,dt,ds,logs,logx,wvl0,wvl1,wvl2,v.all,errv,errorv);
+              w := s.sol.m;
          else er := -2;
         end if;
       end if;
@@ -301,12 +319,13 @@ package body Standard_Path_Trackers is
   end Linear_Single_Conditioned_Silent_Continue;
 
   procedure Linear_Single_Conditioned_Reporting_Continue
-              ( file : in file_type; s : in out Solu_Info;
-                target : in Complex_Number; tol : in double_float;
-                proj : in boolean; rtoric : in integer32;
+              ( file : in file_type;
+                s : in out Solu_Info; target : in Complex_Number;
+                tol : in double_float; proj : in boolean;
+                rtoric : in integer32; w : in out integer32;
                 v : in out Standard_Floating_Vectors.Link_to_Vector;
                 errorv : in out double_float;
-                p : in Pred_Pars; c : in Corr_Pars;
+                p : in Pred_Pars; c : in Corr_Pars; nbq : in integer32 := 0;
                 f : access procedure ( s : in Solu_Info ) := null ) is
 
     old_t,prev_t,prev_t0,prev_t1,prev_t2 : Complex_Number;
@@ -338,11 +357,16 @@ package body Standard_Path_Trackers is
         new Affine_Single_Severe_Conditioned_Reporting_Corrector(Norm,H,dH);
       procedure Projective_Corrector is
         new Projective_Single_Severe_Conditioned_Reporting_Corrector(Norm,H,dH);
+      procedure SVD_Corrector is
+        new Reporting_SVD_Corrector(Norm,H,dH);
 
     begin
-      if proj
-       then Projective_Corrector(file,s,c);
-       else Affine_Corrector(file,s,c);
+      if proj then
+        Projective_Corrector(file,s,c);
+      elsif nbq = 0 then
+        Affine_Corrector(file,s,c);
+      else
+        SVD_Corrector(file,nbq,s,c);
       end if;
     exception
       when others => --put("exception raised in ");
@@ -370,6 +394,7 @@ package body Standard_Path_Trackers is
          then Update_Direction(file,
                  proj,fcnt,defer,r,s.sol.m,estm,cntm,thresm,er,s.sol.t,target,
                  s.sol.v,dt,ds,logs,logx,wvl0,wvl1,wvl2,v.all,errv,errorv);
+              w := s.sol.m;
          else er := -2;
         end if;
       end if;

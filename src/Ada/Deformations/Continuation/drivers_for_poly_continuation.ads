@@ -1,6 +1,7 @@
 with text_io;                            use text_io;
 with String_Splitters;
 with Standard_Natural_Numbers;           use Standard_Natural_Numbers;
+with Standard_Integer_Numbers;           use Standard_Integer_Numbers;
 with Standard_Complex_Numbers;           use Standard_Complex_Numbers;
 with Standard_Complex_Poly_Systems;
 with Standard_Complex_Laur_Systems;      use Standard_Complex_Laur_Systems;
@@ -74,14 +75,18 @@ package Drivers_for_Poly_Continuation is
   procedure Driver_for_Polynomial_Continuation
                 ( file : in file_type;
                   p : in Standard_Complex_Poly_Systems.Poly_Sys;
+                  prclvl : in natural32;
                   ls : in String_Splitters.Link_to_Array_of_Strings;
                   sols : out Standard_Complex_Solutions.Solution_list;
                   mpsols : out Multprec_Complex_Solutions.Solution_list;
                   target : out Complex_Number );
   procedure Driver_for_Laurent_Continuation
-                ( file : in file_type; p : in Laur_Sys;
+                ( file : in file_type;
+                  p : in Standard_Complex_Laur_Systems.Laur_Sys;
+                  prclvl : in natural32;
+                  ls : in String_Splitters.Link_to_Array_of_Strings;
                   sols : out Standard_Complex_Solutions.Solution_list;
-                 -- mpsols : out Multprec_Complex_Solutions.Solution_list;
+                  mpsols : out Multprec_Complex_Solutions.Solution_list;
                   target : out Complex_Number );
 
   -- DESCRIPTION :
@@ -93,6 +98,8 @@ package Drivers_for_Poly_Continuation is
   -- ON ENTRY :
   --   file       to write diagnostics and results on;
   --   p          a polynomial system;
+  --   prclvl     preset precision level, is either 1, 2, or 4,
+  --              for double, double double, or quad double precision;
   --   ls         string representations of the input polynomials.
 
   -- ON RETURN :
@@ -152,16 +159,31 @@ package Drivers_for_Poly_Continuation is
   --   sols       the computed solutions;
   --   target     end target value for the continuation parameter.
 
+-- REDEFINING ARTIFIICIAL-PARAMETER HOMOTOPIES
+
+  procedure Standard_Redefine_Homotopy;
+  procedure DoblDobl_Redefine_Homotopy;
+  procedure QuadDobl_Redefine_Homotopy;
+
+  -- DESCRIPTION :
+  --   In case the relaxation power (by default equal to 2) differs
+  --   from one, the homotopy will be redefined when polyhedral end
+  --   games are called in the path trackers.
+  --   The redefinition is provided for artificial-parameter homotopies
+  --   in standard double, double double, and quad double precision.
+
 -- CALLING THE PATH TRACKERS :
 
   procedure Driver_for_Standard_Continuation
                 ( file : in file_type;
                   sols : in out Standard_Complex_Solutions.Solution_List;
-                  proj : in boolean; target : Complex_Number := Create(1.0) );
+                  proj : in boolean; nbq : in integer32 := 0;
+                  target : Complex_Number := Create(1.0) );
   procedure Driver_for_Standard_Laurent_Continuation
                 ( file : in file_type;
                   sols : in out Standard_Complex_Solutions.Solution_List;
-                  proj : in boolean; target : Complex_Number := Create(1.0) );
+                  proj : in boolean; nbq : in integer32 := 0;
+                  target : Complex_Number := Create(1.0) );
   procedure Driver_for_Multprec_Continuation
                 ( file : in file_type;
                   sols : in out Multprec_Complex_Solutions.Solution_List;
@@ -170,10 +192,22 @@ package Drivers_for_Poly_Continuation is
   procedure Driver_for_DoblDobl_Continuation
                 ( file : in file_type;
                   sols : in out DoblDobl_Complex_Solutions.Solution_List;
+                  nbq : in integer32 := 0;
+                  target : Complex_Number := Create(1.0) );
+  procedure Driver_for_DoblDobl_Laurent_Continuation
+                ( file : in file_type;
+                  sols : in out DoblDobl_Complex_Solutions.Solution_List;
+                  nbq : in integer32 := 0;
                   target : Complex_Number := Create(1.0) );
   procedure Driver_for_QuadDobl_Continuation
                 ( file : in file_type;
                   sols : in out QuadDobl_Complex_Solutions.Solution_List;
+                  nbq : in integer32 := 0;
+                  target : Complex_Number := Create(1.0) );
+  procedure Driver_for_QuadDobl_Laurent_Continuation
+                ( file : in file_type;
+                  sols : in out QuadDobl_Complex_Solutions.Solution_List;
+                  nbq : in integer32 := 0;
                   target : Complex_Number := Create(1.0) );
 
   -- DESCRIPTION :
@@ -188,6 +222,7 @@ package Drivers_for_Poly_Continuation is
   --   sols       start solutions for the continuation;
   --   deci       number of decimal places;
   --   proj       true when a projective-perpendicular corrector will be used;
+  --   nbq        number of equations to turn on the Gauss-Newton correctors;
   --   target     target value for the continuation parameter.
 
   -- ON RETURN :

@@ -25,14 +25,16 @@ static PyObject *py2c_PHCpack_version_string
  *   Returns the version string of PHCpack.
  *   The version string is 40 characters long. */
 
-static PyObject *py2c_set_seed ( PyObject *self, PyObject *args );
+static PyObject *py2c_set_seed
+ ( PyObject *self, PyObject *args );
 /*
  * DESCRIPTION :
  *   Takes the value of the integer given on input
  *   and sets the seed for the random number generators.
  *   This fixing of the seed enables reproducible runs. */
 
-static PyObject *py2c_get_seed ( PyObject *self, PyObject *args );
+static PyObject *py2c_get_seed
+ ( PyObject *self, PyObject *args );
 /*
  * DESCRIPTION :
  *   Returns the current value of the seed.
@@ -147,7 +149,8 @@ static PyObject *py2c_read_quaddobl_start_system_from_file
  *   a start system to be parsed in quad double precision.
  *   The failure code is returned, which is zero if all went well. */
 
-static PyObject *py2c_define_output_file ( PyObject *self, PyObject *args );
+static PyObject *py2c_define_output_file
+ ( PyObject *self, PyObject *args );
 /*
  * DESCRIPTION :
  *   Prompts the user to define the output file.
@@ -160,6 +163,20 @@ static PyObject *py2c_write_standard_target_system
  *   Writes the target system as stored in standard double precision
  *   to screen or to the defined output file. */
 
+static PyObject *py2c_write_dobldobl_target_system
+ ( PyObject *self, PyObject *args );
+/*
+ * DESCRIPTION :
+ *   Writes the target system as stored in double double precision
+ *   to screen or to the defined output file. */
+
+static PyObject *py2c_write_quaddobl_target_system
+ ( PyObject *self, PyObject *args );
+/*
+ * DESCRIPTION :
+ *   Writes the target system as stored in quad double precision
+ *   to screen or to the defined output file. */
+
 static PyObject *py2c_write_standard_start_system
  ( PyObject *self, PyObject *args );
 /*
@@ -167,7 +184,21 @@ static PyObject *py2c_write_standard_start_system
  *   Writes the start system as stored in standard double precision
  *   to screen or to the defined output file. */
 
-/* Copying systems from and to containers. */
+static PyObject *py2c_write_dobldobl_start_system
+ ( PyObject *self, PyObject *args );
+/*
+ * DESCRIPTION :
+ *   Writes the start system as stored in double double precision
+ *   to screen or to the defined output file. */
+
+static PyObject *py2c_write_quaddobl_start_system
+ ( PyObject *self, PyObject *args );
+/*
+ * DESCRIPTION :
+ *   Writes the start system as stored in double double precision
+ *   to screen or to the defined output file. */
+
+/* copying systems from and to containers */
 
 static PyObject *py2c_copy_standard_target_system_to_container
  ( PyObject *self, PyObject *args );
@@ -281,7 +312,7 @@ static PyObject *py2c_copy_multprec_container_to_start_system
  *   Copies the system in the container for systems with coefficients
  *   in arbitrary multiprecision to the start system. */
 
-/* Creation of homotopy and the tracking of all paths. */
+/* creation of homotopy and tracking of all solution paths */
 
 static PyObject *py2c_create_standard_homotopy
  ( PyObject *self, PyObject *args );
@@ -375,7 +406,8 @@ static PyObject *py2c_clear_multprec_homotopy
  *   Deallocation of the homotopy stored in arbitrary multiprecision.
  *   On return is the failure code, which equals zero if all is well. */
 
-static PyObject *py2c_write_start_solutions ( PyObject *self, PyObject *args );
+static PyObject *py2c_write_start_solutions
+ ( PyObject *self, PyObject *args );
 /*
  * DESCRIPTION :
  *   Writes the start solutions in standard double precision either to
@@ -461,7 +493,7 @@ static PyObject *py2c_solve_by_multprec_homotopy_continuation
  *   On input is one integer: the number of decimal places in the precision.
  *   On return is the failure code, which is zero when all went well. */
 
-/* copying solutions from and to containers */
+/* The wrapping of copying solutions from and to containers starts here. */
 
 static PyObject *py2c_copy_standard_target_solutions_to_container
  ( PyObject *self, PyObject *args );
@@ -577,7 +609,8 @@ static PyObject *py2c_copy_multprec_container_to_start_solutions
 
 /* black box solver, mixed volume calculator, and Newton step */
 
-static PyObject *py2c_solve_system ( PyObject *self, PyObject *args );
+static PyObject *py2c_solve_system
+ ( PyObject *self, PyObject *args );
 /*
  * DESCRIPTION :
  *   Calls the blackbox solver on the system stored in the container for
@@ -587,7 +620,19 @@ static PyObject *py2c_solve_system ( PyObject *self, PyObject *args );
  *   On return, the container for solutions in standard double precision
  *   contains the solutions to the system in the standard systems container. */
 
-static PyObject *py2c_solve_dobldobl_system ( PyObject *self, PyObject *args );
+static PyObject *py2c_scan_for_symbols
+ ( PyObject *self, PyObject *args );
+/*
+ * DESCRIPTION :
+ *   Given on input are two arguments: a number and a string.
+ *   The string holds the string representation of a polynomial system,
+ *   where each polynomial is terminated by a semi colon.
+ *   The first argument on input is the number of characters in the string.
+ *   On return is the number of symbols used as variables in the system.
+ *   This function helps to determine whether a system is square or not. */
+
+static PyObject *py2c_solve_dobldobl_system
+ ( PyObject *self, PyObject *args );
 /*
  * DESCRIPTION :
  *   Calls the blackbox solver on the system stored in the container for
@@ -597,7 +642,8 @@ static PyObject *py2c_solve_dobldobl_system ( PyObject *self, PyObject *args );
  *   On return, the container for solutions in double double precision
  *   contains the solutions to the system in the dobldobl systems container. */
 
-static PyObject *py2c_solve_quaddobl_system ( PyObject *self, PyObject *args );
+static PyObject *py2c_solve_quaddobl_system
+ ( PyObject *self, PyObject *args );
 /*
  * DESCRIPTION :
  *   Calls the blackbox solver on the system stored in the container for
@@ -607,7 +653,8 @@ static PyObject *py2c_solve_quaddobl_system ( PyObject *self, PyObject *args );
  *   On return, the container for solutions in quad double precision
  *   contains the solutions to the system in the quaddobl systems container. */
 
-static PyObject *py2c_solve_Laurent_system ( PyObject *self, PyObject *args );
+static PyObject *py2c_solve_Laurent_system
+ ( PyObject *self, PyObject *args );
 /*
  * DESCRIPTION :
  *   Calls the blackbox solver on the system stored in the container for
@@ -651,56 +698,64 @@ static PyObject *py2c_solve_quaddobl_Laurent_system
  *   contains the solutions to the system in the quaddobl Laurent systems
  *   container. */
 
-static PyObject *py2c_mixed_volume ( PyObject *self, PyObject *args );
+static PyObject *py2c_mixed_volume
+ ( PyObject *self, PyObject *args );
 /*
  * DESCRIPTION :
  *   Computes the mixed volume, and the stable mixed volume as well if
  *   the input parameter equals 1.  On return is the mixed volume, or
  *   a tuple with the mixed volume and the stable mixed volume. */
 
-static PyObject *py2c_standard_deflate ( PyObject *self, PyObject *args );
+static PyObject *py2c_standard_deflate
+ ( PyObject *self, PyObject *args );
 /*
  * DESCRIPTION :
  *   Applies deflation in standard double precision to the system and
  *   the solutions stored in the containers.
  *   On return is the failure code, which equals zero if all went well. */
 
-static PyObject *py2c_dobldobl_deflate ( PyObject *self, PyObject *args );
+static PyObject *py2c_dobldobl_deflate
+ ( PyObject *self, PyObject *args );
 /*
  * DESCRIPTION :
  *   Applies deflation in double double precision to the system and
  *   the solutions stored in the containers.
  *   On return is the failure code, which equals zero if all went well. */
 
-static PyObject *py2c_quaddobl_deflate ( PyObject *self, PyObject *args );
+static PyObject *py2c_quaddobl_deflate
+ ( PyObject *self, PyObject *args );
 /*
  * DESCRIPTION :
  *   Applies deflation in quad double precision to the system and
  *   the solutions stored in the containers.
  *   On return is the failure code, which equals zero if all went well. */
 
-static PyObject *py2c_standard_Newton_step ( PyObject *self, PyObject *args );
+static PyObject *py2c_standard_Newton_step
+ ( PyObject *self, PyObject *args );
 /*
  * DESCRIPTION :
  *   Applies one Newton step in standard double precision to the system in
  *   the standard systems container and to the solutions in the container.
  *   On return is the failure code, which equals zero if all went well. */
 
-static PyObject *py2c_dobldobl_Newton_step ( PyObject *self, PyObject *args );
+static PyObject *py2c_dobldobl_Newton_step
+ ( PyObject *self, PyObject *args );
 /*
  * DESCRIPTION :
  *   Applies one Newton step in double double precision to the system in
  *   the dobldobl systems container and to the solutions in the container.
  *   On return is the failure code, which equals zero if all went well. */
 
-static PyObject *py2c_quaddobl_Newton_step ( PyObject *self, PyObject *args );
+static PyObject *py2c_quaddobl_Newton_step
+ ( PyObject *self, PyObject *args );
 /*
  * DESCRIPTION :
  *   Applies one Newton step in quad double precision to the system in
  *   the quaddobl systems container and to the solutions in the container.
  *   On return is the failure code, which equals zero if all went well. */
 
-static PyObject *py2c_multprec_Newton_step ( PyObject *self, PyObject *args );
+static PyObject *py2c_multprec_Newton_step
+ ( PyObject *self, PyObject *args );
 /*
  * DESCRIPTION :
  *   Applies one Newton step in arbitrary multiprecision to the system in
@@ -760,7 +815,8 @@ static PyObject *py2c_varbprec_Newton_Laurent_steps
 
 /* The wrapping of functions with prototypes in unisolvers.h starts here. */
 
-static PyObject *py2c_usolve_standard ( PyObject *self, PyObject *args );
+static PyObject *py2c_usolve_standard
+ ( PyObject *self, PyObject *args );
 /*
  * DESCRIPTION :
  *   Applies the method of Weierstrass to compute all roots of a
@@ -773,7 +829,8 @@ static PyObject *py2c_usolve_standard ( PyObject *self, PyObject *args );
  *   the standard solutions container contains the roots of the polynomial.
  *   On return is the number of iterations done by the solver. */
 
-static PyObject *py2c_usolve_dobldobl ( PyObject *self, PyObject *args );
+static PyObject *py2c_usolve_dobldobl
+ ( PyObject *self, PyObject *args );
 /*
  * DESCRIPTION :
  *   Applies the method of Weierstrass to compute all roots of a
@@ -786,7 +843,8 @@ static PyObject *py2c_usolve_dobldobl ( PyObject *self, PyObject *args );
  *   the dobldobl solutions container contains the roots of the polynomial.
  *   On return is the number of iterations done by the solver. */
 
-static PyObject *py2c_usolve_quaddobl ( PyObject *self, PyObject *args );
+static PyObject *py2c_usolve_quaddobl
+ ( PyObject *self, PyObject *args );
 /*
  * DESCRIPTION :
  *   Applies the method of Weierstrass to compute all roots of a
@@ -799,7 +857,8 @@ static PyObject *py2c_usolve_quaddobl ( PyObject *self, PyObject *args );
  *   the quaddobl solutions container contains the roots of the polynomial.
  *   On return is the number of iterations done by the solver. */
 
-static PyObject *py2c_usolve_multprec ( PyObject *self, PyObject *args );
+static PyObject *py2c_usolve_multprec
+ ( PyObject *self, PyObject *args );
 /*
  * DESCRIPTION :
  *   Applies the method of Weierstrass to compute all roots of a
@@ -815,7 +874,8 @@ static PyObject *py2c_usolve_multprec ( PyObject *self, PyObject *args );
 
 /* The wrapping of functions with prototypes in giftwrappers.h starts here. */
 
-static PyObject *py2c_giftwrap_planar ( PyObject *self, PyObject *args );
+static PyObject *py2c_giftwrap_planar
+ ( PyObject *self, PyObject *args );
 /*
  * DESCRIPTION :
  *   Applies the giftwrapping algorithm to a planar point configuration.
@@ -825,7 +885,8 @@ static PyObject *py2c_giftwrap_planar ( PyObject *self, PyObject *args );
  *   On return is the string representation of the vertex points,
  *   sorted so that each two consecutive points define an edge. */
 
-static PyObject *py2c_giftwrap_convex_hull ( PyObject *self, PyObject *args );
+static PyObject *py2c_giftwrap_convex_hull
+ ( PyObject *self, PyObject *args );
 /*
  * DESCRIPTION :
  *   Applies the giftwrapping algorithm to a point configuration.
@@ -885,7 +946,8 @@ static PyObject *py2c_giftwrap_clear_support_string
  *   Deallocates the string representation of the support set
  *   that was stored internally by the call py2c_giftwrap_support_size. */
 
-static PyObject *py2c_giftwrap_initial_form ( PyObject *self, PyObject *args );
+static PyObject *py2c_giftwrap_initial_form
+ ( PyObject *self, PyObject *args );
 /*
  * DESCRIPTION :
  *   Replaces the system in the Laurent systems container by its initial form.
@@ -895,7 +957,7 @@ static PyObject *py2c_giftwrap_initial_form ( PyObject *self, PyObject *args );
  *   3) the string representation of the inner normal.
  *   On return is the failure code, which equals zero if all went well. */
 
-/* wrapping functions in syscon.h starts from here */
+/* The wrapping of the functions in syscon.h starts from here */
 
 static PyObject *py2c_syscon_read_standard_system
  ( PyObject *self, PyObject *args );
@@ -971,7 +1033,8 @@ static PyObject *py2c_syscon_read_multprec_Laurent_system
  *   The system will be placed in the multprec Laurent systems container.
  *   The failure code is returned, which equals zero if all went well. */
 
-static PyObject *py2c_syscon_random_system ( PyObject *self, PyObject *args );
+static PyObject *py2c_syscon_random_system
+ ( PyObject *self, PyObject *args );
 /*
  * DESCRIPTION :
  *   Places in the systems container a random polynomial system
@@ -1309,7 +1372,8 @@ static PyObject *py2c_syscon_number_of_Laurent_terms
  *   in standard double precision.
  *   The input parameter k is the index of the polynomial k. */
 
-static PyObject *py2c_syscon_retrieve_term ( PyObject *self, PyObject *args );
+static PyObject *py2c_syscon_retrieve_term
+ ( PyObject *self, PyObject *args );
 /*
  * DESCRIPTION :
  *   Retrieves one term of a polynomial with coefficients in standard
@@ -1502,7 +1566,8 @@ static PyObject *py2c_syscon_load_multprec_Laurential
  *   with arbitrary multiprecision complex coefficients as a string.
  *   The value for k is in the one integer parameter of this function. */
 
-static PyObject *py2c_syscon_total_degree ( PyObject *self, PyObject *args );
+static PyObject *py2c_syscon_total_degree
+ ( PyObject *self, PyObject *args );
 /*
  * DESCRIPTION :
  *   Returns in d the total degree of the system with coefficients in
@@ -1517,7 +1582,7 @@ static PyObject *py2c_syscon_standard_drop_variable_by_index
  *   The index k of the vaiable is given as an input parameter.
  *   On return is the failure code, which equals zero if all went well.  */
 
-static PyObject *py2c_syson_standard_drop_variable_by_name
+static PyObject *py2c_syscon_standard_drop_variable_by_name
  ( PyObject *self, PyObject *args );
 /*
  * DESCRIPTION :
@@ -2137,7 +2202,7 @@ static PyObject *py2c_product_m_homogeneous_start_system
  *   2) the string representation for a partition of the variables.
  *   On return is the m-homogeneous Bezout number. */
 
-/* The wrapping of functions with prototypes in celcon.h starts here. */
+/* The wrapping of the functions with prototypes in celcon.h starts here. */
 
 static PyObject *py2c_celcon_initialize_supports
  ( PyObject *self, PyObject *args );
@@ -2426,9 +2491,10 @@ static PyObject *py2c_celcon_clear_container
  * DESCRIPTION :
  *   Deallocates the data in the cell container. */
 
-/* wrapping functions to scale polynomial systems and solutions */
+/* The wrapping of functions with prototypes in scalers.h starts from here. */
 
-static PyObject *py2c_scale_standard_system ( PyObject *self, PyObject *args );
+static PyObject *py2c_scale_standard_system
+ ( PyObject *self, PyObject *args );
 /*
  * DESCRIPTION :
  *   Applies scaling to the system in the standard systems container,
@@ -2441,7 +2507,8 @@ static PyObject *py2c_scale_standard_system ( PyObject *self, PyObject *args );
  *   On return is a tuple with the scaling coefficients (if mode > 0)
  *   and the estimated inverse condition number of the scaling problem. */
 
-static PyObject *py2c_scale_dobldobl_system ( PyObject *self, PyObject *args );
+static PyObject *py2c_scale_dobldobl_system
+ ( PyObject *self, PyObject *args );
 /*
  * DESCRIPTION :
  *   Applies scaling to the system in the dobldobl systems container,
@@ -2454,7 +2521,8 @@ static PyObject *py2c_scale_dobldobl_system ( PyObject *self, PyObject *args );
  *   On return is a tuple with the scaling coefficients (if mode > 0)
  *   and the estimated inverse condition number of the scaling problem. */
 
-static PyObject *py2c_scale_quaddobl_system ( PyObject *self, PyObject *args );
+static PyObject *py2c_scale_quaddobl_system
+ ( PyObject *self, PyObject *args );
 /*
  * DESCRIPTION :
  *   Applies scaling to the system in the quaddobl systems container,
@@ -2506,12 +2574,575 @@ static PyObject *py2c_scale_quaddobl_solutions
  *   The format of the string is the Python string representation
  *   of a list of doubles, i.e.: starting with '[' and ending with ']'. */
 
-/* wrapping functions to manipulate algebraic sets */
+/* The wrapping of the functions with prototypes in sweep.h starts here. */
 
-static PyObject *py2c_embed_system ( PyObject *self, PyObject *args );
+static PyObject *py2c_sweep_define_parameters_numerically
+ ( PyObject *self, PyObject *args );
+/*
+ * DESCRIPTION :
+ *   Defines the indices to the variables that serve as parameters
+ *   numerically, that is: via integer indices.
+ *   On entry are three integer numbers and a string.
+ *   The string is a string representation of a Python list of integers,
+ *   The three integers are the number of equations, the number of variables,
+ *   and the number of parameters.  The number of variables m includes the
+ *   number of parameters.  Then there should be as many as m indices in
+ *   the list of integers to define which of the variables are parameters. */
+
+static PyObject *py2c_sweep_define_parameters_symbolically
+ ( PyObject *self, PyObject *args );
+/*
+ * DESCRIPTION :
+ *   Defines the indices to the variables that serve as parameters
+ *   symbolically, that is, as names of variables.
+ *   For this to work, the symbol table must be initialized.
+ *   On entry are four integer numbers and a string.
+ *   The four integers are the number of equations, the number of variables,
+ *   the number of parameters (the number of variables m includes the
+ *   number of parameters), and the number of characters in the string.
+ *   The string contains the names of the parameters, separated by one comma.
+ *   For this to work, the symbol table must be initialized, e.g.:
+ *   via the reading of a polynomial system. */
+
+static PyObject *py2c_sweep_get_number_of_equations
+ ( PyObject *self, PyObject *args );
+/*
+ * DESCRIPTION :
+ *   Returns the number of equations. */
+
+static PyObject *py2c_sweep_get_number_of_variables
+ ( PyObject *self, PyObject *args );
+/*
+ * DESCRIPTION :
+ *   Returns the number of variables. */
+
+static PyObject *py2c_sweep_get_number_of_parameters
+ ( PyObject *self, PyObject *args );
+/*
+ * DESCRIPTION :
+ *   Returns the number of parameters. */
+
+static PyObject *py2c_sweep_get_indices_numerically
+ ( PyObject *self, PyObject *args );
+/*
+ * DESCRIPTION :
+ *   Returns the indices of the variables that are parameters,
+ *   as the string representation of a Python list of integers. */
+
+static PyObject *py2c_sweep_get_indices_symbolically
+ ( PyObject *self, PyObject *args );
+/*
+ * DESCRIPTION :
+ *   Returns a string with the names of the parameters,
+ *   each separated by one space. */
+
+static PyObject *py2c_sweep_clear_definitions
+ ( PyObject *self, PyObject *args );
+/*
+ * DESCRIPTION :
+ *   Clears the definitions of the parameters. */
+
+static PyObject *py2c_sweep_set_standard_start
+ ( PyObject *self, PyObject *args );
+/*
+ * DESCRIPTION :
+ *   Sets the start values for the m parameters in standard double precision,
+ *   giving on input an integer m and 2*m doubles, with the consecutive 
+ *   real and imaginary parts for the start values of all m parameters.
+ *   The doubles are given in a string representation of a Python
+ *   list of doubles. */
+
+static PyObject *py2c_sweep_set_standard_target
+ ( PyObject *self, PyObject *args );
+/*
+ * DESCRIPTION :
+ *   Sets the target values for the m parameters in standard double precision,
+ *   giving on input an integer m and 2*m doubles, with the consecutive
+ *   real and imaginary parts for the target values of all m parameters. */
+
+static PyObject *py2c_sweep_set_dobldobl_start
+ ( PyObject *self, PyObject *args );
+/*
+ * DESCRIPTION :
+ *   Sets the start values for the m parameters in double double precision,
+ *   giving on input an integer m and 4*m doubles, with the consecutive
+ *   real and imaginary parts for the start values of all m parameters. */
+
+static PyObject *py2c_sweep_set_dobldobl_target
+ ( PyObject *self, PyObject *args );
+/*
+ * DESCRIPTION :
+ *   Sets the target values for the m parameters in double double precision,
+ *   giving on input an integer m and 4*m doubles, with the consecutive
+ *   real and imaginary parts for the target values of all m parameters. */
+
+static PyObject *py2c_sweep_set_quaddobl_start
+ ( PyObject *self, PyObject *args );
+/*
+ * DESCRIPTION :
+ *   Sets the start values for the m parameters in quad double precision,
+ *   giving on input an integer m and 8*m doubles, with the consecutive
+ *   real and imaginary parts for the start values of all m parameters. */
+
+static PyObject *py2c_sweep_set_quaddobl_target
+ ( PyObject *self, PyObject *args );
+/*
+ * DESCRIPTION :
+ *   Sets the target values for the m parameters in quad double precision,
+ *   giving on input an integer m and 8*m doubles, with the consecutive
+ *   real and imaginary parts for the target values of all m parameters. */
+
+static PyObject *py2c_sweep_get_standard_start
+ ( PyObject *self, PyObject *args );
+/*
+ * DESCRIPTION :
+ *   Gets the start values for the parameters in standard double precision,
+ *   giving on input the number n of doubles that need to be returned.
+ *   On return will be n doubles, for the consecutive real and imaginary
+ *   parts for the start values of all parameters,
+ *   stored in the string representation of a Python list of doubles. */
+
+static PyObject *py2c_sweep_get_standard_target
+ ( PyObject *self, PyObject *args );
+/*
+ * DESCRIPTION :
+ *   Gets the target values for the parameters in standard double precision,
+ *   giving on input the number n of doubles that need to be returned.
+ *   On return will be n doubles, for the consecutive real and imaginary
+ *   parts for the target values of all parameters,
+ *   stored in the string representation of a Python list of doubles. */
+
+static PyObject *py2c_sweep_get_dobldobl_start
+ ( PyObject *self, PyObject *args );
+/*
+ * DESCRIPTION :
+ *   Gets the start values for the parameters in double double precision,
+ *   giving on input the number n of doubles that need to be returned.
+ *   On return will be n doubles, for the consecutive real and imaginary
+ *   parts for the start values of all parameters,
+ *   stored in the string representation of a Python list of doubles. */
+
+static PyObject *py2c_sweep_get_dobldobl_target
+ ( PyObject *self, PyObject *args );
+/*
+ * DESCRIPTION :
+ *   Gets the target values for the parameters in double double precision,
+ *   giving on input the number n of doubles that need to be returned.
+ *   On return will be n doubles, for the consecutive real and imaginary
+ *   parts for the target values of all parameters,
+ *   stored in the string representation of a Python list of doubles. */
+
+static PyObject *py2c_sweep_get_quaddobl_start
+ ( PyObject *self, PyObject *args );
+/*
+ * DESCRIPTION :
+ *   Gets the start values for the parameters in quad double precision,
+ *   giving on input the number n of doubles that need to be returned.
+ *   On return will be n doubles, for the consecutive real and imaginary
+ *   parts for the start values of all parameters,
+ *   stored in the string representation of a Python list of doubles. */
+
+static PyObject *py2c_sweep_get_quaddobl_target
+ ( PyObject *self, PyObject *args );
+/*
+ * DESCRIPTION :
+ *   Returns the target values for the parameters in quad double precision,
+ *   giving on input the number n of doubles that need to be returned.
+ *   On return will be n doubles, for the consecutive real and imaginary
+ *   parts for the target values of all parameters,
+ *   stored in the string representation of a Python list of doubles. */
+
+static PyObject *py2c_sweep_standard_complex_run
+ ( PyObject *self, PyObject *args );
+/*
+ * DESCRIPTION :
+ *   Starts the trackers in a complex convex parameter homotopy,
+ *   in standard double precision, where the indices to the parameters,
+ *   start and target values are already defined.  Moreover, the containers
+ *   of systems and solutions in standard double precision have been
+ *   initialized with a parametric systems and start solutions.
+ *   The first input parameter is 0, 1, or 2, for respectively
+ *   a randomly generated gamma (0), or no gamma (1), or a user given
+ *   gamma with real and imaginary parts given in 2 pointers to doubles. */
+
+static PyObject *py2c_sweep_dobldobl_complex_run
+ ( PyObject *self, PyObject *args );
+/*
+ * DESCRIPTION :
+ *   Starts the trackers in a complex convex parameter homotopy,
+ *   in double double precision, where the indices to the parameters,
+ *   start and target values are already defined.  Moreover, the containers
+ *   of systems and solutions in double double precision have been
+ *   initialized with a parametric systems and start solutions.
+ *   The first input parameter is 0, 1, or 2, for respectively
+ *   a randomly generated gamma (0), or no gamma (1), or a user given
+ *   gamma with real and imaginary parts given in 2 pointers to doubles. */
+
+static PyObject *py2c_sweep_quaddobl_complex_run
+ ( PyObject *self, PyObject *args );
+/*
+ * DESCRIPTION :
+ *   Starts the trackers in a complex convex parameter homotopy,
+ *   in quad double precision, where the indices to the parameters,
+ *   start and target values are already defined.  Moreover, the containers
+ *   of systems and solutions in quad double precision have been
+ *   initialized with a parametric systems and start solutions.
+ *   The first input parameter is 0, 1, or 2, for respectively
+ *   a randomly generated gamma (0), or no gamma (1), or a user given
+ *   gamma with real and imaginary parts given in 2 pointers to doubles. */
+
+static PyObject *py2c_sweep_standard_real_run
+ ( PyObject *self, PyObject *args );
+/*
+ * DESCRIPTION :
+ *   There are no input arguments to this routine.
+ *   Starts a sweep with a natural parameter in a family of n equations
+ *   in n+1 variables, where the last variable is the artificial parameter s
+ *   that moves the one natural parameter from a start to target value.
+ *   The last equation is of the form (1-s)*(A - v[0]) + s*(A - v[1]),
+ *   where A is the natural parameter, going from the start value v[0]
+ *   to the target value v[1].
+ *   This family must be stored in the systems container in standard double
+ *   precision and the corresponding start solutions in the standard solutions
+ *   container, where every solution has the value v[0] for the A variable.
+ *   The sweep stops when s reaches the value v[1], or when a singularity
+ *   is encountered on the path. */
+
+static PyObject *py2c_sweep_dobldobl_real_run
+ ( PyObject *self, PyObject *args );
+/*
+ * DESCRIPTION :
+ *   There are no input arguments to this routine.
+ *   Starts a sweep with a natural parameter in a family of n equations
+ *   in n+1 variables, where the last variable is the artificial parameter s
+ *   that moves the one natural parameter from a start to target value.
+ *   The last equation is of the form (1-s)*(A - v[0]) + s*(A - v[1]),
+ *   where A is the natural parameter, going from the start value v[0]
+ *   to the target value v[1].
+ *   This family must be stored in the systems container in double double
+ *   precision and the corresponding start solutions in the dobldobl solutions
+ *   container, where every solution has the value v[0] for the A variable.
+ *   The sweep stops when s reaches the value v[1], or when a singularity
+ *   is encountered on the path. */
+
+static PyObject *py2c_sweep_quaddobl_real_run
+ ( PyObject *self, PyObject *args );
+/*
+ * DESCRIPTION :
+ *   There are no input arguments to this routine.
+ *   Starts a sweep with a natural parameter in a family of n equations
+ *   in n+1 variables, where the last variable is the artificial parameter s
+ *   that moves the one natural parameter from a start to target value.
+ *   The last equation is of the form (1-s)*(A - v[0]) + s*(A - v[1]),
+ *   where A is the natural parameter, going from the start value v[0]
+ *   to the target value v[1].
+ *   This family must be stored in the systems container in quad double
+ *   precision and the corresponding start solutions in the quaddobl solutions
+ *   container, where every solution has the value v[0] for the A variable.
+ *   The sweep stops when s reaches the value v[1], or when a singularity
+ *   is encountered on the path. */
+
+/* The wrapping of the numerical tropisms container starts here. */
+
+static PyObject *py2c_numbtrop_standard_initialize
+ ( PyObject *self, PyObject *args );
+/*
+ * DESCRIPTION :
+ *   Initializes the numerical tropisms container,
+ *   in standard double precision.  The input parameters are
+ *   nbt : number of tropisms;
+ *   dim : length_of_each tropism;
+ *   wnd : winding numbers, as many as nbt;
+ *   dir : nbt*dim doubles with the coordinates of the tropisms;
+ *   err : errors on the tropisms, as many doubles as the value of nbt.
+ *   The numbers in wnd, dir, and err must be given in one string,
+ *   as the string representation of a list of doubles.
+ *   On return is the failure code, which equals zero if all went well. */
+
+static PyObject *py2c_numbtrop_dobldobl_initialize
+ ( PyObject *self, PyObject *args );
+/*
+ * DESCRIPTION :
+ *   Initializes the numerical tropisms container,
+ *   in double double precision.  The input parameters are
+ *   nbt : number of tropisms;
+ *   dim : length_of_each tropism;
+ *   wnd : winding numbers, as many as nbt;
+ *   dir : 2*nbt*dim doubles with the coordinates of the tropisms;
+ *   err : errors on the tropisms, as many doubles as the value of 2*nbt.
+ *   The numbers in wnd, dir, and err must be given in one string,
+ *   as the string representation of a list of doubles.
+ *   On return is the the failure code, which equals zero if all went well. */
+
+static PyObject *py2c_numbtrop_quaddobl_initialize
+ ( PyObject *self, PyObject *args );
+/*
+ * DESCRIPTION :
+ *   Initializes the numerical tropisms container,
+ *   in quad double precision.  The input parameters are
+ *   nbt : number of tropisms;
+ *   dim : length_of_each tropism;
+ *   wnd : winding numbers, as many as nbt;
+ *   dir : 4*nbt*dim doubles with the coordinates of the tropisms;
+ *   err : errors on the tropisms, as many doubles as the value of 4*nbt.
+ *   The numbers in wnd, dir, and err must be given in one string,
+ *   as the string representation of a list of doubles.
+ *   On return is the the failure code, which equals zero if all went well. */
+
+static PyObject *py2c_numbtrop_standard_retrieve
+ ( PyObject *self, PyObject *args );
+/*
+ * DESCRIPTION :
+ *   Retrieves all tropisms stored in standard double precision.
+ *
+ * ON ENTRY :
+ *   nbt    number of tropisms;
+ *   dim    length_of_each tropism.
+ *
+ * ON RETURN :
+ *   wnd    winding numbers, as many as nbt;
+ *   dir    nbt*dim doubles with the coordinates of the tropisms;
+ *   err    errors on the tropisms, as many doubles as the value of nbt.
+ *   All return parameters are in one string,
+ *   the string representation of a list of doubles.
+ *   The failure code, which equals zero if all went well. */
+
+static PyObject *py2c_numbtrop_dobldobl_retrieve
+ ( PyObject *self, PyObject *args );
+/*
+ * DESCRIPTION :
+ *   Retrieves all tropisms stored in double double precision.
+ *
+ * ON ENTRY :
+ *   nbt    number of tropisms;
+ *   dim    length_of_each tropism.
+ *
+ * ON RETURN :
+ *   wnd    winding numbers, as many as nbt;
+ *   dir    2*nbt*dim doubles with the coordinates of the tropisms;
+ *   err    errors on the tropisms, as many doubles as the value of 2*nbt.
+ *   All return parameters are in one string,
+ *   the string representation of a list of doubles.
+ *   The failure code, which equals zero if all went well. */
+
+static PyObject *py2c_numbtrop_quaddobl_retrieve
+ ( PyObject *self, PyObject *args );
+/*
+ * DESCRIPTION :
+ *   Retrieves all tropisms stored in quad double precision.
+ *
+ * ON ENTRY :
+ *   nbt    number of tropisms;
+ *   dim    length_of_each tropism.
+ *
+ * ON RETURN :
+ *   wnd    winding numbers, as many as nbt;
+ *   dir    4*nbt*dim doubles with the coordinates of the tropisms;
+ *   err    errors on the tropisms, as many doubles as the value of 4*nbt.
+ *   All return parameters are in one string,
+ *   the string representation of a list of doubles.
+ *   The failure code, which equals zero if all went well. */
+
+static PyObject *py2c_numbtrop_standard_size
+ ( PyObject *self, PyObject *args );
+/*
+ * DESCRIPTION :
+ *   Returns the number of tropisms, stored in standard double
+ *   precision, in the numerical tropisms container. */
+
+static PyObject *py2c_numbtrop_dobldobl_size
+ ( PyObject *self, PyObject *args );
+/*
+ * DESCRIPTION :
+ *   Returns the number of tropisms, stored in double double
+ *   precision, in the numerical tropisms container. */
+
+static PyObject *py2c_numbtrop_quaddobl_size
+ ( PyObject *self, PyObject *args );
+/*
+ * DESCRIPTION :
+ *   Returns the number of tropisms, stored in quad double
+ *   precision, in the numerical tropisms container. */
+
+static PyObject *py2c_numbtrop_standard_dimension
+ ( PyObject *self, PyObject *args );
+/*
+ * DESCRIPTION :
+ *   Returns the dimension of the tropisms, stored in standard double
+ *   precision, in the numerical tropisms container. */
+
+static PyObject *py2c_numbtrop_dobldobl_dimension
+ ( PyObject *self, PyObject *args );
+/*
+ * DESCRIPTION :
+ *   Returns the dimension of the tropisms, stored in double double
+ *   precision, in the numerical tropisms container. */
+
+static PyObject *py2c_numbtrop_quaddobl_dimension
+ ( PyObject *self, PyObject *args );
+/*
+ * DESCRIPTION :
+ *   Returns the dimension of the tropisms, stored in quad double
+ *   precision, in the numerical tropisms container. */
+
+static PyObject *py2c_numbtrop_store_standard_tropism
+ ( PyObject *self, PyObject *args );
+/*
+ * DESCRIPTION :
+ *   Stores a tropism given in standard double precision.
+ *
+ * ON ENTRY :
+ *   dim     the length of the tropism vector;
+ *   idx     the index of the tropism, indexing starts at one,
+ *           and ends at nbt, what is returned by standard_size.
+ *   wnd     estimated winding number;
+ *   dir     coordinates of the tropisms, as many as dim;
+ *   err     the error on the tropism.
+ *   All dim+1 doubles are given in one string,
+ *   the string representation of a list of doubles. */
+
+static PyObject *py2c_numbtrop_store_dobldobl_tropism
+ ( PyObject *self, PyObject *args );
+/*
+ * DESCRIPTION :
+ *   Stores a tropism given in double double precision.
+ *
+ * ON ENTRY :
+ *   dim     the length of the tropism vector;
+ *   idx     the index of the tropism, indexing starts at one,
+ *           and ends at nbt, what is returned by standard_size.
+ *   wnd     estimated winding number;
+ *   dir     coordinates of the tropisms, as many as 2*dim;
+ *   err     the error on the tropism, two doubles.
+ *   All 2*dim+2 doubles are given in one string,
+ *   the string representation of a list of doubles. */
+
+static PyObject *py2c_numbtrop_store_quaddobl_tropism
+ ( PyObject *self, PyObject *args );
+/*
+ * DESCRIPTION :
+ *   Stores a tropism given in quad double precision.
+ *
+ * ON ENTRY :
+ *   dim     the length of the tropism vector;
+ *   idx     the index of the tropism, indexing starts at one,
+ *           and ends at nbt, what is returned by standard_size.
+ *   wnd     estimated winding number;
+ *   dir     coordinates of the tropisms, as many as 4*dim;
+ *   err     the error on the tropism, four doubles.
+ *   All 4*dim+4 doubles are given in one string,
+ *   the string representation of a list of doubles. */
+
+static PyObject *py2c_numbtrop_standard_retrieve_tropism
+ ( PyObject *self, PyObject *args );
+/*
+ * DESCRIPTION :
+ *   Returns one tropism, stored in standard double precision.
+ *
+ * ON ENTRY :
+ *   dim     the length of the tropism vector;
+ *   idx     the index of the tropism, indexing starts at one,
+ *           and ends at nbt, what is returned by standard_size.
+ *
+ * ON RETURN :
+ *   wnd     estimated winding number;
+ *   dir     coordinates of the tropisms, as many as dim;
+ *   err     the error on the tropism.
+ *   All dim+1 doubles are returned in one string,
+ *   the string representation of a list of doubles. */
+
+static PyObject *py2c_numbtrop_dobldobl_retrieve_tropism
+ ( PyObject *self, PyObject *args );
+/*
+ * DESCRIPTION :
+ *   Returns one tropism, stored in double double precision.
+ * 
+ * ON ENTRY :
+ *   dim     the length of the tropism vector;
+ *   idx     the index of the tropism, indexing starts at one,
+ *           and ends at nbt, what is returned by numbtrop_dobldobl_size.
+ *
+ * ON RETURN :
+ *   wnd     estimated winding number;
+ *   dir     coordinates of the tropisms, as many as 2*dim;
+ *   err     the error on the tropism, two doubles.
+ *   All 2*dim+2 doubles are returned in one string,
+ *   the string representation of a list of doubles. */
+
+static PyObject *py2c_numbtrop_quaddobl_retrieve_tropism
+ ( PyObject *self, PyObject *args );
+/*
+ * DESCRIPTION :
+ *   Returns one tropism, stored in quad double precision.
+ *
+ * ON ENTRY :
+ *   dim     the length of the tropism vector;
+ *   idx     the index of the tropism, indexing starts at one,
+ *           and ends at nbt, what is returned by numbtrop_quaddobl_size.
+ *
+ * ON RETURN :
+ *   wnd     estimated winding number;
+ *   dir     coordinates of the tropisms, as many as 4*dim;
+ *   err     the error on the tropism, four doubles.
+ *   All 4*dim+4 doubles are returned in one string,
+ *   the string representation of a list of doubles.*/
+
+static PyObject *py2c_numbtrop_standard_clear
+ ( PyObject *self, PyObject *args );
+/*
+ * DESCRIPTION :
+ *   Deallocates the stored numerically computed tropisms,
+ *   computed in standard double precision. */
+
+static PyObject *py2c_numbtrop_dobldobl_clear
+ ( PyObject *self, PyObject *args );
+/*
+ * DESCRIPTION :
+ *   Deallocates the stored numerically computed tropisms,
+ *   computed in double double precision. */
+
+static PyObject *py2c_numbtrop_quaddobl_clear
+ ( PyObject *self, PyObject *args );
+/*
+ * DESCRIPTION :
+ *   Deallocates the stored numerically computed tropisms,
+ *   computed in quad double precision. */
+
+/* The wrapping of functions with prototypes in witset.h starts here. */
+
+static PyObject *py2c_embed_system
+ ( PyObject *self, PyObject *args );
+/*
+ * DESCRIPTION :
+ *   Replaces the system in the container with its embedding of dimension d.
+ *   The dimension d is given as the first integer parameter on input.
+ *   The second integer parameter indicates the precision, either 0, 1, or 2,
+ *   respectively for double, double double, or quad double precision.
+ *   On return is the failure code, which equals zero if all went well. */
+
+static PyObject *py2c_embed_standard_system
+ ( PyObject *self, PyObject *args );
 /*
  * DESCRIPTION :
  *   Replaces the system with coefficients in standard double precision
+ *   in the container with its embedding of dimension d.
+ *   The dimension d is given as an integer parameter on input.
+ *   On return is the failure code, which equals zero if all went well. */
+
+static PyObject *py2c_embed_dobldobl_system
+ ( PyObject *self, PyObject *args );
+/*
+ * DESCRIPTION :
+ *   Replaces the system with coefficients in double double precision
+ *   in the container with its embedding of dimension d.
+ *   The dimension d is given as an integer parameter on input.
+ *   On return is the failure code, which equals zero if all went well. */
+
+static PyObject *py2c_embed_quaddobl_system
+ ( PyObject *self, PyObject *args );
+/*
+ * DESCRIPTION :
+ *   Replaces the system with coefficients in quad double precision
  *   in the container with its embedding of dimension d.
  *   The dimension d is given as an integer parameter on input.
  *   On return is the failure code, which equals zero if all went well. */
@@ -2540,10 +3171,47 @@ static PyObject *py2c_quaddobl_cascade_homotopy
  *   systems to go one level down the cascade, removing one slice.
  *   On return is the failure code, which equals zero if all went well. */
 
-static PyObject *py2c_factor_set_to_mute ( PyObject *self, PyObject *args );
+static PyObject *py2c_factor_set_standard_to_mute
+ ( PyObject *self, PyObject *args );
 /*
  * DESCRIPTION :
- *   Sets the state of monodromy permutations to silent. */
+ *   Sets the state of monodromy permutations in standard double
+ *   precision to silent. */
+
+static PyObject *py2c_factor_set_dobldobl_to_mute
+ ( PyObject *self, PyObject *args );
+/*
+ * DESCRIPTION :
+ *   Sets the state of monodromy permutations in double double
+ *   precision to silent. */
+
+static PyObject *py2c_factor_set_quaddobl_to_mute
+ ( PyObject *self, PyObject *args );
+/*
+ * DESCRIPTION :
+ *   Sets the state of monodromy permutations in quad double
+ *   precision to silent. */
+
+static PyObject *py2c_factor_set_standard_to_verbose
+ ( PyObject *self, PyObject *args );
+/*
+ * DESCRIPTION :
+ *   Sets the state of monodromy permutations in standard double
+ *   precision to verbose. */
+
+static PyObject *py2c_factor_set_dobldobl_to_verbose
+ ( PyObject *self, PyObject *args );
+/*
+ * DESCRIPTION :
+ *   Sets the state of monodromy permutations in double double
+ *   precision to verbose. */
+
+static PyObject *py2c_factor_set_quaddobl_to_verbose
+ ( PyObject *self, PyObject *args );
+/*
+ * DESCRIPTION :
+ *   Sets the state of monodromy permutations in quad double
+ *   precision to verbose. */
 
 static PyObject *py2c_factor_define_output_file_with_string
  ( PyObject *self, PyObject *args );
@@ -2555,7 +3223,8 @@ static PyObject *py2c_factor_define_output_file_with_string
  *   2) the string contains the name of a file.
  *   On return is the failure code, which equals zero if all went well. */
 
-static PyObject *py2c_factor_assign_labels ( PyObject *self, PyObject *args );
+static PyObject *py2c_factor_standard_assign_labels
+ ( PyObject *self, PyObject *args );
 /*
  * DESCRIPTION :
  *   Assigns labels, replacing the multiplicity field of each solution
@@ -2565,87 +3234,322 @@ static PyObject *py2c_factor_assign_labels ( PyObject *self, PyObject *args );
  *   2) nbsols, the number of solutions in the container.
  *   On return is the failure code, which equals zero if all went well. */
 
-static PyObject *py2c_factor_initialize_sampler
+static PyObject *py2c_factor_dobldobl_assign_labels
  ( PyObject *self, PyObject *args );
 /*
  * DESCRIPTION :
- *   Initializes the sampling machine with a witness set.
- *   On entry is the dimension or the number of hyperplanes
- *   to slide the positive dimensional solution set. */
+ *   Assigns labels, replacing the multiplicity field of each solution
+ *   in double double precision stored in the container.
+ *   On entry are two integers:
+ *   1) n, the number of coordinates of the solutions;
+ *   2) nbsols, the number of solutions in the container.
+ *   On return is the failure code, which equals zero if all went well. */
 
-static PyObject *py2c_factor_initialize_monodromy
+static PyObject *py2c_factor_quaddobl_assign_labels
+ ( PyObject *self, PyObject *args );
+/*
+ * DESCRIPTION :
+ *   Assigns labels, replacing the multiplicity field of each solution
+ *   in quad double precision stored in the container.
+ *   On entry are two integers:
+ *   1) n, the number of coordinates of the solutions;
+ *   2) nbsols, the number of solutions in the container.
+ *   On return is the failure code, which equals zero if all went well. */
+
+static PyObject *py2c_factor_initialize_standard_sampler
+ ( PyObject *self, PyObject *args );
+/*
+ * DESCRIPTION :
+ *   Initializes the sampling machine with a witness set,
+ *   in standard double precision.
+ *   On entry is the dimension or the number of hyperplanes
+ *   to intersect the positive dimensional solution set with. */
+
+static PyObject *py2c_factor_initialize_dobldobl_sampler
+ ( PyObject *self, PyObject *args );
+/*
+ * DESCRIPTION :
+ *   Initializes the sampling machine with a witness set,
+ *   in double double precision.
+ *   On entry is the dimension or the number of hyperplanes
+ *   to intersect the positive dimensional solution set with. */
+
+static PyObject *py2c_factor_initialize_quaddobl_sampler
+ ( PyObject *self, PyObject *args );
+/*
+ * DESCRIPTION :
+ *   Initializes the sampling machine with a witness set,
+ *   in quad double precision.
+ *   On entry is the dimension or the number of hyperplanes
+ *   to intersect the positive dimensional solution set with. */
+
+static PyObject *py2c_factor_initialize_standard_monodromy
  ( PyObject *self, PyObject *args );
 /*
  * DESCRIPTION :
  *   Initializes the internal data structures for n loops,
- *   to factor a k-dimensional solution component of degree d.
+ *   to factor a k-dimensional solution component of degree d,
+ *   in standard double precision.
  *   There are three integers on input, in the following order:
  *   1) n, the number of loops;
  *   2) d, the degree of the solution set;
  *   3) k, the dimensional of the solution set.
  *   On return is the failure code, which equals zero when all went well. */
 
-static PyObject *py2c_factor_store_solutions
- ( PyObject *self, PyObject *args );
-/* 
- * DESCRIPTION :
- *   Stores the solutions in the container to the data for monodromy loops. */
-
-static PyObject *py2c_factor_restore_solutions
+static PyObject *py2c_factor_initialize_dobldobl_monodromy
  ( PyObject *self, PyObject *args );
 /*
  * DESCRIPTION :
- *   Restores the first initialized solutions from sampler to the container. */
+ *   Initializes the internal data structures for n loops,
+ *   to factor a k-dimensional solution component of degree d,
+ *   in double double precision.
+ *   There are three integers on input, in the following order:
+ *   1) n, the number of loops;
+ *   2) d, the degree of the solution set;
+ *   3) k, the dimensional of the solution set.
+ *   On return is the failure code, which equals zero when all went well. */
 
-static PyObject *py2c_factor_track_paths ( PyObject *self, PyObject *args );
+static PyObject *py2c_factor_initialize_quaddobl_monodromy
+ ( PyObject *self, PyObject *args );
+/*
+ * DESCRIPTION :
+ *   Initializes the internal data structures for n loops,
+ *   to factor a k-dimensional solution component of degree d,
+ *   in quad double precision.
+ *   There are three integers on input, in the following order:
+ *   1) n, the number of loops;
+ *   2) d, the degree of the solution set;
+ *   3) k, the dimensional of the solution set.
+ *   On return is the failure code, which equals zero when all went well. */
+
+static PyObject *py2c_factor_standard_trace_grid_diagnostics
+ ( PyObject *self, PyObject *args );
+/*
+ * DESCRIPTION :
+ *   Returns a tuple of two doubles with the diagnostics on the
+ *   trace grid computed in standard double precision.
+ *   The first double is the largest error of the samples.
+ *   The second double is the smallest distance between two samples. */
+
+static PyObject *py2c_factor_dobldobl_trace_grid_diagnostics
+ ( PyObject *self, PyObject *args );
+/*
+ * DESCRIPTION :
+ *   Returns a tuple of two doubles with the diagnostics on the
+ *   trace grid computed in double double precision.
+ *   The first double is the largest error of the samples.
+ *   The second double is the smallest distance between two samples. */
+
+static PyObject *py2c_factor_quaddobl_trace_grid_diagnostics
+ ( PyObject *self, PyObject *args );
+/*
+ * DESCRIPTION :
+ *   Returns a tuple of two doubles with the diagnostics on the
+ *   trace grid computed in quad double precision.
+ *   The first double is the largest error of the samples.
+ *   The second double is the smallest distance between two samples. */
+
+static PyObject *py2c_factor_store_standard_solutions
+ ( PyObject *self, PyObject *args );
 /* 
  * DESCRIPTION :
- *   Tracks as many paths as defined by witness set.
+ *   Stores the solutions in the container, in standard double precision,
+ *   to the data for monodromy loops. */
+
+static PyObject *py2c_factor_store_dobldobl_solutions
+ ( PyObject *self, PyObject *args );
+/* 
+ * DESCRIPTION :
+ *   Stores the solutions in the container, in double double precision,
+ *   to the data for monodromy loops. */
+
+static PyObject *py2c_factor_store_quaddobl_solutions
+ ( PyObject *self, PyObject *args );
+/* 
+ * DESCRIPTION :
+ *   Stores the solutions in the container, in quad double precision,
+ *   to the data for monodromy loops. */
+
+static PyObject *py2c_factor_restore_standard_solutions
+ ( PyObject *self, PyObject *args );
+/*
+ * DESCRIPTION :
+ *   Restores the first initialized solutions, in standard double precision,
+ *   from sampler to the container. */
+
+static PyObject *py2c_factor_restore_dobldobl_solutions
+ ( PyObject *self, PyObject *args );
+/*
+ * DESCRIPTION :
+ *   Restores the first initialized solutions, in double double precision,
+ *   from sampler to the container. */
+
+static PyObject *py2c_factor_restore_quaddobl_solutions
+ ( PyObject *self, PyObject *args );
+/*
+ * DESCRIPTION :
+ *   Restores the first initialized solutions, in quad double precision,
+ *   from sampler to the container. */
+
+static PyObject *py2c_factor_standard_track_paths
+ ( PyObject *self, PyObject *args );
+/* 
+ * DESCRIPTION :
+ *   Tracks as many paths as defined by witness set,
+ *   in standard double precision.
  *   On return is the failure code, which is zero when all went well. */
 
-static PyObject *py2c_factor_swap_slices ( PyObject *self, PyObject *args );
+static PyObject *py2c_factor_dobldobl_track_paths
+ ( PyObject *self, PyObject *args );
+/* 
+ * DESCRIPTION :
+ *   Tracks as many paths as defined by witness set,
+ *   in double double precision.
+ *   On return is the failure code, which is zero when all went well. */
+
+static PyObject *py2c_factor_quaddobl_track_paths
+ ( PyObject *self, PyObject *args );
+/* 
+ * DESCRIPTION :
+ *   Tracks as many paths as defined by witness set,
+ *   in quad double precision.
+ *   On return is the failure code, which is zero when all went well. */
+
+static PyObject *py2c_factor_swap_standard_slices
+ ( PyObject *self, PyObject *args );
 /* 
  * DESCRIPTION :
  *   Swaps the current slices with new slices and takes new solutions
- *   as start to turn back.
+ *   as start to turn back, in standard double precision.
  *   On return is the failure code, which is zero when all went well. */
 
-static PyObject *py2c_factor_new_slices ( PyObject *self, PyObject *args );
+static PyObject *py2c_factor_swap_dobldobl_slices
+ ( PyObject *self, PyObject *args );
+/* 
+ * DESCRIPTION :
+ *   Swaps the current slices with new slices and takes new solutions
+ *   as start to turn back, in double double precision.
+ *   On return is the failure code, which is zero when all went well. */
+
+static PyObject *py2c_factor_swap_quaddobl_slices
+ ( PyObject *self, PyObject *args );
+/* 
+ * DESCRIPTION :
+ *   Swaps the current slices with new slices and takes new solutions
+ *   as start to turn back, in quad double precision.
+ *   On return is the failure code, which is zero when all went well. */
+
+static PyObject *py2c_factor_new_standard_slices
+ ( PyObject *self, PyObject *args );
 /*
  * DESCRIPTION :
- *   Generates k random slides in n-space.
+ *   Generates k random slides in n-space in standard double precision.
  *   The k and the n are the two input parameters.
  *   On return is the failure code, which is zero when all went well. */
 
-static PyObject *py2c_factor_set_trace_slice
+static PyObject *py2c_factor_new_dobldobl_slices
  ( PyObject *self, PyObject *args );
 /*
  * DESCRIPTION :
- *   Assigns the constant coefficient of the first slice.
+ *   Generates k random slides in n-space in double double precision.
+ *   The k and the n are the two input parameters.
+ *   On return is the failure code, which is zero when all went well. */
+
+static PyObject *py2c_factor_new_quaddobl_slices
+ ( PyObject *self, PyObject *args );
+/*
+ * DESCRIPTION :
+ *   Generates k random slides in n-space in quad double precision.
+ *   The k and the n are the two input parameters.
+ *   On return is the failure code, which is zero when all went well. */
+
+static PyObject *py2c_factor_set_standard_trace_slice
+ ( PyObject *self, PyObject *args );
+/*
+ * DESCRIPTION :
+ *   Assigns the constant coefficient of the first slice,
+ *   in standard double precision.
  *   On entry is a flag to indicate if it was the first time or not.
  *   On return is the failure code, which is zero if all went well. */
 
-static PyObject *py2c_factor_store_gammas ( PyObject *self, PyObject *args );
+static PyObject *py2c_factor_set_dobldobl_trace_slice
+ ( PyObject *self, PyObject *args );
 /*
  * DESCRIPTION :
- *   Stores the gamma constants for the sampler in the monodromy loops.
+ *   Assigns the constant coefficient of the first slice,
+ *   in double double precision.
+ *   On entry is a flag to indicate if it was the first time or not.
+ *   On return is the failure code, which is zero if all went well. */
+
+static PyObject *py2c_factor_set_quaddobl_trace_slice
+ ( PyObject *self, PyObject *args );
+/*
+ * DESCRIPTION :
+ *   Assigns the constant coefficient of the first slice,
+ *   in quad double precision.
+ *   On entry is a flag to indicate if it was the first time or not.
+ *   On return is the failure code, which is zero if all went well. */
+
+static PyObject *py2c_factor_store_standard_gammas
+ ( PyObject *self, PyObject *args );
+/*
+ * DESCRIPTION :
+ *   Stores the gamma constants in standard double precision
+ *   for the sampler in the monodromy loops.
  *   Generates as many random complex constants as the value on input.
  *   On return is the failure code, which is zero if all went well. */
 
-static PyObject *py2c_factor_permutation_after_loop
+static PyObject *py2c_factor_store_dobldobl_gammas
  ( PyObject *self, PyObject *args );
 /*
  * DESCRIPTION :
- *   For a solution set of degree d, computes the permutation using the
- *   solutions most recently stored, after a loop. 
+ *   Stores the gamma constants in double double precision
+ *   for the sampler in the monodromy loops.
+ *   Generates as many random complex constants as the value on input.
+ *   On return is the failure code, which is zero if all went well. */
+
+static PyObject *py2c_factor_store_quaddobl_gammas
+ ( PyObject *self, PyObject *args );
+/*
+ * DESCRIPTION :
+ *   Stores the gamma constants in quad double precision
+ *   for the sampler in the monodromy loops.
+ *   Generates as many random complex constants as the value on input.
+ *   On return is the failure code, which is zero if all went well. */
+
+static PyObject *py2c_factor_permutation_after_standard_loop
+ ( PyObject *self, PyObject *args );
+/*
+ * DESCRIPTION :
+ *   For a set of degree d, computes the permutation using the solutions
+ *   most recently stored, after a loop in standard double precision.
  *   The number d is the input parameter of this function.
  *   On return is the string representation of the permutation. */
 
-static PyObject *py2c_factor_update_decomposition
+static PyObject *py2c_factor_permutation_after_dobldobl_loop
  ( PyObject *self, PyObject *args );
 /*
  * DESCRIPTION :
- *   Updates the decomposition with the given permutation of d elements.
+ *   For a set of degree d, computes the permutation using the solutions
+ *   most recently stored, after a loop in double double precision.
+ *   The number d is the input parameter of this function.
+ *   On return is the string representation of the permutation. */
+
+static PyObject *py2c_factor_permutation_after_quaddobl_loop
+ ( PyObject *self, PyObject *args );
+/*
+ * DESCRIPTION :
+ *   For a set of degree d, computes the permutation using the solutions
+ *   most recently stored, after a loop in quad double precision.
+ *   The number d is the input parameter of this function.
+ *   On return is the string representation of the permutation. */
+
+static PyObject *py2c_factor_update_standard_decomposition
+ ( PyObject *self, PyObject *args );
+/*
+ * DESCRIPTION :
+ *   Updates the decomposition with the given permutation of d elements,
+ *   computed in standard double precision.
  *   On entry are two integers and one string:
  *   1) d, the number of elements in the permutation;
  *   2) nc, the number of characters in the string;
@@ -2653,64 +3557,306 @@ static PyObject *py2c_factor_update_decomposition
  *   Returns one if the current decomposition is certified,
  *   otherwise returns zero. */
 
-static PyObject *py2c_factor_number_of_components
+static PyObject *py2c_factor_update_dobldobl_decomposition
  ( PyObject *self, PyObject *args );
 /*
  * DESCRIPTION :
- *   Returns the number of irreducible factors in the current
- *   decomposition of the witness set. */
+ *   Updates the decomposition with the given permutation of d elements,
+ *   computed in double double precision.
+ *   On entry are two integers and one string:
+ *   1) d, the number of elements in the permutation;
+ *   2) nc, the number of characters in the string;
+ *   3) p, the string representation of the permutation.
+ *   Returns one if the current decomposition is certified,
+ *   otherwise returns zero. */
 
-static PyObject *py2c_factor_witness_points_of_component
+static PyObject *py2c_factor_update_quaddobl_decomposition
  ( PyObject *self, PyObject *args );
 /*
  * DESCRIPTION :
- *   Returns a string which represents an irreducible component.
+ *   Updates the decomposition with the given permutation of d elements,
+ *   computed in quad double precision.
+ *   On entry are two integers and one string:
+ *   1) d, the number of elements in the permutation;
+ *   2) nc, the number of characters in the string;
+ *   3) p, the string representation of the permutation.
+ *   Returns one if the current decomposition is certified,
+ *   otherwise returns zero. */
+
+static PyObject *py2c_factor_number_of_standard_components
+ ( PyObject *self, PyObject *args );
+/*
+ * DESCRIPTION :
+ *   Returns the number of irreducible factors in the standard double
+ *   precision decomposition of the witness set. */
+
+static PyObject *py2c_factor_number_of_dobldobl_components
+ ( PyObject *self, PyObject *args );
+/*
+ * DESCRIPTION :
+ *   Returns the number of irreducible factors in the double double
+ *   precision decomposition of the witness set. */
+
+static PyObject *py2c_factor_number_of_quaddobl_components
+ ( PyObject *self, PyObject *args );
+/*
+ * DESCRIPTION :
+ *   Returns the number of irreducible factors in the quad double
+ *   precision decomposition of the witness set. */
+
+static PyObject *py2c_factor_witness_points_of_standard_component
+ ( PyObject *self, PyObject *args );
+/*
+ * DESCRIPTION :
+ *   Returns a string which represents an irreducible component,
+ *   computed in standard double precision.
  *   On entry are two integers:
  *   1) the sum of the degrees of all components;
  *   2) the index of the component. */
 
-static PyObject *py2c_factor_trace_sum_difference
+static PyObject *py2c_factor_witness_points_of_dobldobl_component
+ ( PyObject *self, PyObject *args );
+/*
+ * DESCRIPTION :
+ *   Returns a string which represents an irreducible component,
+ *   computed in double double precision.
+ *   On entry are two integers:
+ *   1) the sum of the degrees of all components;
+ *   2) the index of the component. */
+
+static PyObject *py2c_factor_witness_points_of_quaddobl_component
+ ( PyObject *self, PyObject *args );
+/*
+ * DESCRIPTION :
+ *   Returns a string which represents an irreducible component,
+ *   computed in quad double precision.
+ *   On entry are two integers:
+ *   1) the sum of the degrees of all components;
+ *   2) the index of the component. */
+
+static PyObject *py2c_factor_standard_trace_sum_difference
  ( PyObject *self, PyObject *args );
 /*
  * DESCRIPTION :
  *   Returns the difference between the actual sum at the samples
  *   defined by the labels to the generic points in the factor,
- *   and the trace sum.
+ *   and the trace sum, in standard double precision.
  *   On entry are three integer numbers and one string:
  *   1) d, the number of points in the witness set;
  *   2) k, the dimension of the solution set;
  *   3) nc, the number of characters in the string;
  *   4) ws, the string representing the labels of the witness set. */
 
-static PyObject *py2c_witness_set_of_hypersurface
+static PyObject *py2c_factor_dobldobl_trace_sum_difference
+ ( PyObject *self, PyObject *args );
+/*
+ * DESCRIPTION :
+ *   Returns the difference between the actual sum at the samples
+ *   defined by the labels to the generic points in the factor,
+ *   and the trace sum, in double double precision.
+ *   On entry are three integer numbers and one string:
+ *   1) d, the number of points in the witness set;
+ *   2) k, the dimension of the solution set;
+ *   3) nc, the number of characters in the string;
+ *   4) ws, the string representing the labels of the witness set. */
+
+static PyObject *py2c_factor_quaddobl_trace_sum_difference
+ ( PyObject *self, PyObject *args );
+/*
+ * DESCRIPTION :
+ *   Returns the difference between the actual sum at the samples
+ *   defined by the labels to the generic points in the factor,
+ *   and the trace sum, in quad double precision.
+ *   On entry are three integer numbers and one string:
+ *   1) d, the number of points in the witness set;
+ *   2) k, the dimension of the solution set;
+ *   3) nc, the number of characters in the string;
+ *   4) ws, the string representing the labels of the witness set. */
+
+static PyObject *py2c_witset_standard_membertest
+ ( PyObject *self, PyObject *args );
+/*
+ * DESCRIPTION :
+ *   Executes the homotopy membership test for a point to belong to
+ *   a witness set in standard double precision.
+ *   The containers in standard double precision must contain the
+ *   embedded system and its corresponding solutions for the winess set
+ *   of a positive dimensional solution set.
+ *   On entry are the seven parameters, the first four are integers:
+ *   1) vrb, an integer flag (0 or 1) for the verbosity of the test,
+ *   2) nvr, the ambient dimension, number of coordinates of the point,
+ *   3) dim, the dimension of the witness set,
+ *   4) nbc, the number of characters in the string representing the point;
+ *   the next two parameters are two doubles:
+ *   5) restol, tolerance on the residual for the valuation of the point,
+ *   6) homtol, tolerance on the homotopy membership test for the point;
+ *   and the last parameter is a string:
+ *   7) tpt, the string representation of the point as a list with as
+ *   many as 2*nvr doubles for the real and imaginary parts of the
+ *   standard double precision coordinates of the test point.
+ *   On return are three 0/1 integers, to be interpreted as booleans:
+ *   1) fail, the failure code of the procedure,
+ *   2) onsys, 0 if the evaluation test failed, 1 if success,
+ *   3) onset, 0 if not a member of the witness set, 1 if a member. */
+
+static PyObject *py2c_witset_dobldobl_membertest
+ ( PyObject *self, PyObject *args );
+/*
+ * DESCRIPTION :
+ *   Executes the homotopy membership test for a point to belong to
+ *   a witness set in double double precision.
+ *   The containers in double double precision must contain the
+ *   embedded system and its corresponding solutions for the winess set
+ *   of a positive dimensional solution set.
+ *   On entry are the seven parameters, the first four are integers:
+ *   1) vrb, an integer flag (0 or 1) for the verbosity of the test,
+ *   2) nvr, the ambient dimension, number of coordinates of the point,
+ *   3) dim, the dimension of the witness set,
+ *   4) nbc, the number of characters in the string representing the point;
+ *   the next two parameters are two doubles:
+ *   5) restol, tolerance on the residual for the valuation of the point,
+ *   6) homtol, tolerance on the homotopy membership test for the point;
+ *   and the last parameter is a string:
+ *   7) tpt, the string representation of the point as a list with as
+ *   many as 4*nvr doubles for the real and imaginary parts of the
+ *   double double precision coordinates of the test point.
+ *   On return are three 0/1 integers, to be interpreted as booleans:
+ *   1) fail, the failure code of the procedure,
+ *   2) onsys, 0 if the evaluation test failed, 1 if success,
+ *   3) onset, 0 if not a member of the witness set, 1 if a member. */
+
+static PyObject *py2c_witset_quaddobl_membertest
+ ( PyObject *self, PyObject *args );
+/*
+ * DESCRIPTION :
+ *   Executes the homotopy membership test for a point to belong to
+ *   a witness set in quad double precision.
+ *   The containers in quad double precision must contain the
+ *   embedded system and its corresponding solutions for the winess set
+ *   of a positive dimensional solution set.
+ *   On entry are the seven parameters, the first four are integers:
+ *   1) vrb, an integer flag (0 or 1) for the verbosity of the test,
+ *   2) nvr, the ambient dimension, number of coordinates of the point,
+ *   3) dim, the dimension of the witness set,
+ *   4) nbc, the number of characters in the string representing the point;
+ *   the next two parameters are two doubles:
+ *   5) restol, tolerance on the residual for the valuation of the point,
+ *   6) homtol, tolerance on the homotopy membership test for the point;
+ *   and the last parameter is a string:
+ *   7) tpt, the string representation of the point as a list with as
+ *   many as 8*nvr doubles for the real and imaginary parts of the
+ *   quad double precision coordinates of the test point.
+ *   On return are three 0/1 integers, to be interpreted as booleans:
+ *   1) fail, the failure code of the procedure,
+ *   2) onsys, 0 if the evaluation test failed, 1 if success,
+ *   3) onset, 0 if not a member of the witness set, 1 if a member. */
+
+static PyObject *py2c_standard_witset_of_hypersurface
  ( PyObject *self, PyObject *args );
 /*
  * DESCRIPTION :
  *   Given in the string p of nc characters a polynomial in nv variables,
- *   terminated by a semicolon, the systems and solutions container on
- *   return contain a witness set for the hypersurface defined by p.
+ *   terminated by a semicolon, the systems and solutions container in
+ *   standard double precision on return contain a witness set for the
+ *   hypersurface defined by p.
  *   On entry are two integers and one string, in the following order:
  *   1) nv, the number of variables of the polynomials;
  *   2) nc, the number of characters in the string p;
  *   3) p, string representation of a polynomial, terminates with ';'.
  *   On return is the failure code, which equals zero if all went well. */
 
-static PyObject *py2c_create_diagonal_homotopy
+static PyObject *py2c_dobldobl_witset_of_hypersurface
+ ( PyObject *self, PyObject *args );
+/*
+ * DESCRIPTION :
+ *   Given in the string p of nc characters a polynomial in nv variables,
+ *   terminated by a semicolon, the systems and solutions container in
+ *   double double precision on return contain a witness set for the
+ *   hypersurface defined by p.
+ *   On entry are two integers and one string, in the following order:
+ *   1) nv, the number of variables of the polynomials;
+ *   2) nc, the number of characters in the string p;
+ *   3) p, string representation of a polynomial, terminates with ';'.
+ *   On return is the failure code, which equals zero if all went well. */
+
+static PyObject *py2c_quaddobl_witset_of_hypersurface
+ ( PyObject *self, PyObject *args );
+/*
+ * DESCRIPTION :
+ *   Given in the string p of nc characters a polynomial in nv variables,
+ *   terminated by a semicolon, the systems and solutions container in
+ *   double double precision on return contain a witness set for the
+ *   hypersurface defined by p.
+ *   On entry are two integers and one string, in the following order:
+ *   1) nv, the number of variables of the polynomials;
+ *   2) nc, the number of characters in the string p;
+ *   3) p, string representation of a polynomial, terminates with ';'.
+ *   On return is the failure code, which equals zero if all went well. */
+
+static PyObject *py2c_standard_diagonal_homotopy
  ( PyObject *self, PyObject *args );
 /*
  * DESCRIPTION :
  *   Creates a diagonal homotopy to intersect two solution sets of
  *   dimensions a and b respectively, where a >= b.
  *   The two input parameters are values for a and b.
- *   The systems stored as target and start system in the container
- *   define the witness sets for these two solution sets. */
+ *   The systems stored as target and start system in the container,
+ *   in standard double precision, define the witness sets for these
+ *   two solution sets. */
 
-static PyObject *py2c_start_diagonal_cascade_solutions
+static PyObject *py2c_dobldobl_diagonal_homotopy
+ ( PyObject *self, PyObject *args );
+/*
+ * DESCRIPTION :
+ *   Creates a diagonal homotopy to intersect two solution sets of
+ *   dimensions a and b respectively, where a >= b.
+ *   The two input parameters are values for a and b.
+ *   The systems stored as target and start system in the container,
+ *   in double double precision, define the witness sets for these
+ *   two solution sets. */
+
+static PyObject *py2c_quaddobl_diagonal_homotopy
+ ( PyObject *self, PyObject *args );
+/*
+ * DESCRIPTION :
+ *   Creates a diagonal homotopy to intersect two solution sets of
+ *   dimensions a and b respectively, where a >= b.
+ *   The two input parameters are values for a and b.
+ *   The systems stored as target and start system in the container,
+ *   in quad double precision, define the witness sets for these
+ *   two solution sets. */
+
+static PyObject *py2c_standard_diagonal_cascade_solutions
  ( PyObject *self, PyObject *args );
 /*
  * DESCRIPTION :
  *   Makes the start solutions to start the cascade homotopy to
- *   intersect two solution sets of dimensions a and b, where a >= b.
+ *   intersect two solution sets of dimensions a and b, where a >= b,
+ *   in standard double precision.
+ *   The dimensions a and b are given as input parameters.
+ *   The systems stored as target and start system in the container
+ *   define the witness sets for these two solution sets.
+ *   On return is the failure code, which equals zero when all went well. */
+
+static PyObject *py2c_dobldobl_diagonal_cascade_solutions
+ ( PyObject *self, PyObject *args );
+/*
+ * DESCRIPTION :
+ *   Makes the start solutions to start the cascade homotopy to
+ *   intersect two solution sets of dimensions a and b, where a >= b,
+ *   in double double precision.
+ *   The dimensions a and b are given as input parameters.
+ *   The systems stored as target and start system in the container
+ *   define the witness sets for these two solution sets.
+ *   On return is the failure code, which equals zero when all went well. */
+
+static PyObject *py2c_quaddobl_diagonal_cascade_solutions
+ ( PyObject *self, PyObject *args );
+/*
+ * DESCRIPTION :
+ *   Makes the start solutions to start the cascade homotopy to
+ *   intersect two solution sets of dimensions a and b, where a >= b,
+ *   in quad double precision.
  *   The dimensions a and b are given as input parameters.
  *   The systems stored as target and start system in the container
  *   define the witness sets for these two solution sets.
@@ -2726,11 +3872,29 @@ static PyObject *py2c_extrinsic_top_diagonal_dimension
  *   respectively equal to n1 and n2.
  *   There are four integers as parameters on input: n1, n2, a and b. */
 
-static PyObject *py2c_collapse_diagonal ( PyObject *self, PyObject *args );
+static PyObject *py2c_diagonal_symbols_doubler 
+ ( PyObject *self, PyObject *args );
+/*
+ * DESCRIPTION :
+ *   Doubles the number of symbols in the symbol table to enable the
+ *   writing of the target system to string properly when starting the
+ *   cascade of a diagonal homotopy in extrinsic coordinates.
+ *   On input are three integers, n, d, nc, and one string s.
+ *   On input are n, the ambient dimension = #variables before the embedding,
+ *   d is the number of slack variables, or the dimension of the first set,
+ *   and in s (nc characters) are the symbols for the first witness set.
+ *   This function takes the symbols in s and combines those symbols with
+ *   those in the current symbol table for the second witness set stored
+ *   in the standard systems container.  On return, the symbol table
+ *   contains then all symbols to write the top system in the cascade
+ *   to start the diagonal homotopy. */
+
+static PyObject *py2c_standard_collapse_diagonal
+ ( PyObject *self, PyObject *args );
 /*
  * DESCRIPTION :
  *   Eliminates the extrinsic diagonal for the system and solutions
- *   in the containers.  On input are two integers:
+ *   in the containers for standard doubles.  On input are two integers:
  *   1) k, the current number of slack variables in the embedding;
  *   2) d, the number of slack variables to add to the final embedding.
  *   The system in the container has its diagonal eliminated and is
@@ -2738,8 +3902,33 @@ static PyObject *py2c_collapse_diagonal ( PyObject *self, PyObject *args );
  *   to this system are in the solutions container.
  *   On return is the failure code, which equals zero if all went well. */
 
-/* The wrapping of Pieri and Littlewood-Richardson homotopies,
- * with prototypes in schubert.h starts here. */
+static PyObject *py2c_dobldobl_collapse_diagonal
+ ( PyObject *self, PyObject *args );
+/*
+ * DESCRIPTION :
+ *   Eliminates the extrinsic diagonal for the system and solutions
+ *   in the containers for double doubles.  On input are two integers:
+ *   1) k, the current number of slack variables in the embedding;
+ *   2) d, the number of slack variables to add to the final embedding.
+ *   The system in the container has its diagonal eliminated and is
+ *   embedded with k+d slack variables.  The solutions corresponding
+ *   to this system are in the solutions container.
+ *   On return is the failure code, which equals zero if all went well. */
+
+static PyObject *py2c_quaddobl_collapse_diagonal
+ ( PyObject *self, PyObject *args );
+/*
+ * DESCRIPTION :
+ *   Eliminates the extrinsic diagonal for the system and solutions
+ *   in the containers for quad doubles.  On input are two integers:
+ *   1) k, the current number of slack variables in the embedding;
+ *   2) d, the number of slack variables to add to the final embedding.
+ *   The system in the container has its diagonal eliminated and is
+ *   embedded with k+d slack variables.  The solutions corresponding
+ *   to this system are in the solutions container.
+ *   On return is the failure code, which equals zero if all went well. */
+
+/* The wrapping of functions with prototypes in schubert.h starts here. */
 
 static PyObject *py2c_schubert_pieri_count
  ( PyObject *self, PyObject *args );
@@ -2798,506 +3987,6 @@ static PyObject *py2c_schubert_standard_littlewood_richardson_homotopies
  *   0) r is the formal root count as the number of k-planes
  *   for conditions imposed by the brackets for general flags;
  *   1) flags, a string with the coefficients of the general flags. */
- *   The lifted supports and the random coefficient system are defined.
- *   On return is the failure code, which equals zero if all went well. */
-
-static PyObject *py2c_celcon_quaddobl_polyhedral_homotopy
- ( PyObject *self, PyObject *args );
-/*
- * DESCRIPTION :
- *   Based on the lifting and the random coefficient system,
- *   the polyhedral homotopy to solve the random coefficient system 
- *   in quad double precision is constructed.
- *   This function also initializes the internal data structures to store
- *   the solutions of start and target systems.
- *   The lifted supports and the random coefficient system are defined.
- *   On return is the failure code, which equals zero if all went well. */
-
-static PyObject *py2c_celcon_solve_standard_start_system
- ( PyObject *self, PyObject *args );
-/*
- * DESCRIPTION :
- *   Solves the start system corresponding to the k-th mixed cell,
- *   using standard double precision arithmetic.
- *   The precondition for this function is that the creation of
- *   the polyhedral homotopy in standard double precision ended well.
- *   On return is the number of solution found, which must equal
- *   the mixed volume of the k-th mixed cell. */
-
-static PyObject *py2c_celcon_solve_dobldobl_start_system
- ( PyObject *self, PyObject *args );
-/*
- * DESCRIPTION :
- *   Solves the start system corresponding to the k-th mixed cell,
- *   using double double precision arithmetic.
- *   The precondition for this function is that the creation of
- *   the polyhedral homotopy in double double precision ended well.
- *   On return is the number of solution found, which must equal
- *   the mixed volume of the k-th mixed cell. */
-
-static PyObject *py2c_celcon_solve_quaddobl_start_system
- ( PyObject *self, PyObject *args );
-/*
- * DESCRIPTION :
- *   Solves the start system corresponding to the k-th mixed cell,
- *   using quad double precision arithmetic.
- *   The precondition for this function is that the creation of
- *   the polyhedral homotopy in quad double precision ended well.
- *   On return is the number of solution found, which must equal
- *   the mixed volume of the k-th mixed cell. */
-
-static PyObject *py2c_celcon_track_standard_solution_path
- ( PyObject *self, PyObject *args );
-/*
- * DESCRIPTION :
- *   Tracks a solution path starting at the i-th solution of the k-th cell,
- *   using standard double precision arithmetic.
- *   The precondition for this function is that the start system defined
- *   by the k-th mixed cell is solved in standard double precision.
- *   There are three input parameters:
- *   1) k, the index to a mixed cell in the cell container;
- *   2) i, the index to a solution path defined by that mixed cell;
- *   3) otp, the level for intermediate output during path tracking.
- *   A target solution corresponding to the k-th cell is added on return. */
-
-static PyObject *py2c_celcon_track_dobldobl_solution_path
- ( PyObject *self, PyObject *args );
-/*
- * DESCRIPTION :
- *   Tracks a solution path starting at the i-th solution of the k-th cell,
- *   using double double precision arithmetic.
- *   The precondition for this function is that the start system defined
- *   by the k-th mixed cell is solved in double double precision.
- *   There are three input parameters:
- *   1) k, the index to a mixed cell in the cell container;
- *   2) i, the index to a solution path defined by that mixed cell;
- *   3) otp, the level for intermediate output during path tracking.
- *   A target solution corresponding to the k-th cell is added on return. */
-
-static PyObject *py2c_celcon_track_quaddobl_solution_path
- ( PyObject *self, PyObject *args );
-/*
- * DESCRIPTION :
- *   Tracks a solution path starting at the i-th solution of the k-th cell,
- *   using quad double precision arithmetic.
- *   The precondition for this function is that the start system defined
- *   by the k-th mixed cell is solved in quad double precision.
- *   There are three input parameters:
- *   1) k, the index to a mixed cell in the cell container;
- *   2) i, the index to a solution path defined by that mixed cell;
- *   3) otp, the level for intermediate output during path tracking.
- *   A target solution corresponding to the k-th cell is added on return. */
-
-static PyObject *py2c_celcon_copy_target_standard_solution_to_container
- ( PyObject *self, PyObject *args );
-/*
- * DESCRIPTION :
- *   Copies the i-th target solution corresponding to the k-th mixed cell
- *   to the container for solutions in standard double precision.
- *   There are two input parameters for this function:
- *   1) k, the index to the mixed cell;
- *   2) i, the index to the i-th solution path defined by the cell.
- *   On return is the failure code, which equals zero when all went well. */
-
-static PyObject *py2c_celcon_copy_target_dobldobl_solution_to_container
- ( PyObject *self, PyObject *args );
-/*
- * DESCRIPTION :
- *   Copies the i-th target solution corresponding to the k-th mixed cell
- *   to the container for solutions in double double precision.
- *   There are two input parameters for this function:
- *   1) k, the index to the mixed cell;
- *   2) i, the index to the i-th solution path defined by the cell.
- *   On return is the failure code, which equals zero when all went well. */
-
-static PyObject *py2c_celcon_copy_target_quaddobl_solution_to_container
- ( PyObject *self, PyObject *args );
-/*
- * DESCRIPTION :
- *   Copies the i-th target solution corresponding to the k-th mixed cell
- *   to the container for solutions in quad double precision.
- *   There are two input parameters for this function:
- *   1) k, the index to the mixed cell;
- *   2) i, the index to the i-th solution path defined by the cell.
- *   On return is the failure code, which equals zero when all went well. */
-
-static PyObject *py2c_celcon_permute_standard_system
- ( PyObject *self, PyObject *args );
-/*
- * DESCRIPTION :
- *   Permutes the systems in the container for polynomial and Laurent systems
- *   with standard double coefficients corresponding to the permutation
- *   used to compute the mixed-cell configuration.
- *   On return is the failure code, which equals zero if all went well. */
-
-static PyObject *py2c_celcon_permute_dobldobl_system
- ( PyObject *self, PyObject *args );
-/*
- * DESCRIPTION :
- *   Permutes the systems in the container for polynomial and Laurent systems
- *   with double double coefficients corresponding to the permutation
- *   used to compute the mixed-cell configuration.
- *   On return is the failure code, which equals zero if all went well. */
-
-static PyObject *py2c_celcon_permute_quaddobl_system
- ( PyObject *self, PyObject *args );
-/*
- * DESCRIPTION :
- *   Permutes the systems in the container for polynomial and Laurent systems
- *   with quad double coefficients corresponding to the permutation
- *   used to compute the mixed-cell configuration.
- *   On return is the failure code, which equals zero if all went well. */
-
-static PyObject *py2c_celcon_clear_container
- ( PyObject *self, PyObject *args );
-/*
- * DESCRIPTION :
- *   Deallocates the data in the cell container. */
-
-/* wrapping functions to scale polynomial systems and solutions */
-
-static PyObject *py2c_scale_standard_system ( PyObject *self, PyObject *args );
-/*
- * DESCRIPTION :
- *   Applies scaling to the system in the standard systems container,
- *   with standard double precision arithmetic.  The system in the standard
- *   systems container is replaced by the scaled system.
- *   On entry is one integer, which should be either 0, 1, or 2:
- *   0 for only scaling of the equations,
- *   1 variable scaling without variability reduction,
- *   2 variable scaling with variability reduction.
- *   On return is a tuple with the scaling coefficients (if mode > 0)
- *   and the estimated inverse condition number of the scaling problem. */
-
-static PyObject *py2c_scale_dobldobl_system ( PyObject *self, PyObject *args );
-/*
- * DESCRIPTION :
- *   Applies scaling to the system in the dobldobl systems container,
- *   with double double precision arithmetic.  The system in the dobldobl
- *   systems container is replaced by the scaled system.
- *   On entry is one integer, which should be either 0, 1, or 2:
- *   0 for only scaling of the equations,
- *   1 variable scaling without variability reduction,
- *   2 variable scaling with variability reduction.
- *   On return is a tuple with the scaling coefficients (if mode > 0)
- *   and the estimated inverse condition number of the scaling problem. */
-
-static PyObject *py2c_scale_quaddobl_system ( PyObject *self, PyObject *args );
-/*
- * DESCRIPTION :
- *   Applies scaling to the system in the quaddobl systems container,
- *   with quad double precision arithmetic.  The system in the quaddobl
- *   systems container is replaced by the scaled system.
- *   On entry is one integer, which should be either 0, 1, or 2:
- *   0 for only scaling of the equations,
- *   1 variable scaling without variability reduction,
- *   2 variable scaling with variability reduction.
- *   On return is a tuple with the scaling coefficients (if mode > 0)
- *   and the estimated inverse condition number of the scaling problem. */
-
-static PyObject *py2c_scale_standard_solutions 
- ( PyObject *self, PyObject *args );
-/*
- * DESCRIPTION :
- *   Replaces the solutions in the standard solutions container with
- *   the scaled solutions, scaled with standard double precision arithmetic,
- *   using the given scaling coefficients.
- *   On entry are two parameters: an integer and a string.
- *   The integer contains the number of elements in the list
- *   of scaling coefficients (doubles) stored in the string.
- *   The format of the string is the Python string representation
- *   of a list of doubles, i.e.: starting with '[' and ending with ']'. */
-
-static PyObject *py2c_scale_dobldobl_solutions 
- ( PyObject *self, PyObject *args );
-/*
- * DESCRIPTION :
- *   Replaces the solutions in the dobldobl solutions container with
- *   the scaled solutions, scaled with double double precision arithmetic,
- *   using the given scaling coefficients.
- *   On entry are two parameters: an integer and a string.
- *   The integer contains the number of elements in the list
- *   of scaling coefficients (doubles) stored in the string.
- *   The format of the string is the Python string representation
- *   of a list of doubles, i.e.: starting with '[' and ending with ']'. */
-
-static PyObject *py2c_scale_quaddobl_solutions 
- ( PyObject *self, PyObject *args );
-/*
- * DESCRIPTION :
- *   Replaces the solutions in the quaddobl solutions container with
- *   the scaled solutions, scaled with quad double precision arithmetic,
- *   using the given scaling coefficients.
- *   On entry are two parameters: an integer and a string.
- *   The integer contains the number of elements in the list
- *   of scaling coefficients (doubles) stored in a the string.
- *   The format of the string is the Python string representation
- *   of a list of doubles, i.e.: starting with '[' and ending with ']'. */
-
-/* wrapping functions to manipulate algebraic sets */
-
-static PyObject *py2c_embed_system ( PyObject *self, PyObject *args );
-/*
- * DESCRIPTION :
- *   Replaces the system with coefficients in standard double precision
- *   in the container with its embedding of dimension d.
- *   The dimension d is given as an integer parameter on input.
- *   On return is the failure code, which equals zero if all went well. */
-
-static PyObject *py2c_standard_cascade_homotopy
- ( PyObject *self, PyObject *args );
-/*
- * DESCRIPTION :
- *   Creates a homotopy in standard double precision using the stored
- *   systems to go one level down the cascade, removing one slice.
- *   On return is the failure code, which equals zero if all went well. */
-
-static PyObject *py2c_dobldobl_cascade_homotopy
- ( PyObject *self, PyObject *args );
-/*
- * DESCRIPTION :
- *   Creates a homotopy in double double precision using the stored
- *   systems to go one level down the cascade, removing one slice.
- *   On return is the failure code, which equals zero if all went well. */
-
-static PyObject *py2c_quaddobl_cascade_homotopy
- ( PyObject *self, PyObject *args );
-/*
- * DESCRIPTION :
- *   Creates a homotopy in quad double precision using the stored
- *   systems to go one level down the cascade, removing one slice.
- *   On return is the failure code, which equals zero if all went well. */
-
-static PyObject *py2c_factor_set_to_mute ( PyObject *self, PyObject *args );
-/*
- * DESCRIPTION :
- *   Sets the state of monodromy permutations to silent. */
-
-static PyObject *py2c_factor_define_output_file_with_string
- ( PyObject *self, PyObject *args );
-/*
- * DESCRIPTION :
- *   Defines the output file for the factorization.
- *   On input are an integer and a string:
- *   1) the integer equals the number of characters in the string; and
- *   2) the string contains the name of a file.
- *   On return is the failure code, which equals zero if all went well. */
-
-static PyObject *py2c_factor_assign_labels ( PyObject *self, PyObject *args );
-/*
- * DESCRIPTION :
- *   Assigns labels, replacing the multiplicity field of each solution
- *   in standard double precision stored in the container.
- *   On entry are two integers:
- *   1) n, the number of coordinates of the solutions;
- *   2) nbsols, the number of solutions in the container.
- *   On return is the failure code, which equals zero if all went well. */
-
-static PyObject *py2c_factor_initialize_sampler
- ( PyObject *self, PyObject *args );
-/*
- * DESCRIPTION :
- *   Initializes the sampling machine with a witness set.
- *   On entry is the dimension or the number of hyperplanes
- *   to slide the positive dimensional solution set. */
-
-static PyObject *py2c_factor_initialize_monodromy
- ( PyObject *self, PyObject *args );
-/*
- * DESCRIPTION :
- *   Initializes the internal data structures for n loops,
- *   to factor a k-dimensional solution component of degree d.
- *   There are three integers on input, in the following order:
- *   1) n, the number of loops;
- *   2) d, the degree of the solution set;
- *   3) k, the dimensional of the solution set.
- *   On return is the failure code, which equals zero when all went well. */
-
-static PyObject *py2c_factor_store_solutions
- ( PyObject *self, PyObject *args );
-/* 
- * DESCRIPTION :
- *   Stores the solutions in the container to the data for monodromy loops. */
-
-static PyObject *py2c_factor_restore_solutions
- ( PyObject *self, PyObject *args );
-/*
- * DESCRIPTION :
- *   Restores the first initialized solutions from sampler to the container. */
-
-static PyObject *py2c_factor_track_paths ( PyObject *self, PyObject *args );
-/* 
- * DESCRIPTION :
- *   Tracks as many paths as defined by witness set.
- *   On return is the failure code, which is zero when all went well. */
-
-static PyObject *py2c_factor_swap_slices ( PyObject *self, PyObject *args );
-/* 
- * DESCRIPTION :
- *   Swaps the current slices with new slices and takes new solutions
- *   as start to turn back.
- *   On return is the failure code, which is zero when all went well. */
-
-static PyObject *py2c_factor_new_slices ( PyObject *self, PyObject *args );
-/*
- * DESCRIPTION :
- *   Generates k random slides in n-space.
- *   The k and the n are the two input parameters.
- *   On return is the failure code, which is zero when all went well. */
-
-static PyObject *py2c_factor_set_trace_slice
- ( PyObject *self, PyObject *args );
-/*
- * DESCRIPTION :
- *   Assigns the constant coefficient of the first slice.
- *   On entry is a flag to indicate if it was the first time or not.
- *   On return is the failure code, which is zero if all went well. */
-
-static PyObject *py2c_factor_store_gammas ( PyObject *self, PyObject *args );
-/*
- * DESCRIPTION :
- *   Stores the gamma constants for the sampler in the monodromy loops.
- *   Generates as many random complex constants as the value on input.
- *   On return is the failure code, which is zero if all went well. */
-
-static PyObject *py2c_factor_permutation_after_loop
- ( PyObject *self, PyObject *args );
-/*
- * DESCRIPTION :
- *   For a solution set of degree d, computes the permutation using the
- *   solutions most recently stored, after a loop. 
- *   The number d is the input parameter of this function.
- *   On return is the string representation of the permutation. */
-
-static PyObject *py2c_factor_update_decomposition
- ( PyObject *self, PyObject *args );
-/*
- * DESCRIPTION :
- *   Updates the decomposition with the given permutation of d elements.
- *   On entry are two integers and one string:
- *   1) d, the number of elements in the permutation;
- *   2) nc, the number of characters in the string;
- *   3) p, the string representation of the permutation.
- *   Returns one if the current decomposition is certified,
- *   otherwise returns zero. */
-
-static PyObject *py2c_factor_number_of_components
- ( PyObject *self, PyObject *args );
-/*
- * DESCRIPTION :
- *   Returns the number of irreducible factors in the current
- *   decomposition of the witness set. */
-
-static PyObject *py2c_factor_witness_points_of_component
- ( PyObject *self, PyObject *args );
-/*
- * DESCRIPTION :
- *   Returns a string which represents an irreducible component.
- *   On entry are two integers:
- *   1) the sum of the degrees of all components;
- *   2) the index of the component. */
-
-static PyObject *py2c_factor_trace_sum_difference
- ( PyObject *self, PyObject *args );
-/*
- * DESCRIPTION :
- *   Returns the difference between the actual sum at the samples
- *   defined by the labels to the generic points in the factor,
- *   and the trace sum.
- *   On entry are three integer numbers and one string:
- *   1) d, the number of points in the witness set;
- *   2) k, the dimension of the solution set;
- *   3) nc, the number of characters in the string;
- *   4) ws, the string representing the labels of the witness set. */
-
-static PyObject *py2c_witness_set_of_hypersurface
- ( PyObject *self, PyObject *args );
-/*
- * DESCRIPTION :
- *   Given in the string p of nc characters a polynomial in nv variables,
- *   terminated by a semicolon, the systems and solutions container on
- *   return contain a witness set for the hypersurface defined by p.
- *   On entry are two integers and one string, in the following order:
- *   1) nv, the number of variables of the polynomials;
- *   2) nc, the number of characters in the string p;
- *   3) p, string representation of a polynomial, terminates with ';'.
- *   On return is the failure code, which equals zero if all went well. */
-
-static PyObject *py2c_create_diagonal_homotopy
- ( PyObject *self, PyObject *args );
-/*
- * DESCRIPTION :
- *   Creates a diagonal homotopy to intersect two solution sets of
- *   dimensions a and b respectively, where a >= b.
- *   The two input parameters are values for a and b.
- *   The systems stored as target and start system in the container
- *   define the witness sets for these two solution sets. */
-
-static PyObject *py2c_start_diagonal_cascade_solutions
- ( PyObject *self, PyObject *args );
-/*
- * DESCRIPTION :
- *   Makes the start solutions to start the cascade homotopy to
- *   intersect two solution sets of dimensions a and b, where a >= b.
- *   The dimensions a and b are given as input parameters.
- *   The systems stored as target and start system in the container
- *   define the witness sets for these two solution sets.
- *   On return is the failure code, which equals zero when all went well. */
-
-static PyObject *py2c_extrinsic_top_diagonal_dimension
- ( PyObject *self, PyObject *args );
-/*
- * DESCRIPTION :
- *   Returns the dimension of the start and target system to
- *   start the extrinsic cascade to intersect two witness sets,
- *   respectively of dimensions a and b, with ambient dimensions
- *   respectively equal to n1 and n2.
- *   There are four integers as parameters on input: n1, n2, a and b. */
-
-static PyObject *py2c_collapse_diagonal ( PyObject *self, PyObject *args );
-/*
- * DESCRIPTION :
- *   Eliminates the extrinsic diagonal for the system and solutions
- *   in the containers.  On input are two integers:
- *   1) k, the current number of slack variables in the embedding;
- *   2) d, the number of slack variables to add to the final embedding.
- *   The system in the container has its diagonal eliminated and is
- *   embedded with k+d slack variables.  The solutions corresponding
- *   to this system are in the solutions container.
- *   On return is the failure code, which equals zero if all went well. */
-
-/* The wrapping of Pieri and Littlewood-Richardson homotopies,
- * with prototypes in schubert.h starts here. */
-
-static PyObject *py2c_schubert_pieri_count
- ( PyObject *self, PyObject *args );
-/*
- * DESCRIPTION :
- *   Returns the number of p-plane producing curves of degree q
- *   that meet m*p + q*(m+p) given general m-planes.
- *   On input are three integer numbers:
- *   1) m, the dimension of the input planes;
- *   2) p, the dimension of the output planes; and
- *   3) q, the degree of the curve that produces p-planes.
- *   The dimension of the ambient space of this Pieri problem is m+p. */
-
-static PyObject *py2c_schubert_resolve_conditions
- ( PyObject *self, PyObject *args );
-/*
- * DESCRIPTION :
- *   Resolves a general Schubert intersection condition in n-space
- *   for k-planes subject to conditions defined by brackers.
- *   On return is the root count, the number of k-planes that satisfy
- *   the intersection conditions imposed by the brackets for general flags.
- *   On entry are five integers and one string:
- *   1) n, the ambient dimension, where the k-planes live;
- *   2) k, the dimension of the solution planes;
- *   3) c, the number of intersection conditions;
- *   4) nc, the number of characters in the string brackets;
- *   5) brackets is a string representation of c brackets, where the numbers
- *   in each bracket are separated by spaces;
- *   6) the flag verbose: when 0, no intermediate output is written,
- *   when 1, then the resolution is dispayed on screen. */
 
 static PyObject *py2c_schubert_dobldobl_littlewood_richardson_homotopies
  ( PyObject *self, PyObject *args );
@@ -3418,9 +4107,10 @@ static PyObject *py2c_schubert_pieri_system
  *   if == 0, then the coefficients of A are complex.
  *   Returns the failure code, which equals zero if all went well. */
 
-/* The wrapping functions in mapcon.h starts here. */
+/* The wrapping of the functions with prototypes in mapcon.h starts here. */
 
-static PyObject *py2c_mapcon_solve_system ( PyObject *self, PyObject *args );
+static PyObject *py2c_mapcon_solve_system
+ ( PyObject *self, PyObject *args );
 /*
  * DESCRIPTION :
  *  Solves the binomial system stored in the Laurent systems container.
@@ -3429,29 +4119,34 @@ static PyObject *py2c_mapcon_solve_system ( PyObject *self, PyObject *args );
  *  If zero, then all solution sets are computed.
  *  Returns the failure code, which equals zero if all went well. */
 
-static PyObject *py2c_mapcon_write_maps ( PyObject *self, PyObject *args );
+static PyObject *py2c_mapcon_write_maps
+ ( PyObject *self, PyObject *args );
 /*
  * DESCRIPTION :
  *   Writes the maps stored in the container to screen.
  *   Returns the failure code, which equals zero if all went well. */
 
-static PyObject *py2c_mapcon_clear_maps ( PyObject *self, PyObject *args );
+static PyObject *py2c_mapcon_clear_maps
+ ( PyObject *self, PyObject *args );
 /*
  * DESCRIPTION :
  *   Deallocates the maps stored in the container.
  *   Returns the failure code, which equals zero if all went well. */
 
-static PyObject *py2c_mapcon_top_dimension ( PyObject *self, PyObject *args );
+static PyObject *py2c_mapcon_top_dimension
+ ( PyObject *self, PyObject *args );
 /*
  * DESCRIPTION :
  *   Returns the top dimension of the maps in the container. */
 
-static PyObject *py2c_mapcon_number_of_maps ( PyObject *self, PyObject *args );
+static PyObject *py2c_mapcon_number_of_maps
+ ( PyObject *self, PyObject *args );
 /*
  * DESCRIPTION :
  *   Returns the number of maps in the container. */
 
-static PyObject *py2c_mapcon_degree_of_map ( PyObject *self, PyObject *args );
+static PyObject *py2c_mapcon_degree_of_map
+ ( PyObject *self, PyObject *args );
 /*
  * DESCRIPTION :
  *   Given the dimension and index of a map, given as two integers as
@@ -3527,7 +4222,7 @@ static PyObject *py2c_initialize_multprec_homotopy
  *   Before calling this routine the target and start system must
  *   be copied over from the multprec systems container. */
 
-static PyObject *py2c_initialize_varprec_homotopy
+static PyObject *py2c_initialize_varbprec_homotopy
  ( PyObject *self, PyObject *args );
 /*
  * DESCRIPTION :

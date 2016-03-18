@@ -2,8 +2,12 @@ with text_io;                            use text_io;
 with Standard_Natural_Numbers;           use Standard_Natural_Numbers;
 with Standard_Integer_Numbers;           use Standard_Integer_Numbers;
 with Standard_Floating_Numbers;          use Standard_Floating_Numbers;
-with Standard_Complex_Poly_Systems;      use Standard_Complex_Poly_Systems;
-with Standard_Complex_Solutions;         use Standard_Complex_Solutions;
+with Standard_Complex_Poly_Systems;
+with DoblDobl_Complex_Poly_Systems;
+with QuadDobl_Complex_Poly_Systems;
+with Standard_Complex_Solutions;
+with DoblDobl_Complex_Solutions;
+with QuadDobl_Complex_Solutions;
 
 package Drivers_to_Cascade_Filtering is
 
@@ -11,7 +15,9 @@ package Drivers_to_Cascade_Filtering is
 --   This package contains procedures to set up the sequence of
 --   homotopies to compute generic points on all components.
 
-  procedure Driver_to_Square_and_Embed;
+  procedure Standard_Square_and_Embed;
+  procedure DoblDobl_Square_and_Embed;
+  procedure QuadDobl_Square_and_Embed;
 
   -- DESCRIPTION :
   --   A system is made square by
@@ -20,22 +26,75 @@ package Drivers_to_Cascade_Filtering is
   --   The embedding to capture k dimensional components is executed
   --   by adding k random hyperplanes and k slack variables.
   --   This interactive routine reads in a system and creates a new
-  --   square and embedded polynomial system.
+  --   square and embedded polynomial system,
+  --   in standard double, double double, or quad double precision.
+
+  procedure Driver_to_Square_and_Embed;
+
+  -- DESCRIPTION :
+  --   Prompts the user for the level of precision and then calls
+  --   the proper driver procedure.
+
+  procedure Standard_Remove_Embedding;
+  procedure DoblDobl_Remove_Embedding;
+  procedure QuadDobl_Remove_Embedding;
+
+  -- DESCRIPTION :
+  --   Removes embed and slack variables from the system read on input.
+  --   This operation undoes the squaring and embedding,
+  --   in standard double, double double, or quad double precision.
 
   procedure Driver_to_Remove_Embedding;
 
   -- DESCRIPTION :
-  --   Removes embed and slack variables from the system read on input.
-  --   This operation undoes the squaring and embedding.
+  --   Prompts the user for the level of precision and then calls
+  --   the proper driver procedure.
+
+  procedure Down_Continuation
+              ( file : in file_type;
+                embsys : in Standard_Complex_Poly_Systems.Poly_Sys;
+                level : in natural32;
+                sols : in out Standard_Complex_Solutions.Solution_List;
+                pocotime : out duration );
+  procedure Down_Continuation
+              ( file : in file_type;
+                embsys : in DoblDobl_Complex_Poly_Systems.Poly_Sys;
+                level : in natural32;
+                sols : in out DoblDobl_Complex_Solutions.Solution_List;
+                pocotime : out duration );
+  procedure Down_Continuation
+              ( file : in file_type;
+                embsys : in QuadDobl_Complex_Poly_Systems.Poly_Sys;
+                level : in natural32;
+                sols : in out QuadDobl_Complex_Solutions.Solution_List;
+                pocotime : out duration );
+
+  -- DESCRIPTION :
+  --   Performs a continuation to remove the slice from the embedded system.
+  --   On entry, sols contains the start solutions, on return, the
+  --   computed solutions are in the list sols,
+  --   in standard double, double double, or quad double precision.
 
   procedure Witness_Generate
-               ( outfile,resfile : in file_type; ep : in Poly_Sys;
-                 sols : in Solution_List; k : in natural32;
-                 zerotol : in double_float );
+               ( outfile,resfile : in file_type;
+                 ep : in Standard_Complex_Poly_Systems.Poly_Sys;
+                 sols : in Standard_Complex_Solutions.Solution_List;
+                 k : in natural32; zerotol : in double_float );
+  procedure Witness_Generate
+               ( outfile,resfile : in file_type;
+                 ep : in DoblDobl_Complex_Poly_Systems.Poly_Sys;
+                 sols : in DoblDobl_Complex_Solutions.Solution_List;
+                 k : in natural32; zerotol : in double_float );
+  procedure Witness_Generate
+               ( outfile,resfile : in file_type;
+                 ep : in QuadDobl_Complex_Poly_Systems.Poly_Sys;
+                 sols : in QuadDobl_Complex_Solutions.Solution_List;
+                 k : in natural32; zerotol : in double_float );
 
   -- DESCRIPTION :
   --   Calculates candidate witness points on every component,
-  --   starting at the component of dimension k.
+  --   starting at the component of dimension k,
+  --   in standard double, double double, or quad double precision.
 
   -- ON ENTRY :
   --   outfile   file for intermediate results and diagnostics;
@@ -50,11 +109,23 @@ package Drivers_to_Cascade_Filtering is
 
   procedure Witness_Generate
                ( name : in string; outfile : in file_type;
-                 ep : in Poly_Sys; sols : in Solution_List;
+                 ep : in Standard_Complex_Poly_Systems.Poly_Sys;
+                 sols : in Standard_Complex_Solutions.Solution_List;
+                 k : in natural32; zerotol : in double_float );
+  procedure Witness_Generate
+               ( name : in string; outfile : in file_type;
+                 ep : in DoblDobl_Complex_Poly_Systems.Poly_Sys;
+                 sols : in DoblDobl_Complex_Solutions.Solution_List;
+                 k : in natural32; zerotol : in double_float );
+  procedure Witness_Generate
+               ( name : in string; outfile : in file_type;
+                 ep : in QuadDobl_Complex_Poly_Systems.Poly_Sys;
+                 sols : in QuadDobl_Complex_Solutions.Solution_List;
                  k : in natural32; zerotol : in double_float );
 
   -- DESCRIPTION :
-  --   This witness generate writes the witness supersets to files.
+  --   This witness generate writes the witness supersets to files,
+  --   in standard double, double double, or quad double precision.
 
   -- ON ENTRY :
   --   name      file name for the top embedded system;
@@ -65,14 +136,25 @@ package Drivers_to_Cascade_Filtering is
   --             equals the top dimension of the solution sets;
   --   zerotol   tolerance to decide whether a number is zero or not.
 
+  procedure Standard_Witness_Generate;
+  procedure DoblDobl_Witness_Generate;
+  procedure QuadDobl_Witness_Generate;
+
+  -- DESCRIPTION :
+  --   Interactive driver to call the Witness_Generate procedure,
+  --   in standard double, double double, or quad double precision.
+
   procedure Driver_to_Witness_Generate;
 
   -- DESCRIPTION :
-  --   Interactive driver to call the Witness_Generate procedure.
+  --   Prompts the user for the level of the working precision and
+  --   then calls the Standard, DoblDobl, or QuadDobl_Witness_Generate.
 
   procedure Black_Box_Solver
-               ( file : in file_type; sys : in Poly_Sys;
-                 deg : in boolean; sols : out Solution_List;
+               ( file : in file_type;
+                 sys : in Standard_Complex_Poly_Systems.Poly_Sys;
+                 deg : in boolean;
+                 sols : out Standard_Complex_Solutions.Solution_List;
                  rc : out natural32; totaltime : out duration );
  
   -- DESCRIPTION :
@@ -94,104 +176,14 @@ package Drivers_to_Cascade_Filtering is
   --   totaltime is the total cpu time used in computing the results.
 
   procedure Driver_for_Cascade_Filter
-               ( file : in file_type; p : in Poly_Sys; k : in integer32 );
+               ( file : in file_type;
+                 p : in Standard_Complex_Poly_Systems.Poly_Sys;
+                 k : in integer32 );
   
   -- DESCRIPTION :
   --   Performs a cascade of homotopies to find generic points on
   --   the solution set of the system p.  k is the top dimension.
   --   All results are written to the file.
-
-  procedure Interactive_Embed_Square_System 
-              ( file : in file_type; p : in Poly_Sys;
-                embsys : out Link_to_Poly_Sys; topdim : out natural32 );
-
-  -- DESCRIPTION :
-  --   Prompts the user to enter the expected top dimension, 
-  --   which is returned in topdim,
-  --   creates the embedded system and writes it on file.
-  --   This procedure is called by Interactive_Square_and_Embed,
-  --   in case the given polynomial system is square.
-
-  procedure Embed_Square_System 
-              ( p : in Poly_Sys; topdim : in natural32;
-                embsys : out Link_to_Poly_Sys );
-
-  -- DESCRIPTION :
-  --   Noninteractive version of the previous procedure.
-
-  -- ON ENTRY :
-  --   p        system with as many equations as variables;
-  --   topdim   the topdimension.
- 
-  -- ON RETURN :
-  --   embsys   system with as many extra linear equations as topdim
-  --            and with the symbol table enlarged with as many
-  --            symbols for the slack variables as the value of topdim.
-
-  function Full_Embed_Nonsquare_System
-               ( p : Poly_Sys; nq,nv,k : natural32 ) return Poly_Sys;
-
-  -- DESCRIPTION :
-  --   Constructs an embedding of a nonsquare system,
-  --   using slices not restricted to any particular subspace.
-
-  -- ON ENTRY :
-  --   p         nonsquare polynomial system;
-  --   nq        number of equations;
-  --   nv        number of variables;
-  --   k         number of slices to be added to the system.
-
-  -- ON RETURN :
-  --   Square polynomial system with k additional linear equations.
-
-  procedure Interactive_Embed_Nonsquare_System
-              ( file : in file_type; p : in Poly_Sys;
-                nbequ,nbunk : in natural32;
-                embsys : out Link_to_Poly_Sys; topdim : out natural32 );
-
-  -- DESCRIPTION :
-  --   Constructs an embedding of a nonsquare system with number of
-  --   equations in nbequ and number of unknowns in nbunk.
-  --   The user is prompted for the expected top dimension.
-  --   Slack variables are added for overdetermined systems.
-  --   Dummy variables are added for underdetermined systems.
-  --   The embedded system is written to file.
-
-  procedure Embed_Nonsquare_System
-              ( p : in Poly_Sys;
-                nbequ,nbunk,topdim : in natural32;
-                embsys : out Link_to_Poly_Sys );
-
-  -- DESCRIPTION :
-  --   Noninteractive version of the above procedure.
-
-  procedure Interactive_Square_and_Embed
-              ( file : in file_type; p : in Poly_Sys;
-                ep : out Link_to_Poly_Sys; k : out natural32 );
-
-  -- DESCRIPTION :
-  --   The embedding of nonsquare systems involves the addition of
-  --   extra slack variables (in case the system is overdetermined)
-  --   or the use of dummy variables (for underdetermined systems).
-  --   Therefore the embedding for square systems is treated separately
-  --   from the embedding of the nonsquare systems.
-
-  -- ON ENTRY :
-  --   file     for output;
-  --   p        system in any number of equations and variables.
- 
-  -- ON RETURN :
-  --   ep       embedded system with extra slack variables;
-  --   k        the dimension as entered by the user.
-
-  procedure Square_and_Embed
-              ( p : in Poly_Sys; topdim : in natural32;
-                ep : out Link_to_Poly_Sys );
-
-  -- DESCRIPTION :
-  --   Noninteractive version of the procedure above,
-  --   works for systems in any number of equations and variables
-  --   and takes care of the symbol table adjustment.
 
   procedure Embed_and_Cascade;
 

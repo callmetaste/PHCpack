@@ -33,6 +33,8 @@ with Standard_Intrinsic_Solutions;      use Standard_Intrinsic_Solutions;
 with Standard_Intrinsic_Newton;         use Standard_Intrinsic_Newton;
 with Standard_Intrinsic_Continuation;   use Standard_Intrinsic_Continuation;
 with Standard_Solution_Splitters;       use Standard_Solution_Splitters;
+with Standard_Diagonal_Polynomials;     use Standard_Diagonal_Polynomials;
+with Standard_Diagonal_Solutions;       use Standard_Diagonal_Solutions;
 with Extrinsic_Diagonal_Homotopies;     use Extrinsic_Diagonal_Homotopies;
 with Extrinsic_Diagonal_Homotopies_io;
 
@@ -289,8 +291,8 @@ package body Diagonal_Homotopy_Continuation is
     Standard_Homotopy.Create(p,q,1,gamma);
     tstart(timer);
     if report
-     then R_Cont(file,sols,false,target);
-     else S_Cont(sols,false,target);
+     then R_Cont(file,sols,false,target=>target);
+     else S_Cont(sols,false,target=>target);
     end if;
     tstop(timer);
     new_line(file);

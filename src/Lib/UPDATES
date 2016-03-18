@@ -1,3 +1,156 @@
+Tue 16 Feb 2016 : to phcpy2c.h added function to scan for the symbols in the
+  string representation of a system, coded in phcpy2c2.c and phcpy2c3.c.
+
+Mon 15 Feb 2016 : added function to scan a string representation of a
+  polynomial systems for the number of symbols used as variables to phcpack
+  with a new test program in lib_nbrvar.
+
+Mon 8 Feb 2016 : corrected dimensions of the character arrays when
+  retrieving tropisms in quad double precision, in phcpy2c2.c and phcpy2c3.c.
+
+Sun 7 Feb 2016 : wrote tests for double double and quad double precision
+  in lib_numbtrop.c.
+
+Sat 6 Feb 2016 : fixed call to C function in phcpy2c2.c and phcpy2c3.c
+  when storing a tropism in quad double precision.
+
+Fri 5 Feb 2016 : forgot to add numbtrop_quaddobl_size to the registration
+  tables in phcpy2c2.c and phcpy2c3.c.  Fixed the initialization of the
+  quaddobl numerical tropisms in phcpy2c2.c and phcpy2c3.c.
+
+Thu 4 Feb 2016 : fixed calls in phcpy2c2.c and phcpy2c3.c for the retrieval
+  of tropisms in double double and quad double precision.
+
+Sat 30 Jan 2016 : forgot to update the registration table for the new
+  functions that return the dimension in phcpy2c3.c and phcpy2c2.c.
+
+Fri 29 Jan 2016 : forgot to return the data with strings in the retrieval
+  of all data in numbtrop, fixed this in phcpy2c3.c and in phcpy2c2.c.
+  Added dimension functions to numbtrop, tested in lib_numbtrop, and
+  wrapped in phcpy2c.h, phcpy2c2.c, and phcpy2c3.c.
+
+Thu 28 Jan 2016 : completed code for all numbtrop_ function in phcpy2c3.c
+  and copied to the phcpy2c2.c for the python2 extension module.
+
+Wed 27 Jan 2016 : more wrappers for numbtrop_ functions defined in phcpy2c3.c.
+
+Tue 26 Jan 2016 : clarified the documentation in numbtrop.h.
+  The documentation got copied into phcpy2c.h, and provide code for
+  the wrappers to the C code for the Python extensions module phcpy2c3.c.
+
+Mon 25 Jan 2016 : added double double and quad double versions of the
+  wrappers to numbtrop.h and numbtrop.c.  Inserted the numbtrop_ prefix
+  to all functions in numbtrop.h and numbtrop.c, also changing lib_numbtrop.c.
+  Add all prototypes to phcpy2c.h and wrote some definitions in phcpy2c3.c.
+
+Sun 24 Jan 2016 : fixed dimension bug in assignment of errors in numbtrop.c.
+
+Sat 23 Jan 2016 : added more wrappers to numbtrop, tested by lib_numbtrop.
+
+Fri 22 Jan 2016 : new library numbtrop, tested by lib_numbtrop.
+
+Tue 19 Jan 2016 : loosened the tuning of the parameters in lib_poco.c
+  for double double and quad double arithmetic.
+
+Sun 17 Jan 2016 : renamed phcpy2c.c to phcpy2c2.c, for python2.
+  In phcpy2c2.c, the initialization of the module also changes,
+  as the name of the module is now phcpy2c2.
+
+Wed 30 Dec 2015 : new phcpy2c3.c defines the phcpy2c3 extension module 
+  for Python 3.5.
+
+Sun 27 Dec 2015 : bug fix in witset.c, forgot to assign the return values
+  as the boolean results of the membership tests.
+
+Sat 26 Dec 2015 : to witset, added homotopy membership test functions in
+  standard double, double double, and quad double precision.
+  Added wrappers for the membership test to the module phcpy2c.
+  Tested C interface to homotopy membership in lib_member.c.
+
+Fri 25 Dec 2015 : new test program lib_member.c to test the C interface
+  to the homotopy membership test.
+
+Thu 24 Dec 2015 : standardized the naming of the functions in phcpy2c
+  for the monodromy breakup in stanard double precision.
+  Added functions to witset and phcpy2c to make the monodromy go mute
+  and in double double and quad double precision.  To witset and phcpy2c
+  functions were added for a verbose monodromy breakup.
+
+Wed 23 Dec 2015 : adjusted verbose flag in witset.c to zero.
+  Added functions to phcpy2c to report the diagnostics of the trace grid
+  computed in double double and quad double precision.
+
+Tue 22 Dec 2015 : new functions in witset for the trace grid diagnostics
+  in double double and quad double precision, tested by lib_factor.
+
+Mon 21 Dec 2015 : added jobs to phcpy2c with minor change in witset.h.
+  All functions to factor in double double and quad double precision have
+  been added to phcpy2c.
+
+Sun 20 Dec 2015 : witset contains all functions needed for the monodromy
+  breakup in double double and quad double precision.  After fixing bug in 
+  witset.c, lib_factor works in double double precision.
+
+Sat 19 Dec 2015 : extended witset with functions to store gamma constants in
+  double double and quad double precision, modified lib_factor.c.
+
+Fri 18 Dec 2015 : wrapped the generation of random complex numbers in double
+  double and quad double precision in witset.  Extended witset with a version
+  of the function track_paths for double double and quad double precision.
+
+Thu 17 Dec 2015 : added double double and quad double versions of functions
+  in witset for the monodromy breakup.
+
+Wed 16 Dec 2015 : witset.c, for g++, needs an explicit #include "syscon.h".
+
+Tue 15 Dec 2015 : in witset, provided wrappers to new jobs for the monodromy
+  breakup in double double and quad double precision.
+
+Mon 14 Dec 2015 : standardized naming in solcon: inserted _standard_ in the
+  name of a function whenever there is dobldobl and quaddobl version.
+  This changed lib_solcon.c, phcpy2c.c, witset.c, lib_read.c, lib_newton.c,
+  lib_roco, lib_celcon, lib_nxtsol, lib_factor, lib_usolve, phc_solve, 
+  lib_adepath_d, and lib_gpupath_d.
+  Added functions to witset to read a witness set in double double and
+  quad double precision and to initialize the corresponding samplers.
+
+Sun 13 Dec 2015 : added functions in witset to embed a system in double
+  double and quad double precision, with a minor change in phcpy2c.c.
+  Then added the corresponding new functions to phcpy2c.h and phcpy2c.c.
+  New functions in solcon to replace solutions in double double and
+  quad double precision, for use in assign_labels in witset, with a minor
+  changes in lib_factor.c and phcpy2c.c.
+
+Thu 12 Nov 2015 : added functions in witset and phcpy2c to compute a witness
+  set for a hypersurface in double double and quad double precision.
+  Edited phcpy2c.h and phcpy2c.c to make function definitions uniform.
+
+Tue 10 Nov 2015 : functions in witset and phcpy2c to make the solutions to
+  start the diagonal cascade in double double and quad double precision.
+  Added write_{dobldobl, quaddobl}_{start, target}_system to phcpy2c.
+  Renaming of collapse_diagonal into standard_collapse_diagonal in witset
+  and phcpy2c, which changed lib_track.  Versions of collapse_diagonal
+  for double double and quad double precision added.
+
+Mon 9 Nov 2015 : renamed create_diagonal_homotopy to standard_diagonal_homotopy
+  in witset and phcpy2c.  This changed lib_track.c.  Added dobldobl and
+  quaddobl versions to create a diagonal homotopy.
+
+Sun 8 Nov 2015 : updated witset and phcpy2c with a function to double the
+  number of symbols to write the system at the start of the diagonal cascade.
+
+Wed 4 Nov 2015 : consistent with the naming of the Ada procedures in use_sweep,
+  adjusted the names of the sweep runners in libraries sweep and phcpy2c.
+  Added to sweep and phcpy2c functions that call the real sweep.
+
+Sun 1 Nov 2015 : fixed call in phcpy2c.c to the sweep with quad doubles.
+
+Sat 31 Oct 2015 : sweep.h and sweep.c give access to all of use_sweep.
+  Added the functions to phcpy2c.
+
+Fri 30 Oct 2015 : new module sweep, tested by lib_sweep.c, currently only
+  for the definitions of the parameters in a sweep homotopy.
+
 Thu 22 Oct 2015 : extra verify parameter in use_c2lrhom changed the
   schubert.h, schubert.c, and lib_lrhom.c.  Also updated phcpy2c.h
   and phcpy2.c for the extra verification parameter.

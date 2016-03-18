@@ -1,3 +1,33 @@
+Mon 29 Feb 2016 : changes in {dobldobl,quaddobl}_sampling_machine for added
+  parameter in dobldobl_incfix_continuation procedures.
+
+Sat 27 Feb 2016 : changes in sampling_machine.adb for extra argument in the
+  increment-and-fix continuation in standard double precision.
+
+Wed 23 Dec 2015 : eased up on the restrictive settings in the samplers,
+  changing {dobldobl,quaddobl}_sampling_machine.adb.
+
+Tue 17 Nov 2015 : again more extensions in witness_sets for double double
+  and quad double precision as needed in cascading homotopies.
+  And then once again more extensions...
+
+Mon 16 Nov 2015 : more versions in witness_sets and witness_sets_io
+  of operations in double double and quad double precision.
+
+Sun 15 Nov 2015 : updated intrinsic_witness_sets_io with write procedures
+  for double double and quad double precision, needed for phc -l2 and -l4.
+
+Wed 11 Nov 2015 : added operations for double double and quad double numbers
+  to witness_sets_formats, as needed in the computation of a witness set
+  for a hypersurface in double double and quad double precision.
+
+Tue 10 Nov 2015 : more operations added to witness_sets for the double
+  double and quad double versions of extrinsic diagonal homotopies.
+  For the same reasons, provided Add_Dummy in witness_sets.
+
+Mon 9 Nov 2015 : added operations to witness_sets as needed for the double
+  double and quad double versions of extrinsic diagonal homotopies.
+
 Thu 1 Oct 2015 : changed {dobldob,quaddobl}_sampling_machine.adb for
   changed type of tolerances in the root refiners.
 

@@ -1,3 +1,42 @@
+Sat 12 Mar 2016 : mainvali.adb updated so that option #1 of phc -v
+  writes nonsquare polynomial systems correctly to file.
+
+Wed 2 Mar 2016 : mainphc.adb changed for extra parameter in the drivers
+  for polynomial continuation.
+
+Fri 19 Feb 2016 : adjusted greeting_banners for version 2.4.12.
+
+Fri 12 Feb 2016 : adjusted greeting_banners for version 2.4.11.
+
+Sun 17 Jan 2016 : adjusted greeting_banners for version 2.4.10.
+
+Sat 2 Jan 2016 : adjusted greeting_banners for version 2.4.09.
+
+Tue 29 Dec 2015 : adjusted greeting_banners for version 2.4.08.
+
+Thu 24 Dec 2015 : adjusted greeting_banners for version 2.4.07.
+
+Fri 11 Dec 2015 : adjusted greeting_banners for version 2.4.06.
+
+Thu 10 Dec 2015 : added two lines to mainphc.adb to inform the user of the
+  multitasking and the -b2 and -b4 options.
+
+Mon 23 Nov 2015 : prepared greeting_banners for version 2.4.05.
+
+Wed 18 Nov 2015 : adjusted mainphc.adb for the preset level of the precision
+  in the construction of the homotopy and updated dispatch.adb for the
+  options phc -p2 and phc -p4 for double double and quad double precision.
+
+Sun 15 Nov 2015 : updated dispatch.adb for options phc -l2 and phc -l4 for
+  a witness set of a hypersurface in double double and quad double precision.
+
+Fri 6 Nov 2015 : adjusted greeting_banners for version 2.4.04.
+
+Tue 27 Oct 2015 : mainphc.adb and black_box_solvers.adb changed for the 
+  renaming of the package black_box_poly_continuations.  Added calls to
+  bablpoco2 and bablpoco4 in dispatch.adb so phc -b -p2 and phc -b -p4
+  call the blackbox continuation in double double and quad double precision.
+
 Thu 22 Oct 2015 : version 2.4.03 is announced in greeting_banners.
 
 Tue 7 Oct 2015 : adjusted greeting_banners for version 2.4.02.

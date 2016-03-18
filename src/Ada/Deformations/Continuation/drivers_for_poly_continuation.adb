@@ -2,7 +2,6 @@ with Communications_with_User;           use Communications_with_User;
 with Timing_Package;                     use Timing_Package;
 with File_Scanning;                      use File_Scanning;
 with Standard_Natural_Numbers_io;        use Standard_Natural_Numbers_io;
-with Standard_Integer_Numbers;           use Standard_Integer_Numbers;
 with Standard_Floating_Numbers;          use Standard_Floating_Numbers;
 with Double_Double_Numbers;              use Double_Double_Numbers;
 with DoblDobl_Complex_Numbers;
@@ -15,8 +14,13 @@ with Standard_Complex_Numbers_io;        use Standard_Complex_Numbers_io;
 with Multprec_Complex_Numbers;
 with Multprec_Complex_Number_Tools;      use Multprec_Complex_Number_Tools;
 with Numbers_io;                         use Numbers_io;
-with Standard_Floating_Vectors;          use Standard_Floating_Vectors;
-with Standard_Floating_VecVecs;          use Standard_Floating_VecVecs;
+with Standard_Integer_Vectors;
+with Standard_Floating_Vectors;
+with Standard_Floating_VecVecs;
+with Double_Double_Vectors;
+with Double_Double_VecVecs;
+with Quad_Double_Vectors;
+with Quad_Double_VecVecs;
 with Standard_Complex_Norms_Equals;      use Standard_Complex_Norms_Equals;
 with DoblDobl_Complex_Vector_Norms;      use DoblDobl_Complex_Vector_Norms;
 with QuadDobl_Complex_Vector_Norms;      use QuadDobl_Complex_Vector_Norms;
@@ -27,6 +31,7 @@ with Symbol_Table,Symbol_Table_io;       use Symbol_Table;
 with Standard_Complex_Poly_Systems_io;   use Standard_Complex_Poly_Systems_io;
 with Standard_Complex_Laur_Systems_io;   use Standard_Complex_Laur_Systems_io;
 with Standard_Complex_Solutions_io;      use Standard_Complex_Solutions_io;
+with DoblDobl_Complex_Polynomials;       use DoblDobl_Complex_Polynomials;
 with DoblDobl_Complex_Poly_Systems_io;   use DoblDobl_Complex_Poly_Systems_io;
 with QuadDobl_Complex_Poly_Systems_io;   use QuadDobl_Complex_Poly_Systems_io;
 with Multprec_Complex_Poly_Systems_io;   use Multprec_Complex_Poly_Systems_io;
@@ -37,7 +42,9 @@ with Standard_Homotopy;
 with Standard_Coefficient_Homotopy;
 with Standard_Laurent_Homotopy;
 with DoblDobl_Homotopy;
+with DoblDobl_Laurent_Homotopy;
 with QuadDobl_Homotopy;
+with QuadDobl_Laurent_Homotopy;
 with Multprec_Homotopy;
 with Drivers_for_Homotopy_Creation;      use Drivers_for_Homotopy_Creation;
 with Continuation_Parameters;
@@ -53,14 +60,15 @@ package body Drivers_for_Poly_Continuation is
 
 -- AUXILIARIES :
 
-  procedure LaurCont ( file : in file_type;
-                       sols : in out Standard_Complex_Solutions.Solution_List;
-                       proj,report : in boolean;
-                       target : in Standard_Complex_Numbers.Complex_Number ) is
+  procedure LaurCont
+              ( file : in file_type;
+                sols : in out Standard_Complex_Solutions.Solution_List;
+                proj,report : in boolean; nbq : in integer32 := 0;
+                target : in Standard_Complex_Numbers.Complex_Number ) is
 
   -- DESCRIPTION :
-  --   Instantiates the path-trackers for standard complex solutions,
-  --   for a homotopy defined for Laurent polynomial systems.
+  --   Instantiates the path trackers for standard complex solutions,
+  --   for Laurent homotopies in standard double precision.
 
     use Standard_IncFix_Continuation;
    
@@ -78,55 +86,125 @@ package body Drivers_for_Poly_Continuation is
   begin
     tstart(timer);
     if report
-     then Rep_Cont(file,sols,proj,target);
-     else Sil_Cont(sols,proj,target);
+     then Rep_Cont(file,sols,proj,nbq,target=>target);
+     else Sil_Cont(sols,proj,nbq,target=>target);
     end if;
     tstop(timer);
     new_line(file); print_times(file,timer,"continuation");
   end LaurCont;
 
-  procedure Continue ( file : in file_type;
-                       sols : in out Standard_Complex_Solutions.Solution_List;
-                       proj,report : in boolean;
-                       target : in Standard_Complex_Numbers.Complex_Number ) is
+  procedure LaurCont
+              ( file : in file_type;
+                sols : in out DoblDobl_Complex_Solutions.Solution_List;
+                report : in boolean; nbq : in integer32 := 0;
+                target : in DoblDobl_Complex_Numbers.Complex_Number ) is
 
   -- DESCRIPTION :
-  --   Instantiates the path-trackers for standard complex solutions.
+  --   Instantiates the path trackers for double double complex solutions,
+  --   for Laurent homotopies in double double precision.
+
+    use DoblDobl_IncFix_Continuation;
+   
+    timer : timing_widget;
+
+    procedure Sil_Cont is
+      new Silent_Continue(Max_Norm,DoblDobl_Laurent_Homotopy.Eval,
+                          DoblDobl_Laurent_Homotopy.Diff,
+                          DoblDobl_Laurent_Homotopy.Diff);
+    procedure Rep_Cont is
+      new Reporting_Continue(Max_Norm,DoblDobl_Laurent_Homotopy.Eval,
+                             DoblDobl_Laurent_Homotopy.Diff,
+                             DoblDobl_Laurent_Homotopy.Diff);
+
+  begin
+    tstart(timer);
+    if report
+     then Rep_Cont(file,sols,nbq,target=>target);
+     else Sil_Cont(sols,nbq,target=>target);
+    end if;
+    tstop(timer);
+    new_line(file); print_times(file,timer,"continuation");
+  end LaurCont;
+
+  procedure LaurCont
+              ( file : in file_type;
+                sols : in out QuadDobl_Complex_Solutions.Solution_List;
+                report : in boolean; nbq : in integer32 := 0;
+                target : in QuadDobl_Complex_Numbers.Complex_Number ) is
+
+  -- DESCRIPTION :
+  --   Instantiates the path trackers for quad double complex solutions,
+  --   for Laurent homotopies in quad double precision.
+
+    use QuadDobl_IncFix_Continuation;
+   
+    timer : timing_widget;
+
+    procedure Sil_Cont is
+      new Silent_Continue(Max_Norm,QuadDobl_Laurent_Homotopy.Eval,
+                          QuadDobl_Laurent_Homotopy.Diff,
+                          QuadDobl_Laurent_Homotopy.Diff);
+    procedure Rep_Cont is
+      new Reporting_Continue(Max_Norm,QuadDobl_Laurent_Homotopy.Eval,
+                             QuadDobl_Laurent_Homotopy.Diff,
+                             QuadDobl_Laurent_Homotopy.Diff);
+
+  begin
+    tstart(timer);
+    if report
+     then Rep_Cont(file,sols,nbq,target=>target);
+     else Sil_Cont(sols,nbq,target=>target);
+    end if;
+    tstop(timer);
+    new_line(file); print_times(file,timer,"continuation");
+  end LaurCont;
+
+  procedure Continue
+              ( file : in file_type;
+                sols : in out Standard_Complex_Solutions.Solution_List;
+                proj,report : in boolean; nbq : in integer32 := 0;
+                target : in Standard_Complex_Numbers.Complex_Number ) is
+
+  -- DESCRIPTION :
+  --   Instantiates the path trackers for standard complex solutions,
+  --   for polynomial homotopies in standard double precision.
 
     use Standard_IncFix_Continuation;
    
     timer : timing_widget;
 
     procedure Sil_Cont is
-     -- new Silent_Continue(Max_Norm,Standard_Homotopy.Eval,
-     --                     Standard_Homotopy.Diff,Standard_Homotopy.Diff);
-      new Silent_Continue(Max_Norm,Standard_Coefficient_Homotopy.Eval,
-                          Standard_Homotopy.Diff,
-                          Standard_Coefficient_Homotopy.Diff);
+      new Silent_Continue(Max_Norm,Standard_Homotopy.Eval,
+                          Standard_Homotopy.Diff,Standard_Homotopy.Diff);
+     -- new Silent_Continue(Max_Norm,Standard_Coefficient_Homotopy.Eval,
+     --                     Standard_Homotopy.Diff,
+     --                     Standard_Coefficient_Homotopy.Diff);
     procedure Rep_Cont is
-     -- new Reporting_Continue(Max_Norm,Standard_Homotopy.Eval,
-     --                        Standard_Homotopy.Diff,Standard_Homotopy.Diff);
-      new Reporting_Continue(Max_Norm,Standard_Coefficient_Homotopy.Eval,
-                             Standard_Homotopy.Diff,
-                             Standard_Coefficient_Homotopy.Diff);
+      new Reporting_Continue(Max_Norm,Standard_Homotopy.Eval,
+                             Standard_Homotopy.Diff,Standard_Homotopy.Diff);
+     -- new Reporting_Continue(Max_Norm,Standard_Coefficient_Homotopy.Eval,
+     --                        Standard_Homotopy.Diff,
+     --                        Standard_Coefficient_Homotopy.Diff);
 
   begin
     tstart(timer);
     if report
-     then Rep_Cont(file,sols,proj,target);
-     else Sil_Cont(sols,proj,target);
+     then Rep_Cont(file,sols,proj,nbq,target=>target);
+     else Sil_Cont(sols,proj,nbq,target=>target);
     end if;
     tstop(timer);
     new_line(file); print_times(file,timer,"continuation");
   end Continue;
 
-  procedure Continue ( file : in file_type;
-                       sols : in out DoblDobl_Complex_Solutions.Solution_List;
-                       report : in boolean;
-                       target : in DoblDobl_Complex_Numbers.Complex_Number ) is
+  procedure Continue
+              ( file : in file_type;
+                sols : in out DoblDobl_Complex_Solutions.Solution_List;
+                report : in boolean; nbq : in integer32 := 0;
+                target : in DoblDobl_Complex_Numbers.Complex_Number ) is
 
   -- DESCRIPTION :
-  --   Instantiates the path-trackers for double double complex solutions.
+  --   Instantiates the path trackers for double double complex solutions,
+  --   for polynomial homotopies in double double precision.
 
     use DoblDobl_IncFix_Continuation;
    
@@ -142,20 +220,22 @@ package body Drivers_for_Poly_Continuation is
   begin
     tstart(timer);
     if report
-     then Rep_Cont(file,sols,target);
-     else Sil_Cont(sols,target);
+     then Rep_Cont(file,sols,nbq,target=>target);
+     else Sil_Cont(sols,nbq,target=>target);
     end if;
     tstop(timer);
     new_line(file); print_times(file,timer,"continuation");
   end Continue;
 
-  procedure Continue ( file : in file_type;
-                       sols : in out QuadDobl_Complex_Solutions.Solution_List;
-                       report : in boolean;
-                       target : in QuadDobl_Complex_Numbers.Complex_Number ) is
+  procedure Continue
+              ( file : in file_type;
+                sols : in out QuadDobl_Complex_Solutions.Solution_List;
+                report : in boolean; nbq : in integer32 := 0;
+                target : in QuadDobl_Complex_Numbers.Complex_Number ) is
 
   -- DESCRIPTION :
-  --   Instantiates the path-trackers for quad double complex solutions.
+  --   Instantiates the path trackers for quad double complex solutions,
+  --   for polynomial homotopies in quad double precision.
 
     use QuadDobl_IncFix_Continuation;
    
@@ -171,20 +251,22 @@ package body Drivers_for_Poly_Continuation is
   begin
     tstart(timer);
     if report
-     then Rep_Cont(file,sols,target);
-     else Sil_Cont(sols,target);
+     then Rep_Cont(file,sols,nbq,target=>target);
+     else Sil_Cont(sols,nbq,target=>target);
     end if;
     tstop(timer);
     new_line(file); print_times(file,timer,"continuation");
   end Continue;
 
-  procedure Continue ( file : in file_type;
-                       sols : in out Multprec_Complex_Solutions.Solution_List;
-                       proj,report : in boolean;
-                       target : in Multprec_Complex_Numbers.Complex_Number ) is
+  procedure Continue
+              ( file : in file_type;
+                sols : in out Multprec_Complex_Solutions.Solution_List;
+                proj,report : in boolean;
+                target : in Multprec_Complex_Numbers.Complex_Number ) is
 
   -- DESCRIPTION :
-  --   Instantiates the path-trackers for multiprecision complex solutions.
+  --   Instantiates the path trackers for multiprecision complex solutions,
+  --   for polynomial homotopies in arbitrary multiprecision.
 
     use Multprec_IncFix_Continuation;
 
@@ -336,7 +418,7 @@ package body Drivers_for_Poly_Continuation is
     nb : natural32 := 0;
 
   begin
-    Continuation_Parameters.Tune(0,precision);
+    Continuation_Parameters.Tune(0); -- ,precision); -- leave default
     loop
       Begin_Banner(Standard_Output);
       Continuation_Parameters_io.put;
@@ -603,6 +685,7 @@ package body Drivers_for_Poly_Continuation is
 
     infile : file_type;
     readfail : boolean := true;
+    nbvar,nbequ : natural32;
 
     procedure Try_to_Read is
 
@@ -631,8 +714,14 @@ package body Drivers_for_Poly_Continuation is
       Try_to_Read;
       exit when not readfail;
     end loop;
+    nbvar := Number_of_Unknowns(q(q'first));
+    nbequ := natural32(q'last);
     put_line(file,"THE START SYSTEM : ");
-    put(file,natural32(q'last),q); new_line(file);
+    if nbequ = nbvar 
+     then put(file,nbequ,q);
+     else put(file,nbequ,nbvar,q);
+    end if;
+    new_line(file);
     Read_Start_Solutions(infile,file,qsols);
     Close(infile);
   end Read_Start_System;
@@ -648,6 +737,7 @@ package body Drivers_for_Poly_Continuation is
 
     infile : file_type;
     readfail : boolean := true;
+   -- nbequ,nbvar : natural32;  
 
     procedure Try_to_Read is
 
@@ -676,8 +766,15 @@ package body Drivers_for_Poly_Continuation is
       Try_to_Read;
       exit when not readfail;
     end loop;
+   -- nbvar := Number_of_Unknowns(q(q'first));
+   -- nbequ := natural32(q'last);
     put_line(file,"THE START SYSTEM : ");
-    put(file,q); new_line(file);
+   -- if nbequ = nbvar
+   --  then
+    put(file,q);
+   --  else put(file,nbequ,nbvar,q);
+   -- end if;
+    new_line(file);
     Read_Start_Solutions(infile,file,qsols);
     Close(infile);
   end Read_Start_System;
@@ -783,6 +880,7 @@ package body Drivers_for_Poly_Continuation is
 
     infile : file_type;
     readfail : boolean := true;
+    nbequ,nbvar : natural32;
 
     procedure Try_to_Read is
 
@@ -812,7 +910,13 @@ package body Drivers_for_Poly_Continuation is
       exit when not readfail;
     end loop;
     put_line(file,"THE START SYSTEM : ");
-    put(file,natural32(q'last),q); new_line(file);
+    nbvar := Number_of_Unknowns(q(q'first));
+    nbequ := natural32(q'last);
+    if nbequ = nbvar
+     then put(file,nbequ,q);
+     else put(file,nbequ,nbvar,q);
+    end if;
+    new_line(file);
     Read_Start_Solutions(infile,file,qsols);
     Close(infile);
   end Read_Start_System;
@@ -820,6 +924,7 @@ package body Drivers_for_Poly_Continuation is
   procedure Driver_for_Polynomial_Continuation 
                 ( file : in file_type;
                   p : in Standard_Complex_Poly_Systems.Poly_Sys; 
+                  prclvl : in natural32;
                   ls : in String_Splitters.Link_to_Array_of_Strings;
                   sols : out Standard_Complex_Solutions.Solution_List;
                   mpsols : out Multprec_Complex_Solutions.Solution_List;
@@ -834,10 +939,20 @@ package body Drivers_for_Poly_Continuation is
     mqsols : Multprec_Complex_Solutions.Solution_List;
     proj : boolean;
     deci,size : natural32 := 0;
+    nbequ,nbvar : integer32;
 
   begin
     Read_Start_System(file,q,qsols);
+    nbequ := q'last;
+    nbvar := Head_Of(qsols).n;
     Copy(p,pp);
+    if prclvl = 1 then
+      deci := 16;
+    elsif prclvl = 2 then
+      deci := 32;
+    else
+      deci := 64;
+    end if;
     Driver_for_Homotopy_Construction(file,ls,pp,q,qsols,t,deci);
     proj := (Number_of_Unknowns(q(q'first)) > natural32(q'last));
     if proj
@@ -845,21 +960,30 @@ package body Drivers_for_Poly_Continuation is
     end if;
     new_line;
     if deci <= 16 then
-      Driver_for_Standard_Continuation(file,qsols,proj,t);
+      if nbequ = nbvar
+       then Driver_for_Standard_Continuation(file,qsols,proj,target=>t);
+       else Driver_for_Standard_Continuation(file,qsols,proj,nbequ,target=>t);
+      end if;
       sols := qsols;
     elsif deci <= 32 then
       declare
         dd_qsols : DoblDobl_Complex_Solutions.Solution_List
                  := DoblDobl_Complex_Solutions.Create(qsols);
       begin
-        Driver_for_DoblDobl_Continuation(file,dd_qsols,t);
+        if nbequ = nbvar
+         then Driver_for_DoblDobl_Continuation(file,dd_qsols,target=>t);
+         else Driver_for_DoblDobl_Continuation(file,dd_qsols,nbequ,target=>t);
+        end if;
       end;
     elsif deci <= 64 then
       declare
         qd_qsols : QuadDobl_Complex_Solutions.Solution_List
                  := QuadDobl_Complex_Solutions.Create(qsols);
       begin
-        Driver_for_QuadDobl_Continuation(file,qd_qsols,t);
+        if nbequ = nbvar
+         then Driver_for_QuadDobl_Continuation(file,qd_qsols,target=>t);
+         else Driver_for_QuadDobl_Continuation(file,qd_qsols,nbequ,target=>t);
+        end if;
       end;
     else
       mqsols := Multprec_Complex_Solutions.Create(qsols);
@@ -872,10 +996,13 @@ package body Drivers_for_Poly_Continuation is
     target := t;
   end Driver_for_Polynomial_Continuation;
 
-  procedure Driver_for_Laurent_Continuation 
-                ( file : in file_type; p : in Laur_Sys; 
-                  sols : out Standard_Complex_Solutions.Solution_List;
-                 -- mpsols : out Multprec_Complex_Solutions.Solution_List;
+  procedure Driver_for_Laurent_Continuation
+                ( file : in file_type;
+                  p : in Standard_Complex_Laur_Systems.Laur_Sys;
+                  prclvl : in natural32;
+                  ls : in String_Splitters.Link_to_Array_of_Strings;
+                  sols : out Standard_Complex_Solutions.Solution_list;
+                  mpsols : out Multprec_Complex_Solutions.Solution_list;
                   target : out Complex_Number ) is
 
     use Standard_Complex_Solutions;
@@ -885,24 +1012,56 @@ package body Drivers_for_Poly_Continuation is
     qsols : Solution_List;
    -- mqsols : Multprec_Complex_Solutions.Solution_List;
     proj : boolean;
-    deci : natural32;
+    deci : natural32 := 0;
    -- size : natural;
+    rsols : Solution_List;
+    nbequ,nbvar : integer32;
 
   begin
     Read_Start_System(file,q,qsols);
+    nbequ := q'last;
+    nbvar := integer32(Number_of_Unknowns(q(q'first)));
     Copy(p,pp);
-    put_line("calling driver for homotopy construction ...");
-   -- Driver_for_Homotopy_Construction(file,pp,q,qsols,t,deci);
-    Driver_for_Homotopy_Construction(file,pp,q,t,deci);
+    if prclvl = 1 then
+      deci := 16;
+    elsif prclvl = 2 then
+      deci := 32;
+    else
+      deci := 64;
+    end if;
+    Driver_for_Homotopy_Construction(file,ls,pp,q,qsols,t,deci);
     proj := (Number_of_Unknowns(q(q'first)) > natural32(q'last));
     if proj
      then Ask_Symbol;
     end if;
     new_line;
-   -- if deci <= 16 then
-     -- put_line("calling driver for polynomial continuation ...");
-      Driver_for_Standard_Laurent_Continuation(file,qsols,proj,t);
-      sols := qsols;
+    if deci <= 16 then
+      if nbequ = nbvar
+       then Driver_for_Standard_Laurent_Continuation(file,qsols,proj,target=>t);
+       else Driver_for_Standard_Laurent_Continuation(file,qsols,proj,nbequ,t);
+      end if;
+    elsif deci <= 32 then
+      declare
+        dd_qsols : DoblDobl_Complex_Solutions.Solution_List
+                 := DoblDobl_Complex_Solutions.Create(qsols);
+      begin
+        if nbequ = nbvar
+         then Driver_for_DoblDobl_Laurent_Continuation(file,dd_qsols,target=>t);
+         else Driver_for_DoblDobl_Laurent_Continuation(file,dd_qsols,nbequ,t);
+        end if;
+      end;
+    elsif deci <= 64 then
+      declare
+        qd_qsols : QuadDobl_Complex_Solutions.Solution_List
+                 := QuadDobl_Complex_Solutions.Create(qsols);
+      begin
+        if nbequ = nbvar
+         then Driver_for_QuadDobl_Laurent_Continuation(file,qd_qsols,target=>t);
+         else Driver_for_QuadDobl_Laurent_Continuation(file,qd_qsols,nbequ,t);
+        end if;
+      end;
+    end if;
+    sols := qsols;
    -- else
    --   mqsols := Multprec_Complex_Solutions.Create(qsols);
    --   size := Multprec_Floating_Numbers.Decimal_to_Size(deci);
@@ -932,7 +1091,7 @@ package body Drivers_for_Poly_Continuation is
     put_line(file,"HOMOTOPY PARAMETERS :");
     put(file,"  k : "); put(file,k,2); new_line(file);
     put(file,"  a : "); put(file,target); new_line(file);
-    Driver_for_Standard_Continuation(file,qsols,false,target);
+    Driver_for_Standard_Continuation(file,qsols,false,target=>target);
    -- Homotopy.Clear; --> clearing here creates difficulties for root refiner
     sols := qsols;
   end Driver_for_Parameter_Continuation;
@@ -953,7 +1112,7 @@ package body Drivers_for_Poly_Continuation is
   begin
     Read_Start_System(file,q,qsols);
     Driver_for_Homotopy_Construction(file,p,q,target);
-    Driver_for_DoblDobl_Continuation(file,qsols,target);
+    Driver_for_DoblDobl_Continuation(file,qsols,target=>target);
     sols := qsols;
   end Driver_for_Polynomial_Continuation;
 
@@ -971,7 +1130,7 @@ package body Drivers_for_Poly_Continuation is
   begin
     Read_Start_System(file,q,qsols);
     Driver_for_Homotopy_Construction(file,p,q,target);
-    Driver_for_QuadDobl_Continuation(file,qsols,target);
+    Driver_for_QuadDobl_Continuation(file,qsols,target=>target);
     sols := qsols;
   end Driver_for_Polynomial_Continuation;
 
@@ -993,12 +1152,68 @@ package body Drivers_for_Poly_Continuation is
     sols := qsols;
   end Driver_for_Polynomial_Continuation;
 
+-- REDEFINING ARTIFIICIAL-PARAMETER HOMOTOPIES
+
+  procedure Standard_Redefine_Homotopy is
+
+    gamma : constant Standard_Complex_Numbers.Complex_Number
+          := Standard_Homotopy.Accessibility_Constant;
+    dim : constant integer32 := Standard_Homotopy.Dimension;
+    p : constant Standard_Complex_Poly_Systems.Poly_Sys(1..dim)
+      := Standard_Homotopy.Target_System;
+    q : constant Standard_Complex_Poly_Systems.Poly_Sys(1..dim)
+      := Standard_Homotopy.Start_System;
+    start,target : Standard_Complex_Poly_Systems.Poly_Sys(1..dim);
+
+  begin
+    Standard_Complex_Poly_Systems.Copy(p,target);
+    Standard_Complex_Poly_Systems.Copy(q,start);
+    Standard_Homotopy.Clear;
+    Standard_Homotopy.Create(target,start,1,gamma);
+  end Standard_Redefine_Homotopy;
+
+  procedure DoblDobl_Redefine_Homotopy is
+
+    gamma : constant DoblDobl_Complex_Numbers.Complex_Number
+          := DoblDobl_Homotopy.Accessibility_Constant;
+    dim : constant integer32 := DoblDobl_Homotopy.Dimension;
+    p : constant DoblDobl_Complex_Poly_Systems.Poly_Sys(1..dim)
+      := DoblDobl_Homotopy.Target_System;
+    q : constant DoblDobl_Complex_Poly_Systems.Poly_Sys(1..dim)
+      := DoblDobl_Homotopy.Start_System;
+    start,target : DoblDobl_Complex_Poly_Systems.Poly_Sys(1..dim);
+
+  begin
+    DoblDobl_Complex_Poly_Systems.Copy(p,target);
+    DoblDobl_Complex_Poly_Systems.Copy(q,start);
+    DoblDobl_Homotopy.Clear;
+    DoblDobl_Homotopy.Create(target,start,1,gamma);
+  end DoblDobl_Redefine_Homotopy;
+
+  procedure QuadDobl_Redefine_Homotopy is
+
+    gamma : constant QuadDobl_Complex_Numbers.Complex_Number
+          := QuadDobl_Homotopy.Accessibility_Constant;
+    dim : constant integer32 := QuadDobl_Homotopy.Dimension;
+    p : constant QuadDobl_Complex_Poly_Systems.Poly_Sys(1..dim)
+      := QuadDobl_Homotopy.Target_System;
+    q : constant QuadDobl_Complex_Poly_Systems.Poly_Sys(1..dim)
+      := QuadDobl_Homotopy.Start_System;
+    start,target : QuadDobl_Complex_Poly_Systems.Poly_Sys(1..dim);
+
+  begin
+    QuadDobl_Complex_Poly_Systems.Copy(p,target);
+    QuadDobl_Complex_Poly_Systems.Copy(q,start);
+    QuadDobl_Homotopy.Clear;
+    QuadDobl_Homotopy.Create(target,start,1,gamma);
+  end QuadDobl_Redefine_Homotopy;
+
 -- CALLING THE PATH TRACKERS :
 
   procedure Driver_for_Standard_Continuation
                 ( file : in file_type;
                   sols : in out Standard_Complex_Solutions.Solution_List;
-                  proj : in boolean;
+                  proj : in boolean; nbq : in integer32 := 0;
                   target : Complex_Number := Create(1.0) ) is
 
     use Standard_Complex_Solutions;
@@ -1007,8 +1222,10 @@ package body Drivers_for_Poly_Continuation is
     report : boolean;
     n : constant natural32 := natural32(Head_Of(sols).n);
     nv : constant natural32 := Length_Of(sols);
-    v : Link_to_VecVec;
-    errv : Link_to_Vector;
+    w : Standard_Integer_Vectors.Vector(1..integer32(nv));
+    v : Standard_Floating_VecVecs.Link_to_VecVec;
+    errv : Standard_Floating_Vectors.Link_to_Vector;
+    k : natural32;
 
   begin
     new_line;
@@ -1022,17 +1239,26 @@ package body Drivers_for_Poly_Continuation is
     new_line;
     put_line("No more input expected.  See output file for results.");
     new_line;
-    if Continuation_Parameters.endext_order > 0
-     then Toric_Continue(file,sols,proj,report,v.all,errv.all,target);
-          Write_Directions(file,v.all,errv.all);
-     else Continue(file,sols,proj,report,target);
+    if Continuation_Parameters.endext_order > 0 then
+      k := Standard_Homotopy.Relaxation_Power;
+      --put("the original relaxation power : "); put(k,1); new_line;
+      if k /= 1
+       then Standard_Redefine_Homotopy;
+      end if;
+     -- k := Standard_Homotopy.Relaxation_Power;
+     -- put("the redefined relaxation power : "); put(k,1); new_line;
+      w := (w'range => 1);
+      Toric_Continue(file,sols,proj,report,w,v.all,errv.all,target);
+      Write_Directions(file,w,v.all,errv.all);
+    else
+      Continue(file,sols,proj,report,nbq,target=>target);
     end if;
   end Driver_for_Standard_Continuation;
 
   procedure Driver_for_Standard_Laurent_Continuation
                 ( file : in file_type;
                   sols : in out Standard_Complex_Solutions.Solution_List;
-                  proj : in boolean;
+                  proj : in boolean; nbq : in integer32 := 0;
                   target : Complex_Number := Create(1.0) ) is
 
     use Standard_Complex_Solutions;
@@ -1049,21 +1275,71 @@ package body Drivers_for_Poly_Continuation is
     new_line;
     put_line("No more input expected.  See output file for results.");
     new_line;
-    LaurCont(file,sols,proj,report,target);
+    LaurCont(file,sols,proj,report,nbq,target);
   end Driver_for_Standard_Laurent_Continuation;
 
+  procedure Driver_for_DoblDobl_Laurent_Continuation
+              ( file : in file_type;
+                sols : in out DoblDobl_Complex_Solutions.Solution_List;
+                nbq : in integer32 := 0;
+                target : Complex_Number := Create(1.0) ) is
+
+    use DoblDobl_Complex_Solutions;
+
+    oc : natural32;
+    report : boolean;
+    dd_target : constant DoblDobl_Complex_Numbers.Complex_Number
+              := Standard_to_DoblDobl_Complex(target);
+
+  begin
+    new_line;
+    Driver_for_Continuation_Parameters(file);
+    new_line;
+    Driver_for_Process_io(file,oc);
+    report := (oc /= 0);
+    new_line;
+    put_line("No more input expected.  See output file for results.");
+    new_line;
+    LaurCont(file,sols,report,nbq,dd_target);
+  end Driver_for_DoblDobl_Laurent_Continuation;
+
+  procedure Driver_for_QuadDobl_Laurent_Continuation
+              ( file : in file_type;
+                sols : in out QuadDobl_Complex_Solutions.Solution_List;
+                nbq : in integer32 := 0;
+                target : Complex_Number := Create(1.0) ) is
+
+    use QuadDobl_Complex_Solutions;
+
+    oc : natural32;
+    report : boolean;
+    qd_target : constant QuadDobl_Complex_Numbers.Complex_Number
+              := Standard_to_QuadDobl_Complex(target);
+
+  begin
+    new_line;
+    Driver_for_Continuation_Parameters(file);
+    new_line;
+    Driver_for_Process_io(file,oc);
+    report := (oc /= 0);
+    new_line;
+    put_line("No more input expected.  See output file for results.");
+    new_line;
+    LaurCont(file,sols,report,nbq,qd_target);
+  end Driver_for_QuadDobl_Laurent_Continuation;
+
   procedure Driver_for_Multprec_Continuation
-                ( file : in file_type;
-                  sols : in out Multprec_Complex_Solutions.Solution_List;
-                  proj : in boolean; deci : in natural32;
-                  target : Complex_Number := Create(1.0) ) is
+              ( file : in file_type;
+                sols : in out Multprec_Complex_Solutions.Solution_List;
+                proj : in boolean; deci : in natural32;
+                target : Complex_Number := Create(1.0) ) is
 
     oc : natural32;
     report : boolean;
 
   begin
     new_line;
-    Continuation_Parameters.Tune(0,deci);
+    Continuation_Parameters.Tune(0); -- ,deci); -- just leave default ...
     Driver_for_Continuation_Parameters(file);
     new_line;
     Driver_for_Process_io(file,oc);
@@ -1077,47 +1353,103 @@ package body Drivers_for_Poly_Continuation is
   procedure Driver_for_DoblDobl_Continuation
                 ( file : in file_type;
                   sols : in out DoblDobl_Complex_Solutions.Solution_List;
+                  nbq : in integer32 := 0;
                   target : Complex_Number := Create(1.0) ) is
+
+    use DoblDobl_Complex_Solutions;
 
     oc : natural32;
     report : boolean;
     dd_targ : constant DoblDobl_Complex_Numbers.Complex_Number
             := Standard_to_DoblDobl_Complex(target);
+    n : constant natural32 := natural32(Head_Of(sols).n);
+    nv : constant natural32 := Length_Of(sols);
+    w : Standard_Integer_Vectors.Vector(1..integer32(nv));
+    v : Double_Double_VecVecs.Link_to_VecVec;
+    errv : Double_Double_Vectors.Link_to_Vector;
+    k : natural32;
 
   begin
     new_line;
-    Continuation_Parameters.Tune(0,32);
+    Continuation_Parameters.Tune(0); -- ,32); -- too severe !!!
     Driver_for_Continuation_Parameters(file);
+    if Continuation_Parameters.endext_order > 0
+     then Init_Path_Directions(n,nv,v,errv);
+    end if;
     new_line;
     Driver_for_Process_io(file,oc);
     report := (oc /= 0);
     new_line;
     put_line("No more input expected.  See output file for results.");
     new_line;
-    Continue(file,sols,report,dd_targ);
+    if Continuation_Parameters.endext_order > 0 then
+      k := DoblDobl_Homotopy.Relaxation_Power;
+      --put("the original relaxation power : "); put(k,1); new_line;
+      if k /= 1
+       then DoblDobl_Redefine_Homotopy;
+      end if;
+     -- k := DoblDobl_Homotopy.Relaxation_Power;
+     -- put("the redefined relaxation power : "); put(k,1); new_line;
+      w := (w'range => 1);
+      Toric_Continue(file,sols,false,report,w,v.all,errv.all,dd_targ);
+      Write_Directions(file,w,v.all,errv.all);
+      new_line(file);
+      put_line(file,"THE SOLUTIONS :");
+      put(file,Length_Of(sols),natural32(Head_Of(sols).n),sols);
+    else
+      Continue(file,sols,report,nbq,dd_targ);
+    end if;
   end Driver_for_DoblDobl_Continuation;
 
   procedure Driver_for_QuadDobl_Continuation
                 ( file : in file_type;
                   sols : in out QuadDobl_Complex_Solutions.Solution_List;
+                  nbq : in integer32 := 0;
                   target : Complex_Number := Create(1.0) ) is
+
+    use QuadDobl_Complex_Solutions;
 
     oc : natural32;
     report : boolean;
     qd_targ : constant QuadDobl_Complex_Numbers.Complex_Number
              := Standard_to_QuadDobl_Complex(target);
+    n : constant natural32 := natural32(Head_Of(sols).n);
+    nv : constant natural32 := Length_Of(sols);
+    w : Standard_Integer_Vectors.Vector(1..integer32(nv));
+    v : Quad_Double_VecVecs.Link_to_VecVec;
+    errv : Quad_Double_Vectors.Link_to_Vector;
+    k : natural32;
 
   begin
     new_line;
-    Continuation_Parameters.Tune(0,64);
+    Continuation_Parameters.Tune(0); -- ,64); -- too severe !!!
     Driver_for_Continuation_Parameters(file);
+    if Continuation_Parameters.endext_order > 0
+     then Init_Path_Directions(n,nv,v,errv);
+    end if;
     new_line;
     Driver_for_Process_io(file,oc);
     report := (oc /= 0);
     new_line;
     put_line("No more input expected.  See output file for results.");
     new_line;
-    Continue(file,sols,report,qd_targ);
+    if Continuation_Parameters.endext_order > 0 then
+      w := (w'range => 1);
+      k := QuadDobl_Homotopy.Relaxation_Power;
+      --put("the original relaxation power : "); put(k,1); new_line;
+      if k /= 1
+       then QuadDobl_Redefine_Homotopy;
+      end if;
+     -- k := QuadDobl_Homotopy.Relaxation_Power;
+     -- put("the redefined relaxation power : "); put(k,1); new_line;
+      Toric_Continue(file,sols,false,report,w,v.all,errv.all,qd_targ);
+      Write_Directions(file,w,v.all,errv.all);
+      new_line(file);
+      put_line(file,"THE SOLUTIONS :");
+      put(file,Length_Of(sols),natural32(Head_Of(sols).n),sols);
+    else
+      Continue(file,sols,report,nbq,qd_targ);
+    end if;
   end Driver_for_QuadDobl_Continuation;
 
 end Drivers_for_Poly_Continuation;

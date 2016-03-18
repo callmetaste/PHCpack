@@ -1,12 +1,8 @@
 with text_io;                            use text_io;
 with Standard_Integer_Numbers;           use Standard_Integer_Numbers;
 with Standard_Integer_Vectors;
-with Standard_Floating_Vectors;
-with Standard_Complex_Vectors;
 with Standard_Complex_VecVecs;
-with DoblDobl_Complex_Vectors;
 with DoblDobl_Complex_VecVecs;
-with QuadDobl_Complex_Vectors;
 with QuadDobl_Complex_VecVecs;
 with Arrays_of_Floating_Vector_Lists;
 with Standard_Complex_Laur_Systems;

@@ -14,9 +14,10 @@ with Multprec_Complex_Numbers_io;        use Multprec_Complex_Numbers_io;
 with Standard_Random_Numbers;
 with DoblDobl_Random_Numbers;
 with QuadDobl_Random_Numbers;
-with Standard_Floating_Vectors;
-with Double_Double_Vectors;
-with Quad_Double_Vectors;
+with Standard_Integer_Vectors;
+with Standard_Floating_VecVecs;
+with Double_Double_VecVecs;
+with Quad_Double_VecVecs;
 with Standard_Complex_Norms_Equals;
 with DoblDobl_Complex_Vector_Norms;
 with QuadDobl_Complex_Vector_Norms;
@@ -47,10 +48,16 @@ with Standard_IncFix_Continuation;
 with DoblDobl_IncFix_Continuation;
 with QuadDobl_IncFix_Continuation;
 with Multprec_IncFix_Continuation;
+with Drivers_for_Poly_Continuation;
+with Drivers_for_Path_Directions;
 with Standard_Root_Refiners;
 with Witness_Sets,Witness_Sets_io;
+with Standard_Diagonal_Solutions;        use Standard_Diagonal_Solutions;
+with DoblDobl_Diagonal_Solutions;        use DoblDobl_Diagonal_Solutions;
+with QuadDobl_Diagonal_Solutions;        use QuadDobl_Diagonal_Solutions;
 with Extrinsic_Diagonal_Homotopies;      use Extrinsic_Diagonal_Homotopies;
 with Multitasking_Continuation;          use Multitasking_Continuation;
+with Numerical_Tropisms_Container;       use Numerical_Tropisms_Container;
 
 package body PHCpack_Operations is
 
@@ -681,7 +688,7 @@ package body PHCpack_Operations is
     Witness_Sets_io.Sort_Embed_Symbols(nvar,nvar-nslk,nslk,p);
   end Swap_Embed_Symbols;
 
-  procedure Create_Cascade_Homotopy is
+  procedure Standard_Cascade_Homotopy is
 
     use Standard_Complex_Poly_Systems;
 
@@ -717,9 +724,9 @@ package body PHCpack_Operations is
         := new Poly_Sys'(Witness_Sets.Remove_Slice(st_start_sys.all));
       PHCpack_Operations.Create_Standard_Homotopy(gamma);
     end if;
-  end Create_Cascade_Homotopy;
+  end Standard_Cascade_Homotopy;
 
-  procedure Create_DoblDobl_Cascade_Homotopy is
+  procedure DoblDobl_Cascade_Homotopy is
 
     use DoblDobl_Complex_Poly_Systems;
 
@@ -755,9 +762,9 @@ package body PHCpack_Operations is
         := new Poly_Sys'(Witness_Sets.Remove_Slice(dd_start_sys.all));
       PHCpack_Operations.Create_DoblDobl_Homotopy(gamma);
     end if;
-  end Create_DoblDobl_Cascade_Homotopy;
+  end DoblDobl_Cascade_Homotopy;
 
-  procedure Create_QuadDobl_Cascade_Homotopy is
+  procedure QuadDobl_Cascade_Homotopy is
 
     use QuadDobl_Complex_Poly_Systems;
 
@@ -793,9 +800,9 @@ package body PHCpack_Operations is
         := new Poly_Sys'(Witness_Sets.Remove_Slice(qd_start_sys.all));
       PHCpack_Operations.Create_QuadDobl_Homotopy(gamma);
     end if;
-  end Create_QuadDobl_Cascade_Homotopy;
+  end QuadDobl_Cascade_Homotopy;
 
-  procedure Create_Diagonal_Homotopy ( a,b : in natural32 ) is
+  procedure Standard_Diagonal_Homotopy ( a,b : in natural32 ) is
 
     use Standard_Complex_Poly_Systems;
 
@@ -842,14 +849,114 @@ package body PHCpack_Operations is
       end;
     end if;
     PHCpack_Operations.Create_Standard_Homotopy(gamma);
-  end Create_Diagonal_Homotopy;
+  end Standard_Diagonal_Homotopy;
 
-  procedure Start_Diagonal_Cascade_Solutions ( a,b : in natural32 ) is
+  procedure DoblDobl_Diagonal_Homotopy ( a,b : in natural32 ) is
+
+    use DoblDobl_Complex_Poly_Systems;
+
+    cd : natural32;
+    gamma : constant DoblDobl_Complex_Numbers.Complex_Number
+          := DoblDobl_Complex_Numbers.Create(integer(1));
+
+  begin
+   -- new_line;
+   -- put("Intersecting sets of dimension ");
+   -- put(a,1); put(" and "); put(b,1); put_line(".");
+    if a >= b then
+      cd := Cascade_Dimension(dd_target_sys.all,dd_start_sys.all,a,b);
+     -- put("The dimension of the cascade : "); put(cd,1); new_line;
+     -- put("target system :" ); put(dd_target_sys.all);
+     -- put("start system :" ); put(dd_start_sys.all);
+      declare
+        start,target : Poly_Sys(1..integer32(cd));
+      begin
+       -- put_line("before extrinsic cascade homotopy...");
+        Extrinsic_Cascade_Homotopy
+          (dd_target_sys.all,dd_start_sys.all,a,b,start,target);
+       -- put_line("after extrinsic cascade : ");
+       -- put_line("start system : "); put(start);
+       -- put_line("target system : "); put(target);
+        declare
+        begin
+          Clear(dd_start_sys); dd_start_sys := new Poly_Sys'(start);
+          Clear(dd_target_sys); dd_target_sys := new Poly_Sys'(target);
+        exception 
+          when others =>
+            put_line("exception raised in clear"); raise;
+        end;
+      end;
+    else
+      cd := Cascade_Dimension(dd_start_sys.all,dd_target_sys.all,b,a);
+      declare
+        start,target : Poly_Sys(1..integer32(cd));
+      begin
+        Extrinsic_Cascade_Homotopy
+          (dd_start_sys.all,dd_target_sys.all,b,a,start,target);
+        Clear(dd_start_sys); dd_start_sys := new Poly_Sys'(start);
+        Clear(dd_target_sys); dd_target_sys := new Poly_Sys'(target);
+      end;
+    end if;
+    PHCpack_Operations.Create_DoblDobl_Homotopy(gamma);
+  end DoblDobl_Diagonal_Homotopy;
+
+  procedure QuadDobl_Diagonal_Homotopy ( a,b : in natural32 ) is
+
+    use QuadDobl_Complex_Poly_Systems;
+
+    cd : natural32;
+    gamma : constant QuadDobl_Complex_Numbers.Complex_Number
+          := QuadDobl_Complex_Numbers.Create(integer(1));
+
+  begin
+   -- new_line;
+   -- put("Intersecting sets of dimension ");
+   -- put(a,1); put(" and "); put(b,1); put_line(".");
+    if a >= b then
+      cd := Cascade_Dimension(qd_target_sys.all,qd_start_sys.all,a,b);
+     -- put("The dimension of the cascade : "); put(cd,1); new_line;
+     -- put("target system :" ); put(qd_target_sys.all);
+     -- put("start system :" ); put(qd_start_sys.all);
+      declare
+        start,target : Poly_Sys(1..integer32(cd));
+      begin
+       -- put_line("before extrinsic cascade homotopy...");
+        Extrinsic_Cascade_Homotopy
+          (qd_target_sys.all,qd_start_sys.all,a,b,start,target);
+       -- put_line("after extrinsic cascade : ");
+       -- put_line("start system : "); put(start);
+       -- put_line("target system : "); put(target);
+        declare
+        begin
+          Clear(qd_start_sys); qd_start_sys := new Poly_Sys'(start);
+          Clear(qd_target_sys); qd_target_sys := new Poly_Sys'(target);
+        exception 
+          when others =>
+            put_line("exception raised in clear"); raise;
+        end;
+      end;
+    else
+      cd := Cascade_Dimension(qd_start_sys.all,qd_target_sys.all,b,a);
+      declare
+        start,target : Poly_Sys(1..integer32(cd));
+      begin
+        Extrinsic_Cascade_Homotopy
+          (qd_start_sys.all,qd_target_sys.all,b,a,start,target);
+        Clear(qd_start_sys); qd_start_sys := new Poly_Sys'(start);
+        Clear(qd_target_sys); qd_target_sys := new Poly_Sys'(target);
+      end;
+    end if;
+    PHCpack_Operations.Create_QuadDobl_Homotopy(gamma);
+  end QuadDobl_Diagonal_Homotopy;
+
+  procedure Standard_Diagonal_Cascade_Solutions ( a,b : in natural32 ) is
 
     use Standard_Complex_Polynomials,Standard_Complex_Solutions;
 
-    k : constant natural32
-      := Number_of_Unknowns(st_target_sys(st_target_sys'first)) - a;
+   -- k : constant natural32
+   --   := Number_of_Unknowns(st_target_sys(st_target_sys'first)) - a;
+   -- The target system may not correspond to st_target_sols!
+    k : constant natural32 := natural32(Head_Of(st_target_sols).n) - a;
     sols1 : constant Solution_List
           := Witness_Sets.Remove_Embedding(st_target_sols,a);
     sols2 : constant Solution_List
@@ -858,25 +965,105 @@ package body PHCpack_Operations is
     embsols : Solution_List;
 
   begin
-    put_line("inside start_diagonal_cascade_solutions ...");
-    put("length of sols1 : "); put(Length_Of(sols1),1); new_line;
-    put("length of sols2 : "); put(Length_Of(sols2),1); new_line;
-    put("number of product solutions : "); put(Length_Of(sols),1); new_line;
+   -- put_line("inside start_diagonal_cascade_solutions ...");
+   -- put("  a = "); put(a,1);
+   -- put("  b = "); put(b,1);
+   -- put("  k = "); put(k,1); new_line;
+   -- put("length of sols1 : "); put(Length_Of(sols1),1); new_line;
+   -- put("length of sols2 : "); put(Length_Of(sols2),1); new_line;
+   -- put("number of product solutions : "); put(Length_Of(sols),1); new_line;
     if a+b < k
      then embsols := Witness_Sets.Add_Embedding(sols,b);
      else embsols := Witness_Sets.Add_Embedding(sols,k-a);
     end if;
     Clear(st_start_sols); Clear(st_target_sols);
     st_start_sols := embsols;
-    put("number of start solutions : ");
-    put(Length_Of(st_start_sols),1); new_line;
-  end Start_Diagonal_Cascade_Solutions;
+   -- put("number of start solutions : ");
+   -- put(Length_Of(st_start_sols),1); new_line;
+  end Standard_Diagonal_Cascade_Solutions;
+
+  procedure DoblDobl_Diagonal_Cascade_Solutions ( a,b : in natural32 ) is
+
+    use DoblDobl_Complex_Polynomials,DoblDobl_Complex_Solutions;
+
+   -- k : constant natural32
+   --   := Number_of_Unknowns(dd_target_sys(dd_target_sys'first)) - a;
+   -- The dd_target_sys may no longer correspond to dd_target_sols!
+    k : constant natural32 := natural32(Head_Of(dd_target_sols).n) - a;
+    sols1 : constant Solution_List
+          := Witness_Sets.Remove_Embedding(dd_target_sols,a);
+    sols2 : constant Solution_List
+          := Witness_Sets.Remove_Embedding(dd_start_sols,b);
+    sols : constant Solution_List := Product(sols1,sols2);
+    embsols : Solution_List;
+
+  begin
+   -- put_line("inside start_diagonal_cascade_solutions ...");
+   -- put("length of sols1 : "); put(Length_Of(sols1),1); new_line;
+   -- put("length of sols2 : "); put(Length_Of(sols2),1); new_line;
+   -- put("number of product solutions : "); put(Length_Of(sols),1); new_line;
+    if a+b < k
+     then embsols := Witness_Sets.Add_Embedding(sols,b);
+     else embsols := Witness_Sets.Add_Embedding(sols,k-a);
+    end if;
+    Clear(dd_start_sols); Clear(dd_target_sols);
+    dd_start_sols := embsols;
+   -- put("number of start solutions : ");
+   -- put(Length_Of(st_start_sols),1); new_line;
+  end DoblDobl_Diagonal_Cascade_Solutions;
+
+  procedure QuadDobl_Diagonal_Cascade_Solutions ( a,b : in natural32 ) is
+
+    use QuadDobl_Complex_Polynomials,QuadDobl_Complex_Solutions;
+
+   -- k : constant natural32
+   --   := Number_of_Unknowns(qd_target_sys(qd_target_sys'first)) - a;
+   -- The qd_target_sys may no longer correspond to qd_target_sols!
+    k : constant natural32 := natural32(Head_Of(qd_target_sols).n) - a;
+    sols1 : constant Solution_List
+          := Witness_Sets.Remove_Embedding(qd_target_sols,a);
+    sols2 : constant Solution_List
+          := Witness_Sets.Remove_Embedding(qd_start_sols,b);
+    sols : constant Solution_List := Product(sols1,sols2);
+    embsols : Solution_List;
+
+  begin
+   -- put_line("inside start_diagonal_cascade_solutions ...");
+   -- put("length of sols1 : "); put(Length_Of(sols1),1); new_line;
+   -- put("length of sols2 : "); put(Length_Of(sols2),1); new_line;
+   -- put("number of product solutions : "); put(Length_Of(sols),1); new_line;
+    if a+b < k
+     then embsols := Witness_Sets.Add_Embedding(sols,b);
+     else embsols := Witness_Sets.Add_Embedding(sols,k-a);
+    end if;
+    Clear(qd_start_sols); Clear(qd_target_sols);
+    qd_start_sols := embsols;
+   -- put("number of start solutions : ");
+   -- put(Length_Of(st_start_sols),1); new_line;
+  end QuadDobl_Diagonal_Cascade_Solutions;
 
   procedure Silent_Path_Tracker 
                ( ls : in Standard_Complex_Solutions.Link_to_Solution;
                  length : out double_float;
                  nbstep,nbfail,nbiter,nbsyst : out natural32;
-                 crash : out boolean ) is
+                 crash : out boolean; nbq : in integer32 := 0 ) is
+
+    w : integer32 := 1;
+    v : Standard_Floating_Vectors.Link_to_Vector;
+    e : double_float := 0.0;
+
+  begin
+    Silent_Path_Tracker
+      (ls,w,v,e,length,nbstep,nbfail,nbiter,nbsyst,crash,nbq);
+  end Silent_Path_Tracker;
+
+  procedure Silent_Path_Tracker 
+               ( ls : in Standard_Complex_Solutions.Link_to_Solution;
+                 wnd : out integer32;
+                 dir : out Standard_Floating_Vectors.Link_to_Vector;
+                 err,length : out double_float;
+                 nbstep,nbfail,nbiter,nbsyst : out natural32;
+                 crash : out boolean; nbq : in integer32 := 0 ) is
 
     use Standard_Complex_Numbers,Standard_Complex_Norms_Equals;
     use Standard_Path_Trackers;
@@ -902,20 +1089,24 @@ package body PHCpack_Operations is
         := Continuation_Parameters.Create_for_Path;
     cp2 : constant Continuation_Parameters.Corr_Pars
         := Continuation_Parameters.Create_End_Game;
+    w : integer32 := 1;
     v : Standard_Floating_Vectors.Link_to_Vector;
     e : double_float := 0.0;
     s : Standard_Continuation_Data.Solu_Info;
 
   begin
+    wnd := 1;
+    err := 0.0;
     ls.t := Create(0.0);
     s := Standard_Continuation_Data.Shallow_Create(ls);
-    Track_Path_along_Path(s,t1,tol,false,pp1,cp1);
-    Track_Path_at_End(s,t1,tol,false,0,v,e,pp2,cp2);
+    Track_Path_along_Path(s,t1,tol,false,pp1,cp1,nbq);
+    Track_Path_at_End(s,t1,tol,false,0,w,v,e,pp2,cp2,nbq);
     ls.t := Create(REAL_PART(ls.t),s.length_path);
     ls.err := s.cora; ls.rco := s.rcond; ls.res := s.resa;
     length := s.length_path;
     nbstep := s.nstep; nbfail := s.nfail;
     nbiter := s.niter; nbsyst := s.nsyst;
+    wnd := w; dir := v; err := e;
     crash := false;
   exception
     when others => crash := true; return;
@@ -925,7 +1116,24 @@ package body PHCpack_Operations is
                ( ls : in DoblDobl_Complex_Solutions.Link_to_Solution;
                  length : out double_float;
                  nbstep,nbfail,nbiter,nbsyst : out natural32;
-                 crash : out boolean ) is
+                 crash : out boolean; nbq : in integer32 := 0 ) is
+
+    w : integer32 := 1;
+    v : Double_Double_Vectors.Link_to_Vector;
+    e : double_float := 0.0;
+
+  begin
+    Silent_Path_Tracker
+      (ls,w,v,e,length,nbstep,nbfail,nbiter,nbsyst,crash,nbq);
+  end Silent_Path_Tracker;
+
+  procedure Silent_Path_Tracker 
+               ( ls : in DoblDobl_Complex_Solutions.Link_to_Solution;
+                 wnd : out integer32;
+                 dir : out Double_Double_Vectors.Link_to_Vector;
+                 err,length : out double_float;
+                 nbstep,nbfail,nbiter,nbsyst : out natural32;
+                 crash : out boolean; nbq : in integer32 := 0 ) is
 
     use DoblDobl_Complex_Numbers,DoblDobl_Complex_Vector_Norms;
     use DoblDobl_Path_Trackers;
@@ -951,6 +1159,7 @@ package body PHCpack_Operations is
         := Continuation_Parameters.Create_for_Path;
     cp2 : constant Continuation_Parameters.Corr_Pars
         := Continuation_Parameters.Create_End_Game;
+    w : integer32 := 1;
     v : Double_Double_Vectors.Link_to_Vector;
     e : double_double := create(0.0);
     s : DoblDobl_Continuation_Data.Solu_Info;
@@ -959,8 +1168,8 @@ package body PHCpack_Operations is
   begin
     ls.t := Create(integer(0));
     s := DoblDobl_Continuation_Data.Shallow_Create(ls);
-    Track_Path_along_Path(s,t1,tol,false,pp1,cp1);
-    Track_Path_at_End(s,t1,tol,false,0,v,e,pp2,cp2);
+    Track_Path_along_Path(s,t1,tol,false,pp1,cp1,nbq);
+    Track_Path_at_End(s,t1,tol,false,0,w,v,e,pp2,cp2,nbq);
     len := Double_Double_Numbers.create(s.length_path);
     ls.t := DoblDobl_Complex_Numbers.Create(REAL_PART(ls.t),len);
     ls.err := create(s.cora);
@@ -969,6 +1178,7 @@ package body PHCpack_Operations is
     length := s.length_path;
     nbstep := s.nstep; nbfail := s.nfail;
     nbiter := s.niter; nbsyst := s.nsyst;
+    wnd := w; dir := v; err := hi_part(e);
     crash := false;
   exception
     when others => crash := true; return;
@@ -978,7 +1188,24 @@ package body PHCpack_Operations is
                ( ls : in QuadDobl_Complex_Solutions.Link_to_Solution;
                  length : out double_float;
                  nbstep,nbfail,nbiter,nbsyst : out natural32;
-                 crash : out boolean ) is
+                 crash : out boolean; nbq : in integer32 := 0 ) is
+  
+    w : integer32 := 1;
+    v : Quad_Double_Vectors.Link_to_Vector;
+    e : double_float := 0.0;
+
+  begin
+    Silent_Path_Tracker
+      (ls,w,v,e,length,nbstep,nbfail,nbiter,nbsyst,crash,nbq);
+  end Silent_Path_Tracker;
+
+  procedure Silent_Path_Tracker 
+               ( ls : in QuadDobl_Complex_Solutions.Link_to_Solution;
+                 wnd : out integer32;
+                 dir : out Quad_Double_Vectors.Link_to_Vector;
+                 err,length : out double_float;
+                 nbstep,nbfail,nbiter,nbsyst : out natural32;
+                 crash : out boolean; nbq : in integer32 := 0 ) is
 
     use QuadDobl_Complex_Numbers,QuadDobl_Complex_Vector_Norms;
     use QuadDobl_Path_Trackers;
@@ -1004,6 +1231,7 @@ package body PHCpack_Operations is
         := Continuation_Parameters.Create_for_Path;
     cp2 : constant Continuation_Parameters.Corr_Pars
         := Continuation_Parameters.Create_End_Game;
+    w : integer32 := 1;
     v : Quad_Double_Vectors.Link_to_Vector;
     e : quad_double := create(0.0);
     s : QuadDobl_Continuation_Data.Solu_Info;
@@ -1013,8 +1241,8 @@ package body PHCpack_Operations is
   begin
     ls.t := Create(integer(0));
     s := QuadDobl_Continuation_Data.Shallow_Create(ls);
-    Track_Path_along_Path(s,t1,tol,false,pp1,cp1);
-    Track_Path_at_End(s,t1,tol,false,0,v,e,pp2,cp2);
+    Track_Path_along_Path(s,t1,tol,false,pp1,cp1,nbq);
+    Track_Path_at_End(s,t1,tol,false,0,w,v,e,pp2,cp2,nbq);
     dd_len := Double_Double_Numbers.create(s.length_path);
     qd_len := Quad_Double_Numbers.create(dd_len);
     ls.t := QuadDobl_Complex_Numbers.Create(REAL_PART(ls.t),qd_len);
@@ -1024,6 +1252,7 @@ package body PHCpack_Operations is
     length := s.length_path;
     nbstep := s.nstep; nbfail := s.nfail;
     nbiter := s.niter; nbsyst := s.nsyst;
+    wnd := w; dir := v; err := hihi_part(e);
     crash := false;
   exception
     when others => crash := true; return;
@@ -1033,7 +1262,7 @@ package body PHCpack_Operations is
                ( ls : in Standard_Complex_Solutions.Link_to_Solution;
                  length : out double_float;
                  nbstep,nbfail,nbiter,nbsyst : out natural32;
-                 crash : out boolean ) is
+                 crash : out boolean; nbq : in integer32 := 0 ) is
 
     use Standard_Complex_Numbers,Standard_Complex_Norms_Equals;
     use Standard_Path_Trackers;
@@ -1059,6 +1288,7 @@ package body PHCpack_Operations is
         := Continuation_Parameters.Create_for_Path;
     cp2 : constant Continuation_Parameters.Corr_Pars
         := Continuation_Parameters.Create_End_Game;
+    w : integer32 := 1;
     v : Standard_Floating_Vectors.Link_to_Vector;
     e : double_float := 0.0;
     s : Standard_Continuation_Data.Solu_Info;
@@ -1066,8 +1296,8 @@ package body PHCpack_Operations is
   begin
     ls.t := Create(0.0);
     s := Standard_Continuation_Data.Shallow_Create(ls);
-    Track_Path_along_Path(s,t1,tol,false,pp1,cp1);
-    Track_Path_at_End(s,t1,tol,false,0,v,e,pp2,cp2);
+    Track_Path_along_Path(s,t1,tol,false,pp1,cp1,nbq);
+    Track_Path_at_End(s,t1,tol,false,0,w,v,e,pp2,cp2,nbq);
     ls.t := Create(REAL_PART(ls.t),s.length_path);
     ls.err := s.cora; ls.rco := s.rcond; ls.res := s.resa;
     length := s.length_path;
@@ -1082,7 +1312,7 @@ package body PHCpack_Operations is
                ( ls : in DoblDobl_Complex_Solutions.Link_to_Solution;
                  length : out double_float;
                  nbstep,nbfail,nbiter,nbsyst : out natural32;
-                 crash : out boolean ) is
+                 crash : out boolean; nbq : in integer32 := 0 ) is
 
     use DoblDobl_Complex_Numbers,DoblDobl_Complex_Vector_Norms;
     use DoblDobl_Path_Trackers;
@@ -1110,6 +1340,7 @@ package body PHCpack_Operations is
         := Continuation_Parameters.Create_for_Path;
     cp2 : constant Continuation_Parameters.Corr_Pars
         := Continuation_Parameters.Create_End_Game;
+    w : integer32 := 1;
     v : Double_Double_Vectors.Link_to_Vector;
     e : double_double := create(0.0);
     s : DoblDobl_Continuation_Data.Solu_Info;
@@ -1118,8 +1349,8 @@ package body PHCpack_Operations is
   begin
     ls.t := Create(zero);
     s := DoblDobl_Continuation_Data.Shallow_Create(ls);
-    Track_Path_along_Path(s,t1,tol,false,pp1,cp1);
-    Track_Path_at_End(s,t1,tol,false,0,v,e,pp2,cp2);
+    Track_Path_along_Path(s,t1,tol,false,pp1,cp1,nbq);
+    Track_Path_at_End(s,t1,tol,false,0,w,v,e,pp2,cp2,nbq);
     dd_len := create(s.length_path);
     ls.t := Create(REAL_PART(ls.t),dd_len);
     ls.err := create(s.cora);
@@ -1137,7 +1368,7 @@ package body PHCpack_Operations is
                ( ls : in QuadDobl_Complex_Solutions.Link_to_Solution;
                  length : out double_float;
                  nbstep,nbfail,nbiter,nbsyst : out natural32;
-                 crash : out boolean ) is
+                 crash : out boolean; nbq : in integer32 := 0 ) is
 
     use QuadDobl_Complex_Numbers,QuadDobl_Complex_Vector_Norms;
     use QuadDobl_Path_Trackers;
@@ -1165,6 +1396,7 @@ package body PHCpack_Operations is
         := Continuation_Parameters.Create_for_Path;
     cp2 : constant Continuation_Parameters.Corr_Pars
         := Continuation_Parameters.Create_End_Game;
+    w : integer32 := 1;
     v : Quad_Double_Vectors.Link_to_Vector;
     e : quad_double := create(0.0);
     s : QuadDobl_Continuation_Data.Solu_Info;
@@ -1174,8 +1406,8 @@ package body PHCpack_Operations is
   begin
     ls.t := Create(zero);
     s := QuadDobl_Continuation_Data.Shallow_Create(ls);
-    Track_Path_along_Path(s,t1,tol,false,pp1,cp1);
-    Track_Path_at_End(s,t1,tol,false,0,v,e,pp2,cp2);
+    Track_Path_along_Path(s,t1,tol,false,pp1,cp1,nbq);
+    Track_Path_at_End(s,t1,tol,false,0,w,v,e,pp2,cp2,nbq);
     dd_len := create(s.length_path);
     qd_len := create(dd_len);
     ls.t := Create(REAL_PART(ls.t),qd_len);
@@ -1194,7 +1426,24 @@ package body PHCpack_Operations is
                ( ls : in Standard_Complex_Solutions.Link_to_Solution;
                  length : out double_float;
                  nbstep,nbfail,nbiter,nbsyst : out natural32;
-                 crash : out boolean ) is
+                 crash : out boolean; nbq : in integer32 := 0 ) is
+
+    w : integer32 := 1;
+    v : Standard_Floating_Vectors.Link_to_Vector;
+    e : double_float := 0.0;
+
+  begin
+    Reporting_Path_Tracker
+      (ls,w,v,e,length,nbstep,nbfail,nbiter,nbsyst,crash,nbq);
+  end Reporting_Path_Tracker;
+
+  procedure Reporting_Path_Tracker
+               ( ls : in Standard_Complex_Solutions.Link_to_Solution;
+                 wnd : out integer32;
+                 dir : out Standard_Floating_Vectors.Link_to_Vector;
+                 err,length : out double_float;
+                 nbstep,nbfail,nbiter,nbsyst : out natural32;
+                 crash : out boolean; nbq : in integer32 := 0 ) is
 
     use Standard_Complex_Numbers,Standard_Complex_Norms_Equals;
     use Standard_Path_Trackers;
@@ -1220,6 +1469,7 @@ package body PHCpack_Operations is
         := Continuation_Parameters.Create_for_Path;
     cp2 : constant Continuation_Parameters.Corr_Pars
         := Continuation_Parameters.Create_End_Game;
+    w : integer32 := 1;
     v : Standard_Floating_Vectors.Link_to_Vector;
     e : double_float := 0.0;
     s : Standard_Continuation_Data.Solu_Info;
@@ -1228,17 +1478,18 @@ package body PHCpack_Operations is
     ls.t := Create(0.0);
     s := Standard_Continuation_Data.Shallow_Create(ls);
     if file_okay then
-      Track_Path_along_Path(output_file,s,t1,tol,false,pp1,cp1);
-      Track_Path_at_End(output_file,s,t1,tol,false,0,v,e,pp2,cp2);
+      Track_Path_along_Path(output_file,s,t1,tol,false,pp1,cp1,nbq);
+      Track_Path_at_End(output_file,s,t1,tol,false,0,w,v,e,pp2,cp2,nbq);
     else
-      Track_Path_along_Path(standard_output,s,t1,tol,false,pp1,cp1);
-      Track_Path_at_End(standard_output,s,t1,tol,false,0,v,e,pp2,cp2);
+      Track_Path_along_Path(standard_output,s,t1,tol,false,pp1,cp1,nbq);
+      Track_Path_at_End(standard_output,s,t1,tol,false,0,w,v,e,pp2,cp2,nbq);
     end if;
     ls.t := Create(REAL_PART(ls.t),s.length_path);
     ls.err := s.cora; ls.rco := s.rcond; ls.res := s.resa;
     length := s.length_path;
     nbstep := s.nstep; nbfail := s.nfail;
     nbiter := s.niter; nbsyst := s.nsyst;
+    wnd := w; dir := v; err := e;
     crash := false;
   exception
     when others => crash := true;
@@ -1248,7 +1499,24 @@ package body PHCpack_Operations is
                ( ls : in DoblDobl_Complex_Solutions.Link_to_Solution;
                  length : out double_float;
                  nbstep,nbfail,nbiter,nbsyst : out natural32;
-                 crash : out boolean ) is
+                 crash : out boolean; nbq : in integer32 := 0 ) is
+
+    w : integer32 := 1;
+    v : Double_Double_Vectors.Link_to_Vector;
+    e : double_float := 0.0;
+
+  begin
+    Reporting_Path_Tracker
+      (ls,w,v,e,length,nbstep,nbfail,nbiter,nbsyst,crash,nbq);
+  end Reporting_Path_Tracker;
+
+  procedure Reporting_Path_Tracker
+               ( ls : in DoblDobl_Complex_Solutions.Link_to_Solution;
+                 wnd : out integer32;
+                 dir : out Double_Double_Vectors.Link_to_Vector;
+                 err,length : out double_float;
+                 nbstep,nbfail,nbiter,nbsyst : out natural32;
+                 crash : out boolean; nbq : in integer32 := 0 ) is
 
     use DoblDobl_Complex_Numbers,DoblDobl_Complex_Vector_Norms;
     use DoblDobl_Path_Trackers;
@@ -1274,6 +1542,7 @@ package body PHCpack_Operations is
         := Continuation_Parameters.Create_for_Path;
     cp2 : constant Continuation_Parameters.Corr_Pars
         := Continuation_Parameters.Create_End_Game;
+    w : integer32 := 1;
     v : Double_Double_Vectors.Link_to_Vector;
     e : double_double := create(0.0);
     s : DoblDobl_Continuation_Data.Solu_Info;
@@ -1283,11 +1552,11 @@ package body PHCpack_Operations is
     ls.t := DoblDobl_Complex_Numbers.Create(integer(0));
     s := DoblDobl_Continuation_Data.Shallow_Create(ls);
     if file_okay then
-      Track_Path_along_Path(output_file,s,t1,tol,false,pp1,cp1);
-      Track_Path_at_End(output_file,s,t1,tol,false,0,v,e,pp2,cp2);
+      Track_Path_along_Path(output_file,s,t1,tol,false,pp1,cp1,nbq);
+      Track_Path_at_End(output_file,s,t1,tol,false,0,w,v,e,pp2,cp2,nbq);
     else
-      Track_Path_along_Path(standard_output,s,t1,tol,false,pp1,cp1);
-      Track_Path_at_End(standard_output,s,t1,tol,false,0,v,e,pp2,cp2);
+      Track_Path_along_Path(standard_output,s,t1,tol,false,pp1,cp1,nbq);
+      Track_Path_at_End(standard_output,s,t1,tol,false,0,w,v,e,pp2,cp2,nbq);
     end if;
     len := Double_Double_Numbers.create(s.length_path);
     ls.t := DoblDobl_Complex_Numbers.Create(REAL_PART(ls.t),len);
@@ -1297,6 +1566,7 @@ package body PHCpack_Operations is
     length := s.length_path;
     nbstep := s.nstep; nbfail := s.nfail;
     nbiter := s.niter; nbsyst := s.nsyst;
+    wnd := w; dir := v; err := hi_part(e);
     crash := false;
   exception
     when others => crash := true;
@@ -1306,7 +1576,24 @@ package body PHCpack_Operations is
                ( ls : in QuadDobl_Complex_Solutions.Link_to_Solution;
                  length : out double_float;
                  nbstep,nbfail,nbiter,nbsyst : out natural32;
-                 crash : out boolean ) is
+                 crash : out boolean; nbq : in integer32 := 0 ) is
+
+    w : integer32 := 1;
+    v : Quad_Double_Vectors.Link_to_Vector;
+    e : double_float := 0.0;
+
+  begin
+    Reporting_Path_Tracker
+      (ls,w,v,e,length,nbstep,nbfail,nbiter,nbsyst,crash,nbq);
+  end Reporting_Path_Tracker;
+
+  procedure Reporting_Path_Tracker
+               ( ls : in QuadDobl_Complex_Solutions.Link_to_Solution;
+                 wnd : out integer32;
+                 dir : out Quad_Double_Vectors.Link_to_Vector;
+                 err,length : out double_float;
+                 nbstep,nbfail,nbiter,nbsyst : out natural32;
+                 crash : out boolean; nbq : in integer32 := 0 ) is
 
     use QuadDobl_Complex_Numbers,QuadDobl_Complex_Vector_Norms;
     use QuadDobl_Path_Trackers;
@@ -1332,6 +1619,7 @@ package body PHCpack_Operations is
         := Continuation_Parameters.Create_for_Path;
     cp2 : constant Continuation_Parameters.Corr_Pars
         := Continuation_Parameters.Create_End_Game;
+    w : integer32 := 1;
     v : Quad_Double_Vectors.Link_to_Vector;
     e : quad_double := create(0.0);
     s : QuadDobl_Continuation_Data.Solu_Info;
@@ -1342,11 +1630,11 @@ package body PHCpack_Operations is
     ls.t := QuadDobl_Complex_Numbers.Create(integer(0));
     s := QuadDobl_Continuation_Data.Shallow_Create(ls);
     if file_okay then
-      Track_Path_along_Path(output_file,s,t1,tol,false,pp1,cp1);
-      Track_Path_at_End(output_file,s,t1,tol,false,0,v,e,pp2,cp2);
+      Track_Path_along_Path(output_file,s,t1,tol,false,pp1,cp1,nbq);
+      Track_Path_at_End(output_file,s,t1,tol,false,0,w,v,e,pp2,cp2,nbq);
     else
-      Track_Path_along_Path(standard_output,s,t1,tol,false,pp1,cp1);
-      Track_Path_at_End(standard_output,s,t1,tol,false,0,v,e,pp2,cp2);
+      Track_Path_along_Path(standard_output,s,t1,tol,false,pp1,cp1,nbq);
+      Track_Path_at_End(standard_output,s,t1,tol,false,0,w,v,e,pp2,cp2,nbq);
     end if;
     dd_len := Double_Double_Numbers.create(s.length_path);
     qd_len := Quad_Double_Numbers.create(dd_len);
@@ -1357,6 +1645,7 @@ package body PHCpack_Operations is
     length := s.length_path;
     nbstep := s.nstep; nbfail := s.nfail;
     nbiter := s.niter; nbsyst := s.nsyst;
+    wnd := w; dir := v; err := hihi_part(e);
     crash := false;
   exception
     when others => crash := true;
@@ -1366,7 +1655,7 @@ package body PHCpack_Operations is
                ( ls : in Standard_Complex_Solutions.Link_to_Solution;
                  length : out double_float;
                  nbstep,nbfail,nbiter,nbsyst : out natural32;
-                 crash : out boolean ) is
+                 crash : out boolean; nbq : in integer32 := 0 ) is
 
     use Standard_Complex_Numbers,Standard_Complex_Norms_Equals;
     use Standard_Path_Trackers;
@@ -1392,6 +1681,7 @@ package body PHCpack_Operations is
         := Continuation_Parameters.Create_for_Path;
     cp2 : constant Continuation_Parameters.Corr_Pars
         := Continuation_Parameters.Create_End_Game;
+    w : integer32 := 1;
     v : Standard_Floating_Vectors.Link_to_Vector;
     e : double_float := 0.0;
     s : Standard_Continuation_Data.Solu_Info;
@@ -1400,11 +1690,11 @@ package body PHCpack_Operations is
     ls.t := Create(0.0);
     s := Standard_Continuation_Data.Shallow_Create(ls);
     if file_okay then
-      Track_Path_along_Path(output_file,s,t1,tol,false,pp1,cp1);
-      Track_Path_at_End(output_file,s,t1,tol,false,0,v,e,pp2,cp2);
+      Track_Path_along_Path(output_file,s,t1,tol,false,pp1,cp1,nbq);
+      Track_Path_at_End(output_file,s,t1,tol,false,0,w,v,e,pp2,cp2,nbq);
     else
-      Track_Path_along_Path(standard_output,s,t1,tol,false,pp1,cp1);
-      Track_Path_at_End(standard_output,s,t1,tol,false,0,v,e,pp2,cp2);
+      Track_Path_along_Path(standard_output,s,t1,tol,false,pp1,cp1,nbq);
+      Track_Path_at_End(standard_output,s,t1,tol,false,0,w,v,e,pp2,cp2,nbq);
     end if;
     ls.t := Create(REAL_PART(ls.t),s.length_path);
     ls.err := s.cora; ls.rco := s.rcond; ls.res := s.resa;
@@ -1420,7 +1710,7 @@ package body PHCpack_Operations is
                ( ls : in DoblDobl_Complex_Solutions.Link_to_Solution;
                  length : out double_float;
                  nbstep,nbfail,nbiter,nbsyst : out natural32;
-                 crash : out boolean ) is
+                 crash : out boolean; nbq : in integer32 := 0 ) is
 
     use DoblDobl_Complex_Numbers,DoblDobl_Complex_Vector_Norms;
     use DoblDobl_Path_Trackers;
@@ -1448,6 +1738,7 @@ package body PHCpack_Operations is
         := Continuation_Parameters.Create_for_Path;
     cp2 : constant Continuation_Parameters.Corr_Pars
         := Continuation_Parameters.Create_End_Game;
+    w : integer32 := 1;
     v : Double_Double_Vectors.Link_to_Vector;
     e : double_double := zero;
     s : DoblDobl_Continuation_Data.Solu_Info;
@@ -1457,11 +1748,11 @@ package body PHCpack_Operations is
     ls.t := Create(zero);
     s := DoblDobl_Continuation_Data.Shallow_Create(ls);
     if file_okay then
-      Track_Path_along_Path(output_file,s,t1,tol,false,pp1,cp1);
-      Track_Path_at_End(output_file,s,t1,tol,false,0,v,e,pp2,cp2);
+      Track_Path_along_Path(output_file,s,t1,tol,false,pp1,cp1,nbq);
+      Track_Path_at_End(output_file,s,t1,tol,false,0,w,v,e,pp2,cp2,nbq);
     else
-      Track_Path_along_Path(standard_output,s,t1,tol,false,pp1,cp1);
-      Track_Path_at_End(standard_output,s,t1,tol,false,0,v,e,pp2,cp2);
+      Track_Path_along_Path(standard_output,s,t1,tol,false,pp1,cp1,nbq);
+      Track_Path_at_End(standard_output,s,t1,tol,false,0,w,v,e,pp2,cp2,nbq);
     end if;
     dd_len := create(s.length_path);
     ls.t := Create(REAL_PART(ls.t),dd_len);
@@ -1480,7 +1771,7 @@ package body PHCpack_Operations is
                ( ls : in QuadDobl_Complex_Solutions.Link_to_Solution;
                  length : out double_float;
                  nbstep,nbfail,nbiter,nbsyst : out natural32;
-                 crash : out boolean ) is
+                 crash : out boolean; nbq : in integer32 := 0 ) is
 
     use QuadDobl_Complex_Numbers,QuadDobl_Complex_Vector_Norms;
     use QuadDobl_Path_Trackers;
@@ -1508,6 +1799,7 @@ package body PHCpack_Operations is
         := Continuation_Parameters.Create_for_Path;
     cp2 : constant Continuation_Parameters.Corr_Pars
         := Continuation_Parameters.Create_End_Game;
+    w : integer32 := 1;
     v : Quad_Double_Vectors.Link_to_Vector;
     e : quad_double := zero;
     s : QuadDobl_Continuation_Data.Solu_Info;
@@ -1518,11 +1810,11 @@ package body PHCpack_Operations is
     ls.t := Create(zero);
     s := QuadDobl_Continuation_Data.Shallow_Create(ls);
     if file_okay then
-      Track_Path_along_Path(output_file,s,t1,tol,false,pp1,cp1);
-      Track_Path_at_End(output_file,s,t1,tol,false,0,v,e,pp2,cp2);
+      Track_Path_along_Path(output_file,s,t1,tol,false,pp1,cp1,nbq);
+      Track_Path_at_End(output_file,s,t1,tol,false,0,w,v,e,pp2,cp2,nbq);
     else
-      Track_Path_along_Path(standard_output,s,t1,tol,false,pp1,cp1);
-      Track_Path_at_End(standard_output,s,t1,tol,false,0,v,e,pp2,cp2);
+      Track_Path_along_Path(standard_output,s,t1,tol,false,pp1,cp1,nbq);
+      Track_Path_at_End(standard_output,s,t1,tol,false,0,w,v,e,pp2,cp2,nbq);
     end if;
     dd_len := create(s.length_path);
     qd_len := create(dd_len);
@@ -1543,8 +1835,10 @@ package body PHCpack_Operations is
 
     use Standard_Complex_Numbers,Standard_Complex_Norms_Equals;
     use Standard_IncFix_Continuation;
+    use Drivers_for_Poly_Continuation;
+    use Drivers_for_Path_Directions;
 
-    k : constant natural32 := 2;
+    k : natural32 := 2;
     r : Complex_Number; 
     epsxa : constant double_float := 1.0E-13;
     epsfa : constant double_float := 1.0E-13;
@@ -1552,15 +1846,34 @@ package body PHCpack_Operations is
     numit : natural32 := 0;
     max : constant natural32 := 4;
     deflate : boolean := false;
+    n,nbsols : natural32;
+    dirs : Standard_Floating_VecVecs.Link_to_VecVec;
+    errv : Standard_Floating_Vectors.Link_to_Vector;
+    wind : Standard_Integer_Vectors.Link_to_Vector;
     timer : Timing_Widget;
+    nbequ : constant integer32 := st_target_sys'last;
+    nbvar : constant integer32 
+          := Standard_Complex_Solutions.Head_Of(st_start_sols).n;
 
     procedure Sil_Cont is
-      new Silent_Continue(Max_Norm,Standard_Homotopy.Eval,
-                          Standard_Homotopy.Diff,Standard_Homotopy.Diff);
+      new Silent_Continue
+            (Max_Norm,Standard_Homotopy.Eval,
+             Standard_Homotopy.Diff,Standard_Homotopy.Diff);
+
+    procedure Sil_Toric_Cont is
+      new Silent_Toric_Continue
+            (Max_Norm,Standard_Homotopy.Eval,
+             Standard_Homotopy.Diff,Standard_Homotopy.Diff);
 
     procedure Rep_Cont is
-      new Reporting_Continue(Max_Norm,Standard_Homotopy.Eval,
-                             Standard_Homotopy.Diff,Standard_Homotopy.Diff);
+      new Reporting_Continue
+            (Max_Norm,Standard_Homotopy.Eval,
+             Standard_Homotopy.Diff,Standard_Homotopy.Diff);
+
+    procedure Rep_Toric_Cont is
+      new Reporting_Toric_Continue
+            (Max_Norm,Standard_Homotopy.Eval,
+             Standard_Homotopy.Diff,Standard_Homotopy.Diff);
 
   begin
     if zero_constant
@@ -1586,30 +1899,81 @@ package body PHCpack_Operations is
     Standard_Complex_Solutions.Copy(st_start_sols,st_target_sols);
     Standard_Complex_Solutions.Set_Continuation_Parameter
       (st_target_sols,Create(0.0));
+    if Continuation_Parameters.endext_order > 0 then
+      n := natural32(Standard_Complex_Solutions.Head_Of(st_target_sols).n);
+      nbsols := Standard_Complex_Solutions.Length_Of(st_target_sols);
+      Init_Path_Directions(n,nbsols,dirs,errv);
+      wind := new Standard_Integer_Vectors.Vector'(1..integer32(nbsols) => 1);
+      k := Standard_Homotopy.Relaxation_Power;
+      if k /= 1
+       then Standard_Redefine_Homotopy;
+      end if;
+    end if;
     if file_okay then
       tstart(timer);
       if number_of_tasks = 0 then
-        Rep_Cont(output_file,st_target_sols,false,Create(1.0));
+        if Continuation_Parameters.endext_order = 0 then
+          if nbequ = nbvar then
+            Rep_Cont(output_file,st_target_sols,false,target=>Create(1.0));
+          else        
+            Rep_Cont
+              (output_file,st_target_sols,false,nbequ,target=>Create(1.0));
+          end if;
+        else
+          if nbequ = nbvar then
+            Rep_Toric_Cont
+              (output_file,st_target_sols,false,
+               wind.all,dirs.all,errv.all,target=>Create(1.0));
+          else
+            Rep_Toric_Cont
+              (output_file,st_target_sols,false,
+               wind.all,dirs.all,errv.all,nbequ,target=>Create(1.0));
+          end if;
+          Write_Directions(output_file,wind.all,dirs.all,errv.all);
+        end if;
       else
         Silent_Multitasking_Path_Tracker
           (st_target_sols,integer32(number_of_tasks));
       end if;
-      Standard_Root_Refiners.Reporting_Root_Refiner
-        (output_file,st_target_sys.all,st_target_sols,epsxa,epsfa,
-         tolsing,numit,max,deflate,false);
+      if nbequ = nbvar then
+        Standard_Root_Refiners.Reporting_Root_Refiner
+          (output_file,st_target_sys.all,st_target_sols,epsxa,epsfa,
+           tolsing,numit,max,deflate,false);
+      end if;
       tstop(timer);
       new_line(output_file);
       print_times(output_file,timer,"Solving by Homotopy Continuation");
     else
       if number_of_tasks = 0 then
-        Sil_Cont(st_target_sols,false,Create(1.0));
+        if Continuation_Parameters.endext_order = 0 then
+          if nbequ = nbvar
+           then Sil_Cont(st_target_sols,false,target=>Create(1.0));
+           else Sil_Cont(st_target_sols,false,nbequ,target=>Create(1.0));
+          end if;
+        else
+          if nbequ = nbvar then
+            Sil_Toric_Cont
+              (st_target_sols,false,
+               wind.all,dirs.all,errv.all,target=>Create(1.0));
+          else
+            Sil_Toric_Cont
+              (st_target_sols,false,
+               wind.all,dirs.all,errv.all,nbequ,target=>Create(1.0));
+          end if;
+        end if;
       else
         Silent_Multitasking_Path_Tracker
           (st_target_sols,integer32(number_of_tasks));
       end if;
-      Standard_Root_Refiners.Silent_Root_Refiner
-        (st_target_sys.all,st_target_sols,epsxa,epsfa,tolsing,
-         numit,max,deflate);
+      if nbequ = nbvar then
+        Standard_Root_Refiners.Silent_Root_Refiner
+          (st_target_sys.all,st_target_sols,epsxa,epsfa,tolsing,
+           numit,max,deflate);
+      end if;
+    end if;
+    if Continuation_Parameters.endext_order > 0 then
+      Numerical_Tropisms_Container.Standard_Initialize
+        (wind.all,dirs.all,errv.all);
     end if;
     Copy_Labels;
    -- Standard_Homotopy.Clear;  -- for dynamic load balancing
@@ -1623,8 +1987,10 @@ package body PHCpack_Operations is
 
     use DoblDobl_Complex_Numbers,DoblDobl_Complex_Vector_Norms;
     use DoblDobl_IncFix_Continuation;
+    use Drivers_for_Poly_Continuation;
+    use Drivers_for_Path_Directions;
 
-    k : constant natural32 := 2;
+    k : natural32 := 2;
     r : Complex_Number; 
    -- epsxa : constant double_float := 1.0E-24;
    -- epsfa : constant double_float := 1.0E-24;
@@ -1632,15 +1998,34 @@ package body PHCpack_Operations is
    -- numit : natural := 0;
    -- max : constant natural := 4;
    -- deflate : boolean := false;
+    n,nbsols : natural32;
+    dirs : Double_Double_VecVecs.Link_to_VecVec;
+    errv : Double_Double_Vectors.Link_to_Vector;
+    wind : Standard_Integer_Vectors.Link_to_Vector;
     timer : Timing_Widget;
+    nbequ : constant integer32 := dd_target_sys'last;
+    nbvar : constant integer32 
+          := DoblDobl_Complex_Solutions.Head_Of(dd_start_sols).n;
 
     procedure Sil_Cont is
-      new Silent_Continue(Max_Norm,DoblDobl_Homotopy.Eval,
-                          DoblDobl_Homotopy.Diff,DoblDobl_Homotopy.Diff);
+      new Silent_Continue
+            (Max_Norm,DoblDobl_Homotopy.Eval,
+             DoblDobl_Homotopy.Diff,DoblDobl_Homotopy.Diff);
+
+    procedure Sil_Toric_Cont is
+      new Silent_Toric_Continue
+            (Max_Norm,DoblDobl_Homotopy.Eval,
+             DoblDobl_Homotopy.Diff,DoblDobl_Homotopy.Diff);
 
     procedure Rep_Cont is
-      new Reporting_Continue(Max_Norm,DoblDobl_Homotopy.Eval,
-                             DoblDobl_Homotopy.Diff,DoblDobl_Homotopy.Diff);
+      new Reporting_Continue
+            (Max_Norm,DoblDobl_Homotopy.Eval,
+             DoblDobl_Homotopy.Diff,DoblDobl_Homotopy.Diff);
+
+    procedure Rep_Toric_Cont is
+      new Reporting_Toric_Continue
+            (Max_Norm,DoblDobl_Homotopy.Eval,
+             DoblDobl_Homotopy.Diff,DoblDobl_Homotopy.Diff);
 
   begin
     if zero_dobldobl_constant
@@ -1662,16 +2047,42 @@ package body PHCpack_Operations is
       end if;
     end if;
     if auto_tune
-     then Continuation_Parameters.Tune(0,32);
+     then Continuation_Parameters.Tune(0); -- (0,32) is too severe
     end if;
     DoblDobl_Complex_Solutions.Clear(dd_target_sols);
     DoblDobl_Complex_Solutions.Copy(dd_start_sols,dd_target_sols);
     DoblDobl_Complex_Solutions.Set_Continuation_Parameter
       (dd_target_sols,Create(integer(0)));
+    if Continuation_Parameters.endext_order > 0 then
+      n := natural32(DoblDobl_Complex_Solutions.Head_Of(dd_target_sols).n);
+      nbsols := DoblDobl_Complex_Solutions.Length_Of(dd_target_sols);
+      Init_Path_Directions(n,nbsols,dirs,errv);
+      wind := new Standard_Integer_Vectors.Vector'(1..integer32(nbsols) => 1);
+      k := DoblDobl_Homotopy.Relaxation_Power;
+      if k /= 1
+       then DoblDobl_Redefine_Homotopy;
+      end if;
+    end if;
     if file_okay then
       tstart(timer);
       if number_of_tasks = 0 then
-        Rep_Cont(output_file,dd_target_sols,Create(integer(1)));
+        if Continuation_Parameters.endext_order = 0 then
+          if nbequ = nbvar
+           then Rep_Cont(output_file,dd_target_sols,Create(integer(1)));
+           else Rep_Cont(output_file,dd_target_sols,nbequ,Create(integer(1)));
+          end if;
+        else
+          if nbequ = nbvar then
+            Rep_Toric_Cont
+              (output_file,dd_target_sols,false,
+               wind.all,dirs.all,errv.all,Create(integer(1)));
+          else
+            Rep_Toric_Cont
+              (output_file,dd_target_sols,false,
+               wind.all,dirs.all,errv.all,nbequ,Create(integer(1)));
+          end if;
+          Write_Directions(output_file,wind.all,dirs.all,errv.all);
+        end if;
       else
         Silent_Multitasking_Path_Tracker
           (dd_target_sols,integer32(number_of_tasks));
@@ -1684,7 +2095,22 @@ package body PHCpack_Operations is
       print_times(output_file,timer,"Solving by Homotopy Continuation");
     else
       if number_of_tasks = 0 then
-        Sil_Cont(dd_target_sols,Create(integer(1)));
+        if Continuation_Parameters.endext_order = 0 then
+          if nbequ = nbvar
+           then Sil_Cont(dd_target_sols,Create(integer(1)));
+           else Sil_Cont(dd_target_sols,nbequ,Create(integer(1)));
+          end if;
+        else
+          if nbequ = nbvar then
+            Sil_Toric_Cont
+              (dd_target_sols,false,
+               wind.all,dirs.all,errv.all,Create(integer(1)));
+          else
+            Sil_Toric_Cont
+              (dd_target_sols,false,
+               wind.all,dirs.all,errv.all,nbequ,Create(integer(1)));
+          end if;
+        end if;
       else
         Silent_Multitasking_Path_Tracker
           (dd_target_sols,integer32(number_of_tasks));
@@ -1692,6 +2118,10 @@ package body PHCpack_Operations is
      -- Standard_Root_Refiners.Silent_Root_Refiner
      --   (st_target_sys.all,st_target_sols,epsxa,epsfa,
      --    tolsing,numit,max,deflate);
+    end if;
+    if Continuation_Parameters.endext_order > 0 then
+      Numerical_Tropisms_Container.DoblDobl_Initialize
+        (wind.all,dirs.all,errv.all);
     end if;
     Copy_DoblDobl_Labels;
    -- DoblDobl_Homotopy.Clear;  -- for dynamic load balancing
@@ -1705,8 +2135,10 @@ package body PHCpack_Operations is
 
     use QuadDobl_Complex_Numbers,QuadDobl_Complex_Vector_Norms;
     use QuadDobl_IncFix_Continuation;
+    use Drivers_for_Poly_Continuation;
+    use Drivers_for_Path_Directions;
 
-    k : constant natural32 := 2;
+    k : natural32 := 2;
     r : Complex_Number; 
    -- epsxa : constant double_float := 1.0E-54;
    -- epsfa : constant double_float := 1.0E-54;
@@ -1714,15 +2146,34 @@ package body PHCpack_Operations is
    -- numit : natural := 0;
    -- max : constant natural := 4;
    -- deflate : boolean := false;
+    n,nbsols : natural32;
+    dirs : Quad_Double_VecVecs.Link_to_VecVec;
+    errv : Quad_Double_Vectors.Link_to_Vector;
+    wind : Standard_Integer_Vectors.Link_to_Vector;
     timer : Timing_Widget;
+    nbequ : constant integer32 := qd_target_sys'last;
+    nbvar : constant integer32 
+          := QuadDobl_Complex_Solutions.Head_Of(qd_start_sols).n;
 
     procedure Sil_Cont is
-      new Silent_Continue(Max_Norm,QuadDobl_Homotopy.Eval,
-                          QuadDobl_Homotopy.Diff,QuadDobl_Homotopy.Diff);
+      new Silent_Continue
+            (Max_Norm,QuadDobl_Homotopy.Eval,
+             QuadDobl_Homotopy.Diff,QuadDobl_Homotopy.Diff);
+
+    procedure Sil_Toric_Cont is
+      new Silent_Toric_Continue
+            (Max_Norm,QuadDobl_Homotopy.Eval,
+             QuadDobl_Homotopy.Diff,QuadDobl_Homotopy.Diff);
 
     procedure Rep_Cont is
-      new Reporting_Continue(Max_Norm,QuadDobl_Homotopy.Eval,
-                             QuadDobl_Homotopy.Diff,QuadDobl_Homotopy.Diff);
+      new Reporting_Continue
+            (Max_Norm,QuadDobl_Homotopy.Eval,
+             QuadDobl_Homotopy.Diff,QuadDobl_Homotopy.Diff);
+
+    procedure Rep_Toric_Cont is
+      new Reporting_Toric_Continue
+            (Max_Norm,QuadDobl_Homotopy.Eval,
+             QuadDobl_Homotopy.Diff,QuadDobl_Homotopy.Diff);
 
   begin
     if zero_quaddobl_constant
@@ -1744,16 +2195,42 @@ package body PHCpack_Operations is
       end if;
     end if;
     if auto_tune
-     then Continuation_Parameters.Tune(0,64);
+     then Continuation_Parameters.Tune(0); -- (0, 64) is too severe
     end if;
     QuadDobl_Complex_Solutions.Clear(qd_target_sols);
     QuadDobl_Complex_Solutions.Copy(qd_start_sols,qd_target_sols);
     QuadDobl_Complex_Solutions.Set_Continuation_Parameter
       (qd_target_sols,Create(integer(0)));
+    if Continuation_Parameters.endext_order > 0 then
+      n := natural32(QuadDobl_Complex_Solutions.Head_Of(qd_target_sols).n);
+      nbsols := QuadDobl_Complex_Solutions.Length_Of(qd_target_sols);
+      Init_Path_Directions(n,nbsols,dirs,errv);
+      wind := new Standard_Integer_Vectors.Vector'(1..integer32(nbsols) => 1);
+      k := QuadDobl_Homotopy.Relaxation_Power;
+      if k /= 1
+       then QuadDobl_Redefine_Homotopy;
+      end if;
+    end if;
     if file_okay then
       tstart(timer);
       if number_of_tasks = 0 then
-        Rep_Cont(output_file,qd_target_sols,Create(integer(1)));
+        if Continuation_Parameters.endext_order = 0 then
+          if nbequ = nbvar
+           then Rep_Cont(output_file,qd_target_sols,Create(integer(1)));
+           else Rep_Cont(output_file,qd_target_sols,nbequ,Create(integer(1)));
+          end if;
+        else
+          if nbequ = nbvar then
+            Rep_Toric_Cont
+              (output_file,qd_target_sols,false,
+               wind.all,dirs.all,errv.all,Create(integer(1)));
+          else
+            Rep_Toric_Cont
+              (output_file,qd_target_sols,false,
+               wind.all,dirs.all,errv.all,Create(integer(1)));
+          end if;
+          Write_Directions(output_file,wind.all,dirs.all,errv.all);
+        end if;
       else
         Silent_Multitasking_Path_Tracker
           (qd_target_sols,integer32(number_of_tasks));
@@ -1766,7 +2243,22 @@ package body PHCpack_Operations is
       print_times(output_file,timer,"Solving by Homotopy Continuation");
     else
       if number_of_tasks = 0 then
-        Sil_Cont(qd_target_sols,Create(integer(1)));
+        if Continuation_Parameters.endext_order = 0 then
+          if nbequ = nbvar
+           then Sil_Cont(qd_target_sols,Create(integer(1)));
+           else Sil_Cont(qd_target_sols,nbequ,Create(integer(1)));
+          end if;
+        else
+          if nbequ = nbvar then
+            Sil_Toric_Cont
+              (qd_target_sols,false,
+               wind.all,dirs.all,errv.all,Create(integer(1)));
+          else
+            Sil_Toric_Cont
+              (qd_target_sols,false,
+               wind.all,dirs.all,errv.all,nbequ,Create(integer(1)));
+          end if;
+        end if;
       else
         Silent_Multitasking_Path_Tracker
           (qd_target_sols,integer32(number_of_tasks));
@@ -1774,6 +2266,10 @@ package body PHCpack_Operations is
      -- Standard_Root_Refiners.Silent_Root_Refiner
      --   (st_target_sys.all,st_target_sols,epsxa,epsfa,
      --   tolsing,numit,max,deflate);
+    end if;
+    if Continuation_Parameters.endext_order > 0 then
+      Numerical_Tropisms_Container.QuadDobl_Initialize
+        (wind.all,dirs.all,errv.all);
     end if;
     Copy_QuadDobl_Labels;
    -- QuadDobl_Homotopy.Clear;  -- for dynamic load balancing

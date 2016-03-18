@@ -1,8 +1,10 @@
 with text_io;                            use text_io;
+with Standard_Integer_Numbers;           use Standard_Integer_Numbers;
 with Standard_Floating_Numbers;          use Standard_Floating_Numbers;
 with Standard_Complex_Numbers;           use Standard_Complex_Numbers;
+with Standard_Integer_Vectors;
 with Standard_Floating_Vectors;
-with Standard_Floating_VecVecs;          use Standard_Floating_VecVecs;
+with Standard_Floating_VecVecs;
 with Standard_Complex_Vectors;           use Standard_Complex_Vectors;
 with Standard_Complex_Matrices;          use Standard_Complex_Matrices;
 with Standard_Complex_Solutions;         use Standard_Complex_Solutions;
@@ -32,6 +34,7 @@ package Standard_IncFix_Continuation is
 
   procedure Silent_Small_Continue
                ( sols : in out Solution_List; proj : in boolean;
+                 nbq : in integer32 := 0;
                  target : in Complex_Number := Create(1.0) );
 
   generic
@@ -43,6 +46,7 @@ package Standard_IncFix_Continuation is
 
   procedure Silent_Continue
                ( sols : in out Solution_List; proj : in boolean;
+                 nbq : in integer32 := 0;
                  target : in Complex_Number := Create(1.0) );
 
   generic
@@ -55,6 +59,7 @@ package Standard_IncFix_Continuation is
 
   procedure Silent_Continue_with_Stop
                ( sols : in out Solution_List; proj : in boolean;
+                 nbq : in integer32 := 0;
                  target : in Complex_Number := Create(1.0) );
 
   generic
@@ -66,7 +71,7 @@ package Standard_IncFix_Continuation is
 
   procedure Reporting_Small_Continue
                ( file : in file_type; sols : in out Solution_List;
-                 proj : in boolean;
+                 proj : in boolean; nbq : in integer32 := 0;
                  target : in Complex_Number := Create(1.0) );
 
   generic
@@ -78,7 +83,7 @@ package Standard_IncFix_Continuation is
 
   procedure Reporting_Continue
                ( file : in file_type; sols : in out Solution_List;
-                 proj : in boolean;
+                 proj : in boolean; nbq : in integer32 := 0;
                  target : in Complex_Number := Create(1.0) );
 
   generic
@@ -91,7 +96,7 @@ package Standard_IncFix_Continuation is
 
   procedure Reporting_Continue_with_Stop
                ( file : in file_type; sols : in out Solution_List;
-                 proj : in boolean;
+                 proj : in boolean; nbq : in integer32 := 0;
                  target : in Complex_Number := Create(1.0) );
 
   -- DESCRIPTION :
@@ -103,6 +108,7 @@ package Standard_IncFix_Continuation is
   --   file      to write intermediate results on (if Reporting_);
   --   sols      the start solutions;
   --   proj      for projective-perpendicular path following;
+  --   nbq       number of equations to call the Gauss-Newton correctors;
   --   target    value for the continuation parameter at the end.
  
   -- ON RETURN :
@@ -119,8 +125,10 @@ package Standard_IncFix_Continuation is
 
   procedure Silent_Toric_Continue
                ( sols : in out Solution_List; proj : in boolean;
-                 v : in out VecVec;
+                 w : in out Standard_Integer_Vectors.Vector;
+                 v : in out Standard_Floating_VecVecs.VecVec;
                  errv : in out Standard_Floating_Vectors.Vector;
+                 nbq : in integer32 := 0;
                  target : in Complex_Number := Create(1.0) );
 
   generic
@@ -131,9 +139,12 @@ package Standard_IncFix_Continuation is
     with function dH ( x : Vector; t : Complex_Number ) return Matrix;
 
   procedure Reporting_Toric_Continue
-               ( file : in file_type; sols : in out Solution_List;
-                 proj : in boolean; v : in out VecVec;
+               ( file : in file_type;
+                 sols : in out Solution_List; proj : in boolean;
+                 w : in out Standard_Integer_Vectors.Vector;
+                 v : in out Standard_Floating_VecVecs.VecVec;
                  errv : in out Standard_Floating_Vectors.Vector;
+                 nbq : in integer32 := 0;
                  target : in Complex_Number := Create(1.0) );
 
   -- DESCRIPTION :
@@ -144,13 +155,17 @@ package Standard_IncFix_Continuation is
   --   file      to write intermediate results on (if Reporting_);
   --   sols      the start solutions;
   --   proj      for projective-perpendicular path following;
+  --   w         w values for the winding number initialized at 1,
+  --             w'range must be 1..Length_Of(sols);
   --   v         v must be initialized with zero vectors
   --             and v'range is 1..Length_Of(sols);
   --   errv      errors on the computed directions;
+  --   nbq       number of equations to call the Gauss-Newton correctors;
   --   target    value for the continuation parameter at the end.
 
   -- ON RETURN :
   --   sols      the computed solutions;
+  --   w         estimated values for the winding numbers of the paths.
   --   v         directions of the solution paths;
   --   errv      errors on the computed directions.
 

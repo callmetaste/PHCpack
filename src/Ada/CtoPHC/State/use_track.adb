@@ -14,10 +14,16 @@ with QuadDobl_Complex_Numbers;
 with Multprec_Complex_Numbers;
 with Standard_Natural_Vectors;
 with Standard_Floating_Vectors;
-with Symbol_Table;
+with Symbol_Table,Symbol_Table_io;
 with Standard_Complex_Polynomials;
 with Standard_Complex_Poly_Strings;
-with Standard_Complex_Poly_Systems;     use Standard_Complex_Poly_Systems;
+with Standard_Complex_Poly_Systems;
+with DoblDobl_Complex_Polynomials;
+with DoblDobl_Complex_Poly_Strings;
+with DoblDobl_Complex_Poly_Systems;
+with QuadDobl_Complex_Polynomials;
+with QuadDobl_Complex_Poly_Strings;
+with QuadDobl_Complex_Poly_Systems;
 with Standard_Complex_Poly_SysFun;      use Standard_Complex_Poly_SysFun;
 with Standard_Complex_Jaco_Matrices;    use Standard_Complex_Jaco_Matrices;
 with Standard_Complex_Solutions;
@@ -33,12 +39,19 @@ with QuadDobl_Continuation_Data_io;
 with Multprec_Homotopy;
 with Witness_Sets,Witness_Sets_io;
 with Extrinsic_Diagonal_Homotopies;
+with Extrinsic_Diagonal_Homotopies_io;  use Extrinsic_Diagonal_Homotopies_io;
 with Extrinsic_Diagonal_Solvers;
-with Hypersurface_Witness_Sets_io;      use Hypersurface_Witness_Sets_io;
+with Standard_Hypersurface_Witdrivers;
+with DoblDobl_Hypersurface_Witdrivers;
+with QuadDobl_Hypersurface_Witdrivers;
 with Assignments_in_Ada_and_C;          use Assignments_in_Ada_and_C;
 with Assignments_of_Solutions;          use Assignments_of_Solutions;
 with Standard_PolySys_Container;
 with Standard_Solutions_Container;
+with DoblDobl_PolySys_Container;
+with DoblDobl_Solutions_Container;
+with QuadDobl_PolySys_Container;
+with QuadDobl_Solutions_Container;
 with PHCpack_Operations;
 with PHCpack_Operations_io;
 
@@ -49,7 +62,8 @@ function use_track ( job : integer32;
  
   function JobM1 return integer32 is -- refine solution with Newton
 
-    ls : constant Link_to_Poly_Sys := Standard_PolySys_Container.Retrieve;
+    ls : constant Standard_Complex_Poly_Systems.Link_to_Poly_Sys
+       := Standard_PolySys_Container.Retrieve;
     ep : constant Link_to_Eval_Poly_Sys
        := Standard_PolySys_Container.Evaluator;
     jf : constant Link_to_Eval_Jaco_Mat
@@ -522,13 +536,45 @@ function use_track ( job : integer32;
     b_dim : constant natural32 := natural32(v_b(v_b'first));
 
   begin
-    PHCpack_Operations.Create_Diagonal_Homotopy(a_dim,b_dim);
+    PHCpack_Operations.Standard_Diagonal_Homotopy(a_dim,b_dim);
     return 0;
   exception
     when others =>
       put_line("Exception raised when creating a diagonal homotopy.");
       return 15;
   end Job15;
+
+  function Job43 return integer32 is -- dobldobl diagonal homotopy
+
+    v_a : constant C_Integer_Array := C_intarrs.Value(a);
+    v_b : constant C_Integer_Array := C_intarrs.Value(b);
+    a_dim : constant natural32 := natural32(v_a(v_a'first));
+    b_dim : constant natural32 := natural32(v_b(v_b'first));
+
+  begin
+    PHCpack_Operations.DoblDobl_Diagonal_Homotopy(a_dim,b_dim);
+    return 0;
+  exception
+    when others =>
+      put_line("Exception when creating a dobldobl diagonal homotopy.");
+      return 43;
+  end Job43;
+
+  function Job44 return integer32 is -- quaddobl diagonal homotopy
+
+    v_a : constant C_Integer_Array := C_intarrs.Value(a);
+    v_b : constant C_Integer_Array := C_intarrs.Value(b);
+    a_dim : constant natural32 := natural32(v_a(v_a'first));
+    b_dim : constant natural32 := natural32(v_b(v_b'first));
+
+  begin
+    PHCpack_Operations.QuadDobl_Diagonal_Homotopy(a_dim,b_dim);
+    return 0;
+  exception
+    when others =>
+      put_line("Exception when creating a quaddobl diagonal homotopy.");
+      return 44;
+  end Job44;
 
   function Job16 return integer32 is -- read a witness set
 
@@ -615,11 +661,14 @@ function use_track ( job : integer32;
 
   function Job19 return integer32 is -- computes witness set for hypersurface
 
+    use Standard_Hypersurface_Witdrivers;
+
     v_a : constant C_Integer_Array
         := C_intarrs.Value(a,Interfaces.C.ptrdiff_t(2));
     k : constant integer32 := integer32(v_a(v_a'first));
     n : constant integer := integer(v_a(v_a'first+1));
-    lp : constant Link_to_Poly_Sys := Standard_PolySys_Container.Retrieve;
+    lp : constant Standard_Complex_Poly_Systems.Link_to_Poly_Sys
+       := Standard_PolySys_Container.Retrieve;
     n1 : constant Interfaces.C.size_t := Interfaces.C.size_t(n-1);
     v_b : constant C_Integer_Array(0..n1)
         := C_intarrs.Value(b,Interfaces.C.ptrdiff_t(n));
@@ -649,17 +698,18 @@ function use_track ( job : integer32;
       return 19;
   end Job19;
 
-  function Job20 return integer32 is -- collapses extrinsic diagonal
+  function Job20 return integer32 is -- standard collapse extrinsic diagonal
 
     v_a : constant C_Integer_Array
         := C_intarrs.Value(a,Interfaces.C.ptrdiff_t(2));
     k : constant natural32 := natural32(v_a(v_a'first));
     d : constant natural32 := natural32(v_a(v_a'first+1));
-    lp : constant Link_to_Poly_Sys := Standard_PolySys_Container.Retrieve;
+    lp : constant Standard_Complex_Poly_Systems.Link_to_Poly_Sys
+       := Standard_PolySys_Container.Retrieve;
     sols : constant Standard_Complex_Solutions.Solution_List
          := Standard_Solutions_Container.Retrieve;
     clps : Standard_Complex_Solutions.Solution_List;
-    cp : Link_to_Poly_Sys;
+    cp : Standard_Complex_Poly_Systems.Link_to_Poly_Sys;
 
   begin
    -- put("#equations in systems container : "); put(lp'last,1); new_line;
@@ -674,19 +724,80 @@ function use_track ( job : integer32;
     return 0;
   exception 
      when others =>
-       put_line("Exception raised at collapsing of extrinsic diagonal.");
+       put_line("Exception at collapsing of standard extrinsic diagonal.");
        return 20;
   end Job20;
+
+  function Job47 return integer32 is -- dobldobl collapse extrinsic diagonal
+
+    v_a : constant C_Integer_Array
+        := C_intarrs.Value(a,Interfaces.C.ptrdiff_t(2));
+    k : constant natural32 := natural32(v_a(v_a'first));
+    d : constant natural32 := natural32(v_a(v_a'first+1));
+    lp : constant DoblDobl_Complex_Poly_Systems.Link_to_Poly_Sys
+       := DoblDobl_PolySys_Container.Retrieve;
+    sols : constant DoblDobl_Complex_Solutions.Solution_List
+         := DoblDobl_Solutions_Container.Retrieve;
+    clps : DoblDobl_Complex_Solutions.Solution_List;
+    cp : DoblDobl_Complex_Poly_Systems.Link_to_Poly_Sys;
+
+  begin
+   -- put("#equations in systems container : "); put(lp'last,1); new_line;
+   -- put("#solutions in solutions container : ");
+   -- put(Length_Of(sols),1); new_line;
+    DoblDobl_Complex_Solutions.Copy(sols,clps);
+    Extrinsic_Diagonal_Solvers.Collapse_System(lp.all,clps,k,d,cp);
+    DoblDobl_PolySys_Container.Clear;
+    DoblDobl_PolySys_Container.Initialize(cp.all);
+    DoblDobl_Solutions_Container.Clear;
+    DoblDobl_Solutions_Container.Initialize(clps);
+    return 0;
+  exception 
+     when others =>
+       put_line("Exception at collapsing of dobldobl extrinsic diagonal.");
+       return 47;
+  end Job47;
+
+  function Job48 return integer32 is -- quaddobl collapse extrinsic diagonal
+
+    v_a : constant C_Integer_Array
+        := C_intarrs.Value(a,Interfaces.C.ptrdiff_t(2));
+    k : constant natural32 := natural32(v_a(v_a'first));
+    d : constant natural32 := natural32(v_a(v_a'first+1));
+    lp : constant QuadDobl_Complex_Poly_Systems.Link_to_Poly_Sys
+       := QuadDobl_PolySys_Container.Retrieve;
+    sols : constant QuadDobl_Complex_Solutions.Solution_List
+         := QuadDobl_Solutions_Container.Retrieve;
+    clps : QuadDobl_Complex_Solutions.Solution_List;
+    cp : QuadDobl_Complex_Poly_Systems.Link_to_Poly_Sys;
+
+  begin
+   -- put("#equations in systems container : "); put(lp'last,1); new_line;
+   -- put("#solutions in solutions container : ");
+   -- put(Length_Of(sols),1); new_line;
+    QuadDobl_Complex_Solutions.Copy(sols,clps);
+    Extrinsic_Diagonal_Solvers.Collapse_System(lp.all,clps,k,d,cp);
+    QuadDobl_PolySys_Container.Clear;
+    QuadDobl_PolySys_Container.Initialize(cp.all);
+    QuadDobl_Solutions_Container.Clear;
+    QuadDobl_Solutions_Container.Initialize(clps);
+    return 0;
+  exception 
+     when others =>
+       put_line("Exception at collapsing of dobldobl extrinsic diagonal.");
+       return 47;
+  end Job48;
 
   function Job21 return integer32 is -- remove last slack variable
 
     v_a : constant C_Integer_Array
         := C_intarrs.Value(a,Interfaces.C.ptrdiff_t(1));
     k : constant natural := natural(v_a(v_a'first));
-    lp : constant Link_to_Poly_Sys := Standard_PolySys_Container.Retrieve;
+    lp : constant Standard_Complex_Poly_Systems.Link_to_Poly_Sys
+       := Standard_PolySys_Container.Retrieve;
     sols : Standard_Complex_Solutions.Solution_List
          := Standard_Solutions_Container.Retrieve;
-    np : Poly_Sys(lp'first..lp'last-1);
+    np : Standard_Complex_Poly_Systems.Poly_Sys(lp'first..lp'last-1);
 
   begin
    -- put("#equations in systems container : "); put(lp'last,1); new_line;
@@ -705,7 +816,9 @@ function use_track ( job : integer32;
       return 21;
   end Job21;
 
-  function Job40 return integer32 is -- witness set of hypersurface
+  function Job40 return integer32 is -- standard witness set of hypersurface
+
+    use Standard_Hypersurface_Witdrivers;
 
     v_a : constant C_Integer_Array
         := C_intarrs.Value(a,Interfaces.C.ptrdiff_t(2));
@@ -739,11 +852,91 @@ function use_track ( job : integer32;
     return 0;
   exception
     when others =>
-      put_line("Exception raised when making witness set for hypersurface.");
+      put_line("Exception in standard double witness set for hypersurface.");
       return 270;
   end Job40;
 
-  function Job41 return integer32 is -- solutions to start diagonal cascade
+  function Job49 return integer32 is -- dobldobl witness set of hypersurface
+
+    use DoblDobl_Hypersurface_Witdrivers;
+
+    v_a : constant C_Integer_Array
+        := C_intarrs.Value(a,Interfaces.C.ptrdiff_t(2));
+    nv : constant natural32 := natural32(v_a(v_a'first));
+    nc : constant integer := integer(v_a(v_a'first+1));
+    nc1 : constant Interfaces.C.size_t := Interfaces.C.size_t(nc-1);
+    v_b : constant C_Integer_Array(0..nc1)
+        := C_Intarrs.Value(b,Interfaces.C.ptrdiff_t(nc));
+    s : constant String(1..nc) := C_Integer_Array_to_String(natural32(nc),v_b);
+    p : DoblDobl_Complex_Polynomials.Poly;
+    eps : constant double_double := create(1.0E-12);
+    fail : boolean;
+    e : DoblDobl_Complex_Poly_Systems.Link_to_Poly_Sys;
+    esols : DoblDobl_Complex_Solutions.Solution_List;
+
+  begin
+    if Symbol_Table.Empty
+     then Symbol_Table.Init(nv);
+    end if;
+    p := DoblDobl_Complex_Poly_Strings.Parse(nv,s);
+    Silent_Root_Finder(p,eps,fail,e,esols);
+   -- if fail
+   --  then put_line("a failure occurred");
+   --  else put_line("no failure occurred");
+   -- end if;
+    Witness_Sets_io.Add_Embed_Symbols(nv-1);
+    DoblDobl_PolySys_Container.Clear;
+    DoblDobl_PolySys_Container.Initialize(e.all);
+    DoblDobl_Solutions_Container.Clear;
+    DoblDobl_Solutions_Container.Initialize(esols);
+    return 0;
+  exception
+    when others =>
+      put_line("Exception in double double witness set for hypersurface.");
+      return 259;
+  end Job49;
+
+  function Job50 return integer32 is -- quaddobl witness set of hypersurface
+
+    use QuadDobl_Hypersurface_Witdrivers;
+
+    v_a : constant C_Integer_Array
+        := C_intarrs.Value(a,Interfaces.C.ptrdiff_t(2));
+    nv : constant natural32 := natural32(v_a(v_a'first));
+    nc : constant integer := integer(v_a(v_a'first+1));
+    nc1 : constant Interfaces.C.size_t := Interfaces.C.size_t(nc-1);
+    v_b : constant C_Integer_Array(0..nc1)
+        := C_Intarrs.Value(b,Interfaces.C.ptrdiff_t(nc));
+    s : constant String(1..nc) := C_Integer_Array_to_String(natural32(nc),v_b);
+    p : QuadDobl_Complex_Polynomials.Poly;
+    eps : constant quad_double := create(1.0E-12);
+    fail : boolean;
+    e : QuadDobl_Complex_Poly_Systems.Link_to_Poly_Sys;
+    esols : QuadDobl_Complex_Solutions.Solution_List;
+
+  begin
+    if Symbol_Table.Empty
+     then Symbol_Table.Init(nv);
+    end if;
+    p := QuadDobl_Complex_Poly_Strings.Parse(nv,s);
+    Silent_Root_Finder(p,eps,fail,e,esols);
+   -- if fail
+   --  then put_line("a failure occurred");
+   --  else put_line("no failure occurred");
+   -- end if;
+    Witness_Sets_io.Add_Embed_Symbols(nv-1);
+    QuadDobl_PolySys_Container.Clear;
+    QuadDobl_PolySys_Container.Initialize(e.all);
+    QuadDobl_Solutions_Container.Clear;
+    QuadDobl_Solutions_Container.Initialize(esols);
+    return 0;
+  exception
+    when others =>
+      put_line("Exception in quad double witness set for hypersurface.");
+      return 269;
+  end Job50;
+
+  function Job41 return integer32 is -- standard startsols in diagonal cascade
 
     v_a : constant C_Integer_Array := C_intarrs.Value(a);
     v_b : constant C_Integer_Array := C_intarrs.Value(b);
@@ -751,13 +944,114 @@ function use_track ( job : integer32;
     b_dim : constant natural32 := natural32(v_b(v_b'first));
 
   begin
-    PHCpack_Operations.Start_Diagonal_Cascade_Solutions(a_dim,b_dim);
+    PHCpack_Operations.Standard_Diagonal_Cascade_Solutions(a_dim,b_dim);
     return 0;
   exception
     when others =>
-      put_line("Exception raised when making solutions to start a cascade.");
+      put_line("Exception in making standard solutions to start a cascade.");
       return 271;
   end Job41;
+
+  function Job45 return integer32 is -- dobldobl startsols in diagonal cascade
+
+    v_a : constant C_Integer_Array := C_intarrs.Value(a);
+    v_b : constant C_Integer_Array := C_intarrs.Value(b);
+    a_dim : constant natural32 := natural32(v_a(v_a'first));
+    b_dim : constant natural32 := natural32(v_b(v_b'first));
+
+  begin
+    PHCpack_Operations.DoblDobl_Diagonal_Cascade_Solutions(a_dim,b_dim);
+    return 0;
+  exception
+    when others =>
+      put_line("Exception in making dobldobl solutions to start a cascade.");
+      return 297;
+  end Job45;
+
+  function Job46 return integer32 is -- quaddobl startsols in diagonal cascade
+
+    v_a : constant C_Integer_Array := C_intarrs.Value(a);
+    v_b : constant C_Integer_Array := C_intarrs.Value(b);
+    a_dim : constant natural32 := natural32(v_a(v_a'first));
+    b_dim : constant natural32 := natural32(v_b(v_b'first));
+
+  begin
+    PHCpack_Operations.QuadDobl_Diagonal_Cascade_Solutions(a_dim,b_dim);
+    return 0;
+  exception
+    when others =>
+      put_line("Exception in making quaddobl solutions to start a cascade.");
+      return 298;
+  end Job46;
+
+  procedure Write_Symbols ( s : in Symbol_Table.Array_of_Symbols ) is
+
+  -- DESCRIPTION :
+  --   Writes the symbols in s to screen, useful for checking.
+
+  begin
+    for i in s'range loop
+      put(" "); Symbol_Table_io.put(s(i));
+    end loop;
+    new_line;
+  end Write_Symbols;
+
+  function Job42 return integer32 is -- diagonal symbols doubler
+
+    use Symbol_Table;
+
+    v_a : constant C_Integer_Array
+        := C_intarrs.Value(a,Interfaces.C.ptrdiff_t(3));
+    n : constant integer32 := integer32(v_a(v_a'first));
+    d : constant natural32 := natural32(v_a(v_a'first+1));
+    nc : constant integer := integer(v_a(v_a'first+2));
+    nc1 : constant Interfaces.C.size_t := Interfaces.C.size_t(nc-1);
+    v_b : constant C_Integer_Array(0..nc1)
+        := C_Intarrs.Value(b,Interfaces.C.ptrdiff_t(nc));
+    s : constant String(1..nc) := C_Integer_Array_to_String(natural32(nc),v_b);
+    sa1 : Array_of_Symbols(1..n);
+    nb2 : constant natural32 := Symbol_Table.Number;
+    sa2e : Array_of_Symbols(1..integer32(nb2)) := Symbol_Table.Content;
+    sa2 : constant Array_of_Symbols := Remove_Embed_Symbols(sa2e);
+    s11 : Array_of_Symbols(sa1'range);
+    s22 : constant Array_of_Symbols(sa2'range) := Add_Suffix(sa2,'2');
+    ind : integer := 0;
+
+  begin
+   -- put_line("The string of names in Ada : " & s); 
+    for i in 1..n loop
+      declare
+        sb : Symbol;
+        ksb : integer;
+      begin
+        sb := (sb'range => ' ');
+        ind := ind + 1;
+        ksb := sb'first-1;
+        while ind <= s'last loop
+          exit when s(ind) = ' ';
+          ksb := ksb + 1;
+          sb(ksb) := s(ind);
+          ind := ind + 1;
+        end loop;
+        sa1(i) := sb;
+      end;
+    end loop;
+    s11 := Add_Suffix(sa1,'1');
+   -- put("The symbols in the first array of symbols :");
+   -- Write_Symbols(sa1);
+   -- put("The symbols in the second array of symbols :");
+   -- Write_Symbols(sa2);
+   -- put("The first suffixed symbols :"); Write_Symbols(s11);
+   -- put("The second suffixed symbols :"); Write_Symbols(s22);
+    Symbol_Table.Clear;
+    Assign_Symbol_Table(s11,s22);
+    Witness_Sets_io.Add_Embed_Symbols(d);
+    return 0;
+  exception
+    when others =>
+      put_line("Exception raised when doubling the symbols for diagonal.");
+      return 230;
+  end Job42;
 
   function Handle_Jobs return integer32 is
   begin
@@ -779,7 +1073,7 @@ function use_track ( job : integer32;
       when 11 => return Job11; -- file name to read target system
       when 12 => return Job12; -- file name to read start system
       when 13 => return Job13; -- file name to read linear-product system
-      when 14 => PHCpack_Operations.Create_Cascade_Homotopy; return 0;
+      when 14 => PHCpack_Operations.Standard_Cascade_Homotopy; return 0;
       when 15 => return Job15; -- create a diagonal homotopy
       when 16 => return Job16; -- read a witness set
       when 17 => return Job17; -- reset input file for witness set k
@@ -794,7 +1088,7 @@ function use_track ( job : integer32;
       when 25 => return Job25; -- track one path silently
       when 26 => return Job26; -- track one path with reporting
       when 27 => return Job27; -- write solution with diagnostics
-      when 28 => PHCpack_Operations.Create_DoblDobl_Cascade_Homotopy; return 0;
+      when 28 => PHCpack_Operations.DoblDobl_Cascade_Homotopy; return 0;
      -- tracking in quad double precision :
       when 32 => PHCpack_Operations.Create_QuadDobl_Homotopy; return 0;
       when 33 => return Job33; -- quad double homotopy with given gamma
@@ -802,10 +1096,21 @@ function use_track ( job : integer32;
       when 35 => return Job35; -- track one path silently
       when 36 => return Job36; -- track one path with reporting
       when 37 => return Job37; -- write solution with diagnostics
-      when 38 => PHCpack_Operations.Create_QuadDobl_Cascade_Homotopy; return 0;
+      when 38 => PHCpack_Operations.QuadDobl_Cascade_Homotopy; return 0;
      -- redefining diagonal homotopies ...
-      when 40 => return Job40; -- witness set of hypersurface
+      when 40 => return Job40; -- standard witness set of hypersurface
       when 41 => return Job41; -- solutions to start diagonal cascade
+      when 42 => return Job42; -- diagonal symbols doubler
+     -- diagonal homotopy in double double and quad double precision
+      when 43 => return Job43; -- double double diagonal homotopy
+      when 44 => return Job44; -- quad double diagonal homotopy
+      when 45 => return Job45; -- dobldobl startsols in diagonal cascade
+      when 46 => return Job46; -- quaddobl startsols in diagonal cascade
+      when 47 => return Job47; -- dobldobl collapse extrinsic diagonal
+      when 48 => return Job48; -- quaddobl collapse extrinsic diagonal
+     -- double double and quad double witness sets for hypersurface
+      when 49 => return Job49; -- dobldobl witness set for hypersurface
+      when 50 => return Job50; -- quaddobl witness set for hypersurface
      -- multiprecision versions to create homotopy :
       when 52 => PHCpack_Operations.Create_Multprec_Homotopy; return 0;
       when 53 => return Job53; -- multiprecision homotopy with given gamma

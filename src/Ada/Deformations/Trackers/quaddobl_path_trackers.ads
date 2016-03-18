@@ -14,7 +14,8 @@ package QuadDobl_Path_Trackers is
 
 -- DESCRIPTION :
 --   This package offers some routines for tracking solution paths,
---   using an increment-and-fix predictor-corrector method.
+--   using an increment-and-fix predictor-corrector method,
+--   with quad double precision arithmetic.
 
 --   The following options can be made :
 --    (Linear,Circular)
@@ -56,7 +57,7 @@ package QuadDobl_Path_Trackers is
   procedure Linear_Single_Normal_Silent_Continue
                 ( s : in out Solu_Info; target : in Complex_Number;
                   tol : in double_float; proj : in boolean;
-                  p : in Pred_Pars; c : in Corr_Pars;
+                  p : in Pred_Pars; c : in Corr_Pars; nbq : in integer32 := 0;
                   f : access procedure ( s : in Solu_Info ) := null );
  
   generic
@@ -67,9 +68,10 @@ package QuadDobl_Path_Trackers is
     with function dH ( x : Vector; t : Complex_Number ) return Matrix;
 
   procedure Linear_Single_Normal_Reporting_Continue
-                ( file : in file_type; s : in out Solu_Info;
-                  target : in Complex_Number; tol : in double_float;
-                  proj : in boolean; p : in Pred_Pars; c : in Corr_Pars;
+                ( file : in file_type;
+                  s : in out Solu_Info; target : in Complex_Number;
+                  tol : in double_float; proj : in boolean;
+                  p : in Pred_Pars; c : in Corr_Pars; nbq : in integer32 := 0;
                   f : access procedure ( s : in Solu_Info ) := null );
 
   generic
@@ -82,10 +84,10 @@ package QuadDobl_Path_Trackers is
   procedure Linear_Single_Conditioned_Silent_Continue
                 ( s : in out Solu_Info; target : in Complex_Number;
                   tol : in double_float; proj : in boolean;
-                  rtoric : in integer32;
+                  rtoric : in integer32; w : in out integer32;
                   v : in out Quad_Double_Vectors.Link_to_Vector;
                   errorv : in out quad_double;
-                  p : in Pred_Pars; c : in Corr_Pars;
+                  p : in Pred_Pars; c : in Corr_Pars; nbq : in integer32 := 0;
                   f : access procedure ( s : in Solu_Info ) := null );
 
   generic
@@ -96,12 +98,13 @@ package QuadDobl_Path_Trackers is
     with function dH ( x : Vector; t : Complex_Number ) return Matrix;
 
   procedure Linear_Single_Conditioned_Reporting_Continue
-                ( file : in file_type; s : in out Solu_Info;
-                  target : in Complex_Number; tol : in double_float;
-                  proj : in boolean; rtoric : in integer32;
+                ( file : in file_type;
+                  s : in out Solu_Info; target : in Complex_Number;
+                  tol : in double_float; proj : in boolean;
+                  rtoric : in integer32; w : in out integer32;
                   v : in out Quad_Double_Vectors.Link_to_Vector;
                   errorv : in out quad_double;
-                  p : in Pred_Pars; c : in Corr_Pars;
+                  p : in Pred_Pars; c : in Corr_Pars; nbq : in integer32 := 0;
                   f : access procedure ( s : in Solu_Info ) := null );
 
   -- DESCRIPTION :
@@ -116,6 +119,7 @@ package QuadDobl_Path_Trackers is
   --   tol        tolerance to decide when two double_floats are the same;
   --   proj       when perpendicular-projective corrector has to be used;
   --   rtoric     order of extrapolation for computation of path directions;
+  --   w          value for the winding number, initialized at one;
   --   v          direction of toric compactificiation, null when (rtoric = 0);
   --   errorv     error on the current direction;
   --   p          parameters for the predictor;
@@ -125,6 +129,7 @@ package QuadDobl_Path_Trackers is
 
   -- ON RETURN :
   --   s          the computed solution of H(x,t) = 0;
+  --   w          estimated winding number, for when rtoric > 0;
   --   v          direction of the compactification, when rtoric > 0;
   --   errorv     difference with previously computed direction.
 

@@ -16,12 +16,14 @@ with Symbol_Table,Symbol_Table_io;
 with Standard_Complex_Polynomials;
 with Standard_Complex_Laurentials;
 with Standard_Complex_Poly_Systems;
+with DoblDobl_Complex_Polynomials;
 with DoblDobl_Complex_Poly_Systems;
 with DoblDobl_Complex_Poly_SysFun;
 with DoblDobl_Complex_Jaco_Matrices;
 with DoblDobl_Complex_Laur_Systems;
 with DoblDobl_Complex_Laur_SysFun;
 with DoblDobl_Complex_Laur_JacoMats;
+with QuadDobl_Complex_Polynomials;
 with QuadDobl_Complex_Poly_Systems;
 with QuadDobl_Complex_Poly_SysFun;
 with QuadDobl_Complex_Jaco_Matrices;
@@ -38,6 +40,7 @@ with Standard_Complex_Laur_Systems;
 with Standard_Laur_Poly_Convertors;
 with DoblDobl_Laur_Poly_Convertors;
 with QuadDobl_Laur_Poly_Convertors;
+with Parse_Dimensions;
 with Standard_Complex_Solutions;
 with DoblDobl_Complex_Solutions;
 with QuadDobl_Complex_Solutions;
@@ -57,7 +60,7 @@ with Floating_Mixed_Subdivisions;
 with Black_Mixed_Volume_Computations;
 with Black_Box_Solvers;
 with Witness_Sets_io;
-with Drivers_to_Cascade_Filtering;
+with Square_and_Embed_Systems;
 with Greeting_Banners;
 with Assignments_in_Ada_and_C;          use Assignments_in_Ada_and_C;
 -- with Assignments_of_Solutions;          use Assignments_of_Solutions;
@@ -81,13 +84,14 @@ with use_syscon,use_syspool;
 with use_solcon,use_solpool;
 with use_scaling;
 with use_c2pieri,use_c2lrhom;
-with use_c2fac;
+with use_c2fac,use_c2mbt;
 with use_roco;
 with use_celcon;
-with use_track;
+with use_track,use_sweep;
 with use_mapcon;
 with use_nxtsol;
 with unisolve,use_giftwrap;
+with use_numbtrop;
 
 function use_c2phc ( job : integer32;
                      a : C_intarrs.Pointer;
@@ -1192,6 +1196,29 @@ function use_c2phc ( job : integer32;
       return 179;
   end Job179;
 
+  function Job439 return integer32 is -- scan for the nubmer of symbols
+
+    v_a : constant C_Integer_Array
+        := C_intarrs.Value(a,Interfaces.C.ptrdiff_t(1));
+    nbc : constant natural32 := natural32(v_a(v_a'first));
+    nbc1 : constant Interfaces.C.size_t := Interfaces.C.size_t(nbc-1);
+    v_b : constant C_Integer_Array(0..nbc1)
+        := C_Intarrs.Value(b,Interfaces.C.ptrdiff_t(nbc));
+    s : constant String(1..integer(nbc)) := C_Integer_Array_to_String(nbc,v_b);
+    cnt : constant natural := String_Splitters.Count_Delimiters(s,';');
+    ls : Array_of_Strings(1..integer(cnt)) := String_Splitters.Split(cnt,s,';');
+    dim : natural32;
+
+  begin
+    dim := Parse_Dimensions.Dim(1024,ls);
+    Assign(integer32(dim),a);
+    return 0;
+  exception
+    when others =>
+      put_line("Exception occurred when scanning for number of symbols.");
+      return 439;
+  end Job439;
+
   function Job195 return integer32 is -- 1 Newton step on multprec containers
 
     use Multprec_Complex_Poly_Systems;
@@ -1523,24 +1550,18 @@ function use_c2phc ( job : integer32;
     return 0;
   end Job250;
 
-  function Job66 return integer32 is
+  function Job66 return integer32 is -- embed standard double system
 
+    use Standard_Complex_Polynomials;
     use Standard_Complex_Poly_Systems;
+
     v_a : constant C_Integer_Array := C_intarrs.Value(a);
     dim : constant natural32 := natural32(v_a(v_a'first));
     lp : constant Link_to_Poly_Sys := Standard_PolySys_Container.Retrieve;
-   -- lplast : integer32 := lp'last;
-    use Standard_Complex_Polynomials;
     ep : Link_to_Poly_Sys;
 
   begin
-   -- put("Embedding the system in the container with dimension = ");
-   -- put(dim,1); new_line;
-   -- while lp(lplast) = Null_Poly loop
-   --   lplast := lplast-1;
-   -- end loop;
-   -- e := Witness_Sets.Slice_and_Embed(lp(lp'first..lplast),dim);
-    Drivers_to_Cascade_Filtering.Square_and_Embed(lp.all,dim,ep);
+    Square_and_Embed_Systems.Square_and_Embed(lp.all,dim,ep);
     Standard_PolySys_Container.Clear;
     Standard_PolySys_Container.Initialize(ep.all);
     Witness_Sets_io.Add_Embed_Symbols(dim);
@@ -1548,6 +1569,46 @@ function use_c2phc ( job : integer32;
   exception
     when others => return 66;
   end Job66;
+
+  function Job129 return integer32 is -- embed double double system
+
+    use DoblDobl_Complex_Polynomials;
+    use DoblDobl_Complex_Poly_Systems;
+
+    v_a : constant C_Integer_Array := C_intarrs.Value(a);
+    dim : constant natural32 := natural32(v_a(v_a'first));
+    lp : constant Link_to_Poly_Sys := DoblDobl_PolySys_Container.Retrieve;
+    ep : Link_to_Poly_Sys;
+
+  begin
+    Square_and_Embed_Systems.Square_and_Embed(lp.all,dim,ep);
+    DoblDobl_PolySys_Container.Clear;
+    DoblDobl_PolySys_Container.Initialize(ep.all);
+    Witness_Sets_io.Add_Embed_Symbols(dim);
+    return 0;
+  exception
+    when others => return 129;
+  end Job129;
+
+  function Job260 return integer32 is -- embed quad double system
+
+    use QuadDobl_Complex_Polynomials;
+    use QuadDobl_Complex_Poly_Systems;
+
+    v_a : constant C_Integer_Array := C_intarrs.Value(a);
+    dim : constant natural32 := natural32(v_a(v_a'first));
+    lp : constant Link_to_Poly_Sys := QuadDobl_PolySys_Container.Retrieve;
+    ep : Link_to_Poly_Sys;
+
+  begin
+    Square_and_Embed_Systems.Square_and_Embed(lp.all,dim,ep);
+    QuadDobl_PolySys_Container.Clear;
+    QuadDobl_PolySys_Container.Initialize(ep.all);
+    Witness_Sets_io.Add_Embed_Symbols(dim);
+    return 0;
+  exception
+    when others => return 260;
+  end Job260;
 
   function Job70 return integer32 is -- interactive tuning of parameters
   begin
@@ -2141,7 +2202,7 @@ function use_c2phc ( job : integer32;
       when 30..38 => return use_solcon(job-30,a,b,c);
       when 39 => return use_c2fac(28,a,b,c); -- set state to silent
       when 40..65 => return use_c2fac(job-40,a,b,c);
-      when 66 => return Job66; -- return embedded system
+      when 66 => return Job66; -- return embedded standard double system 
       when 67 => return use_syscon(67,a,b,c); -- load polynomial as string
       when 68 => return use_c2fac(job-42,a,b,c); -- return #factors
       when 69 => return use_c2fac(job-42,a,b,c); -- return irreducible factor
@@ -2165,6 +2226,7 @@ function use_c2phc ( job : integer32;
      -- operations on Laurent systems :
       when 120..127 => return use_syscon(job-20,a,b,c);
       when 128 => return use_syscon(77,a,b,c); -- load standard Laur as string
+      when 129 => return Job129; -- embed double double system
       when 130..145 => return use_solcon(job-120,a,b,c);
       when 146 => return use_solcon(9,a,b,c); -- drop coordinate by name
       when 147 => return use_syscon(10,a,b,c);
@@ -2193,6 +2255,7 @@ function use_c2phc ( job : integer32;
       when 200..209 => return use_solcon(job-170,a,b,c);
       when 210..227 => return use_c2pieri(job-210,a,b,c);
       when 228..229 => return use_c2lrhom(job-228,a,b,c);
+      when 230 => return use_track(42,a,b,c);
       when 231..235 => return C_to_PHCpack(job-220,0);
       when 236 => return Job236; -- solve by double double path tracking
       when 237..238 => return C_to_PHCpack(job-220,0);
@@ -2213,6 +2276,9 @@ function use_c2phc ( job : integer32;
       when 256 => return Job256; -- copy container to target solutions
       when 257 => return Job257; -- copy start solutions to container
       when 258 => return Job258; -- copy container to start solutions
+     -- double double witness set for a hypersurface
+      when 259 => return use_track(49,a,b,c);
+      when 260 => return Job260; -- embed quad double system
      -- quad double versions for jobs 1 to 8
       when 261 => return Job261; -- copy target system to container
       when 262 => return Job262; -- copy target system from container
@@ -2222,8 +2288,10 @@ function use_c2phc ( job : integer32;
       when 266 => return Job266; -- copy container to target solutions
       when 267 => return Job267; -- copy start solutions to container
       when 268 => return Job268; -- copy container to start solutions
+     -- quad double witness set for a hypersurface
+      when 269 => return use_track(50,a,b,c);
      -- interface to diagonal homotopies ...
-      when 270 => return use_track(40,a,b,c); -- witness set of hypersurface
+      when 270 => return use_track(40,a,b,c); -- standard witset of hypersurface
       when 271 => return use_track(41,a,b,c); -- start diagonal cascade sols
      -- univariate polynomial solvers
       when 272 => return unisolve(1,a,b,c); -- standard double precision
@@ -2235,6 +2303,7 @@ function use_c2phc ( job : integer32;
       when 277 => return use_solcon(277,a,b,c); -- next double double solution
       when 278 => return use_solcon(278,a,b,c); -- next quad double solution
       when 279 => return use_solcon(279,a,b,c); -- next multprec initialize
+      when 280 => return use_c2fac(29,a,b,c); -- standard random complex number
      -- multiprecision versions for jobs 1 to 8
       when 281 => return Job281; -- copy target system to container
       when 282 => return Job282; -- copy target system from container
@@ -2244,6 +2313,9 @@ function use_c2phc ( job : integer32;
       when 286 => return Job286; -- copy container to target solutions
       when 287 => return Job287; -- copy start solutions to container
       when 288 => return Job288; -- copy container to start solutions
+     -- diagonal homotopy in double double and quad double precision
+      when 289 => return use_track(43,a,b,c); -- dobldobl diagonal homotopy
+      when 290 => return use_track(44,a,b,c); -- quaddobl diagonal homotopy
      -- manipulation of symbols
       when 291 => return Job291; -- remove a symbol from the table
       when 292 => return Job292; -- sort the embed symbols and permute
@@ -2251,8 +2323,13 @@ function use_c2phc ( job : integer32;
       when 294 => return Job294; -- writes the symbols to screen
       when 295 => return Job295; -- returns string of symbols
       when 296 => return Job296; -- removes symbol by name
+     -- interface to diagonal homotopies continued
+      when 297 => return use_track(45,a,b,c); -- dobldobl diagonal startsols
+      when 298 => return use_track(46,a,b,c); -- quaddobl diagonal startsols
+      when 299 => return use_track(47,a,b,c); -- dobldobl collapse diagonal
       when 300..305 => return use_syspool(job-300,a,b,c);
       when 306..311 => return use_syscon(job-294,a,b,c);
+      when 312 => return use_track(48,a,b,c); -- quaddobl collapse diagonal
       when 320..325 => return use_solpool(job-320,a,b,c);
      -- one Newton step on Laurent system :
       when 326 => return Job326; -- standard Newton step on Laurent
@@ -2262,19 +2339,19 @@ function use_c2phc ( job : integer32;
      -- operations on double double system container
       when 330..339 => return use_syscon(job-130,a,b,c);
      -- operations on double double solution container
-      when 340..344 => return use_solcon(job-300,a,b,c);
-      when 346..349 => return use_solcon(job-300,a,b,c);
+      when 340..349 => return use_solcon(job-300,a,b,c);
       when 370..371 => return use_solcon(job-300,a,b,c);
       when 378 => return use_solcon(job-300,a,b,c);
      -- operations on quad double system container
       when 380..389 => return use_syscon(job-170,a,b,c);
      -- operations on quad double solution container
-      when 390..394 => return use_solcon(job-310,a,b,c);
-      when 396..399 => return use_solcon(job-310,a,b,c);
+      when 390..399 => return use_solcon(job-310,a,b,c);
       when 420..421 => return use_solcon(job-310,a,b,c);
       when 428 => return use_solcon(job-310,a,b,c);
      -- operations on monomial maps as solutions to binomial systems
       when 430..438 => return use_mapcon(job-430,a,b,c);
+     -- scan for the number of variables
+      when 439 => return Job439;
      -- operations on multiprecision system container
       when 440..444 => return use_syscon(job-220,a,b,c);
       when 447..449 => return use_syscon(job-220,a,b,c);
@@ -2320,6 +2397,10 @@ function use_c2phc ( job : integer32;
       when 534 => return use_solcon(309,a,b,c);
       when 535 => return use_solcon(310,a,b,c);
       when 536 => return use_solcon(311,a,b,c);
+     -- homotopy membership tests
+      when 537 => return use_c2mbt(0,a,b,c); -- standard membership test
+      when 538 => return use_c2mbt(1,a,b,c); -- dobldobl membership test
+      when 539 => return use_c2mbt(2,a,b,c); -- quaddobl membership test
      -- operations to read systems into the containers
       when 540..543 => return use_syscon(job,a,b,c);
      -- operations to read systems and solutions into the containers
@@ -2339,11 +2420,23 @@ function use_c2phc ( job : integer32;
       when 590..596 => return use_scaling(job-589,a,b,c);
      -- size limits of string representations of polynomials
       when 600..607 => return use_syscon(job-520,a,b,c);
+     -- run the sweep homotopy :
+      when 610..621 => return use_sweep(job-610,a,b,c);
+     -- make standard monodromy breakup verbose
+      when 630 => return use_c2fac(30,a,b,c);
+     -- monodromy breakup in double double precision :
+      when 631..649 => return use_c2fac(job-600,a,b,c);
+      when 652..660 => return use_c2fac(job-600,a,b,c);
+     -- monodromy breakup in quad double precision :
+      when 661..679 => return use_c2fac(job-600,a,b,c);
+      when 682..690 => return use_c2fac(job-600,a,b,c);
      -- blackbox solvers in double double and quad double precision
       when 700 => return Job700; -- dobldobl poly system blackbox solver
       when 701 => return Job701; -- dobldobl Laurent poly blackbox solver
       when 702 => return Job702; -- dobldobl poly system blackbox solver
       when 703 => return Job703; -- dobldobl Laurent poly blackbox solver
+     -- container for numerically computed tropisms
+      when 711..731 => return use_numbtrop(job-710,a,b,c);
      -- getting, setting the seed and the version string
       when 997 => return Get_Seed;
       when 998 => return Set_Seed;

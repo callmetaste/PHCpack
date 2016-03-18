@@ -1,3 +1,37 @@
+Fri 11 Mar 2016 : fixed in writing of terms in Laurent polynomials that
+  have a zero degree, in {dobldobl,quaddobl}_complex_laurentials_io.adb.
+
+Thu 10 Mar 2016 : extended {dobldobl,quaddobl}_laur_systems_io with output
+  procedures for nonsquare Laurent polynomial systems.
+
+Wed 9 Mar 2016 : extended standard_complex_laur_systems_io with put procedures
+  systems that are not square.
+
+Fri 19 Feb 2016 : fix in {standard,multprec}_complex_{poly,laur}_strings.adb,
+  {standard,multprec}_complex_laurentials_io.adb and
+  multprec_complex_polynomials_io.adb, to solve the (x-y)**2 bug.
+
+Thu 18 Feb 2016 : with look_ahead() in standard_complex_polynomials_io.adb,
+  solved the problem of parsing (x-y)**2.
+
+Sun 14 Feb 2016 : new package parse_dimensions to extract the number of symbols
+  used as variables in a string representation of a polynomial system,
+  tested by ts_nbrvar.
+
+Sat 13 Feb 2016 : new test program ts_nbrvar to determine the size of the
+  support of a polynomial given as a string.
+
+Sat 14 Nov 2015 : factored out the writing of a pure power out of the
+  standard_complex_polynomials_io.adb into the new write_factors package.
+  Also multprec_complex_polynomials_io.adb uses write_factors.
+  Completed {dobldobl, quaddobl}_complex_polynomials_io to write polynomials
+  with a given array of symbols for the variable names.
+
+Mon 26 Oct 2015 : new packages {double, quad}_double_poly_systems_io, with
+  a later fix in the name of quad_double_poly_systems_io.adb.
+
+Sun 25 Oct 2015 : new packages {dobldobl, quaddobl}_complex_to_real_poly.
+
 Fri 16 Oct 2015 : extended matrix_indeterminates that return monomials as
   polynomials with coefficients in double double and quad double precision.
   Extensions in {dobldobl,quaddobl}_complex_polynomials_io to instantiate

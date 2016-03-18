@@ -11,6 +11,7 @@ with Multprec_Parse_Numbers;             use Multprec_Parse_Numbers;
 with Multprec_Write_Numbers;             use Multprec_Write_Numbers;
 with Standard_Natural_Vectors;           use Standard_Natural_Vectors;
 with Symbol_Table_io;
+with Write_Factors;                      use Write_Factors;
 with Standard_Complex_Polynomials_io;
 with Parse_Polynomial_Exceptions;        use Parse_Polynomial_Exceptions;
 
@@ -112,8 +113,9 @@ package body Multprec_Complex_Polynomials_io is
   --   if the bracket counter bc is nonzero when the delimiter is encountered.
 
     n : constant natural32 := Symbol_Table.Maximal_Size;
-    char,oper : character;
+    char,oper,nextchar : character;
     term,res,acc : Poly;
+    eol : boolean;
 
   begin
     oper := '+';
@@ -143,8 +145,14 @@ package body Multprec_Complex_Polynomials_io is
           if char = '(' -- or char = ')'
            then raise BAD_BRACKET;
           end if;
-          if char = '^'
-           then Read_Power_Factor(file,char,term);
+          if char = '^' then
+            Read_Power_Factor(file,char,term);
+          elsif char = '*' then
+            look_ahead(file,nextchar,eol);
+            if nextchar = '*' then
+              get(file,char);
+              Read_Power_Factor(file,char,term);
+            end if;
           end if;
           case oper is
             when '+' => Add(acc,res); Clear(res);
@@ -197,7 +205,8 @@ package body Multprec_Complex_Polynomials_io is
     k : integer32 := 0;
     ne : natural32 := 0;
     expo : integer32 := 1;
-    sign : character;
+    sign,nextchar : character;
+    eol : boolean;
  
   begin
     Standard_Parse_Numbers.Skip_Spaces_and_CR(file,char);
@@ -206,8 +215,14 @@ package body Multprec_Complex_Polynomials_io is
       Read_Polynomial(file,bc,pb);
       get(file,char);
       Standard_Parse_Numbers.Skip_Spaces_and_CR(file,char);
-      if char = '^'
-       then Read_Power_Factor(file,char,pb);
+      if char = '^' then
+        Read_Power_Factor(file,char,pb);
+      elsif char = '*' then
+        look_ahead(file,nextchar,eol);
+        if nextchar = '*' then
+          get(file,char);
+          Read_Power_Factor(file,char,pb);
+        end if;
       end if;
       return;
     end if;
@@ -263,6 +278,8 @@ package body Multprec_Complex_Polynomials_io is
     realmin1 : constant Floating_Number := Create(integer(-1));
     compzero : constant Complex_Number := Create(realzero);
     compmin1 : constant Complex_Number := Create(realmin1);
+    nextchar : character;
+    eol : boolean;
 
     procedure Collect_Factor_Polynomial is
     begin
@@ -337,6 +354,12 @@ package body Multprec_Complex_Polynomials_io is
             Read_Factor(file,bc,char,n,d,pb);
           elsif char = '^' then
             Read_Power_Factor(file,char,res);
+          elsif char = '*' then
+            look_ahead(file,nextchar,eol);
+            if nextchar = '*' then
+              get(file,char);
+              Read_Power_Factor(file,char,res);
+            end if;
           else
             raise ILLEGAL_CHARACTER;
           end if;
@@ -387,27 +410,11 @@ package body Multprec_Complex_Polynomials_io is
 
   procedure Write ( file : in file_type; d : in Degrees;
                     standard : in boolean; pow : in Power ) is
-
-    sb : Symbol;
-
   begin
     for i in d'range loop
       if d(i) /= 0 then
         put(file,"*");
-        if standard then
-          put(file,'x');
-          put(file,i,1);
-        else
-          sb := Symbol_Table.get(natural32(i));
-          Symbol_Table_io.put(file,sb);
-        end if;
-        if d(i) /= 1 then
-          if pow = '^'
-           then put(file,"^");
-           else put(file,"**");
-          end if;
-          put(file,d(i),1);
-        end if;
+        Write_Factor(file,d(i),natural32(i),standard,pow);
       end if;
     end loop;
   end Write;
@@ -418,14 +425,7 @@ package body Multprec_Complex_Polynomials_io is
     for i in d'range loop
       if d(i) /= 0 then
         put(file,"*");
-        Symbol_Table_io.put(file,s(i));
-        if d(i) /= 1 then
-          if pow = '^'
-           then put(file,"^");
-           else put(file,"**");
-          end if;
-          put(file,d(i),1);
-        end if;
+        Write_Factor(file,d(i),s(i),pow);
       end if;
     end loop;
   end Write;

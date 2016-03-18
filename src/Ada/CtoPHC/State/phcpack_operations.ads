@@ -6,6 +6,9 @@ with Standard_Complex_Numbers;
 with DoblDobl_Complex_Numbers;
 with QuadDobl_Complex_Numbers;
 with Multprec_Complex_Numbers;
+with Standard_Floating_Vectors;
+with Double_Double_Vectors;
+with Quad_Double_Vectors;
 with Standard_Complex_Poly_Systems;
 with DoblDobl_Complex_Poly_Systems;
 with QuadDobl_Complex_Poly_Systems;
@@ -152,13 +155,14 @@ package PHCpack_Operations is
   -- DESCRIPTION :
   --   Allocated memory for the linear homotopy is cleared.
 
-  procedure Create_Cascade_Homotopy;
-  procedure Create_DoblDobl_Cascade_Homotopy;
-  procedure Create_QuadDobl_Cascade_Homotopy;
+  procedure Standard_Cascade_Homotopy;
+  procedure DoblDobl_Cascade_Homotopy;
+  procedure QuadDobl_Cascade_Homotopy;
 
   -- DESCRIPTION :
   --   Creates the homotopy to go down one level in the cascade
-  --   to remove one slice from the start system.
+  --   to remove one slice from the start system,
+  --   in standard double, double double, or quad double precision.
 
   -- REQUIRED :
   --   The start system has been stored and contains at least one
@@ -166,11 +170,14 @@ package PHCpack_Operations is
   --   Otherwise, if there is no start system yet, then the stored 
   --   target system will be used as start system.
 
-  procedure Create_Diagonal_Homotopy ( a,b : in natural32 );
+  procedure Standard_Diagonal_Homotopy ( a,b : in natural32 );
+  procedure DoblDobl_Diagonal_Homotopy ( a,b : in natural32 );
+  procedure QuadDobl_Diagonal_Homotopy ( a,b : in natural32 );
 
   -- DESCRIPTION :
   --   Creates the homotopy to start the cascade in a diagonal homotopy
-  --   to intersect two positive dimensional solution sets.
+  --   to intersect two positive dimensional solution sets,
+  --   in standard double, double double, or quad double precision.
 
   -- REQUIRED :
   --   The target and start system stored internally have their symbols
@@ -184,12 +191,15 @@ package PHCpack_Operations is
   --   The start system is the system to start the cascade and
   --   the target system is the system read to perform a cascade on.
 
-  procedure Start_Diagonal_Cascade_Solutions ( a,b : in natural32 );
+  procedure Standard_Diagonal_Cascade_Solutions ( a,b : in natural32 );
+  procedure DoblDobl_Diagonal_Cascade_Solutions ( a,b : in natural32 );
+  procedure QuadDobl_Diagonal_Cascade_Solutions ( a,b : in natural32 );
 
   -- DESCRIPTION :
   --   Makes the start solutions to start the cascade homotopy to
   --   intersect the witness sets stored in target and start system
-  --   with corresponding witness points in target and start solutions.
+  --   with corresponding witness points in target and start solutions,
+  --   in standard double, double double, or quad double precision.
 
   -- REQUIRED :
   --   The target and start system stored represent witness sets
@@ -207,32 +217,97 @@ package PHCpack_Operations is
                ( ls : in Standard_Complex_Solutions.Link_to_Solution;
                  length : out double_float;
                  nbstep,nbfail,nbiter,nbsyst : out natural32;
-                 crash : out boolean );
+                 crash : out boolean; nbq : in integer32 := 0 );
   procedure Silent_Path_Tracker
                ( ls : in DoblDobl_Complex_Solutions.Link_to_Solution;
                  length : out double_float;
                  nbstep,nbfail,nbiter,nbsyst : out natural32;
-                 crash : out boolean );
+                 crash : out boolean; nbq : in integer32 := 0 );
   procedure Silent_Path_Tracker
                ( ls : in QuadDobl_Complex_Solutions.Link_to_Solution;
                  length : out double_float;
                  nbstep,nbfail,nbiter,nbsyst : out natural32;
-                 crash : out boolean );
+                 crash : out boolean; nbq : in integer32 := 0 );
+
+  -- DESCRIPTION :
+  --   Uses the created homotopy to track one path starting at the
+  --   given solution.  The silent version does not write any output.
+
+  -- REQUIRED : the homotopy has been initialized.
+
+  -- ON ENTRY :
+  --   ls        solution of the start system.
+
+  -- ON RETURN :
+  --   ls        solution at the end of the solution path;
+  --   length    measure for the length of the path;
+  --   nbstep    number of steps along the path;
+  --   nbfail    number of failures along the path;
+  --   nbiter    number of corrector iterations along the path;
+  --   nbsyst    number of linear systems solved along the path;
+  --   crash     true if some exception occurred.
+
+  procedure Silent_Path_Tracker 
+               ( ls : in Standard_Complex_Solutions.Link_to_Solution;
+                 wnd : out integer32;
+                 dir : out Standard_Floating_Vectors.Link_to_Vector;
+                 err,length : out double_float;
+                 nbstep,nbfail,nbiter,nbsyst : out natural32;
+                 crash : out boolean; nbq : in integer32 := 0 );
+  procedure Silent_Path_Tracker 
+               ( ls : in DoblDobl_Complex_Solutions.Link_to_Solution;
+                 wnd : out integer32;
+                 dir : out Double_Double_Vectors.Link_to_Vector;
+                 err,length : out double_float;
+                 nbstep,nbfail,nbiter,nbsyst : out natural32;
+                 crash : out boolean; nbq : in integer32 := 0 );
+  procedure Silent_Path_Tracker 
+               ( ls : in QuadDobl_Complex_Solutions.Link_to_Solution;
+                 wnd : out integer32;
+                 dir : out Quad_Double_Vectors.Link_to_Vector;
+                 err,length : out double_float;
+                 nbstep,nbfail,nbiter,nbsyst : out natural32;
+                 crash : out boolean; nbq : in integer32 := 0 );
+
+  -- DESCRIPTION :
+  --   Uses the created homotopy to track one path starting at the
+  --   given solution.  The silent version does not write any output.
+  --   For the extra parameters wnd, dir, and err to have meaning,
+  --   the polyhedral end games must be invoked by setting the
+  --   order of the extrapolation number of a positive number.
+
+  -- REQUIRED : the homotopy has been initialized.
+
+  -- ON ENTRY :
+  --   ls        solution of the start system.
+
+  -- ON RETURN :
+  --   ls        solution at the end of the solution path;
+  --   wnd       estimated winding number;
+  --   dir       computed direction of the path;
+  --   err       error on the estimated direction;
+  --   length    measure for the length of the path;
+  --   nbstep    number of steps along the path;
+  --   nbfail    number of failures along the path;
+  --   nbiter    number of corrector iterations along the path;
+  --   nbsyst    number of linear systems solved along the path;
+  --   crash     true if some exception occurred.
+
   procedure Reporting_Path_Tracker
                ( ls : in Standard_Complex_Solutions.Link_to_Solution;
                  length : out double_float;
                  nbstep,nbfail,nbiter,nbsyst : out natural32;
-                 crash : out boolean );
+                 crash : out boolean; nbq : in integer32 := 0 );
   procedure Reporting_Path_Tracker
                ( ls : in DoblDobl_Complex_Solutions.Link_to_Solution;
                  length : out double_float;
                  nbstep,nbfail,nbiter,nbsyst : out natural32;
-                 crash : out boolean );
+                 crash : out boolean; nbq : in integer32 := 0 );
   procedure Reporting_Path_Tracker
                ( ls : in QuadDobl_Complex_Solutions.Link_to_Solution;
                  length : out double_float;
                  nbstep,nbfail,nbiter,nbsyst : out natural32;
-                 crash : out boolean );
+                 crash : out boolean; nbq : in integer32 := 0 );
 
   -- DESCRIPTION :
   --   Uses the created homotopy to track one path starting at the
@@ -253,36 +328,84 @@ package PHCpack_Operations is
   --   nbsyst    number of linear systems solved along the path;
   --   crash     true if some exception occurred.
 
+  procedure Reporting_Path_Tracker
+               ( ls : in Standard_Complex_Solutions.Link_to_Solution;
+                 wnd : out integer32;
+                 dir : out Standard_Floating_Vectors.Link_to_Vector;
+                 err,length : out double_float;
+                 nbstep,nbfail,nbiter,nbsyst : out natural32;
+                 crash : out boolean; nbq : in integer32 := 0 );
+  procedure Reporting_Path_Tracker
+               ( ls : in DoblDobl_Complex_Solutions.Link_to_Solution;
+                 wnd : out integer32;
+                 dir : out Double_Double_Vectors.Link_to_Vector;
+                 err,length : out double_float;
+                 nbstep,nbfail,nbiter,nbsyst : out natural32;
+                 crash : out boolean; nbq : in integer32 := 0 );
+  procedure Reporting_Path_Tracker
+               ( ls : in QuadDobl_Complex_Solutions.Link_to_Solution;
+                 wnd : out integer32;
+                 dir : out Quad_Double_Vectors.Link_to_Vector;
+                 err,length : out double_float;
+                 nbstep,nbfail,nbiter,nbsyst : out natural32;
+                 crash : out boolean; nbq : in integer32 := 0 );
+
+  -- DESCRIPTION :
+  --   Uses the created homotopy to track one path starting at the
+  --   given solution.  The reporting version writes extra output
+  --   to the defined output file.
+  --   For the extra parameters wnd, dir, and err to have meaning,
+  --   the polyhedral end games must be invoked by setting the
+  --   order of the extrapolation number of a positive number.
+
+  -- REQUIRED : the homotopy has been initialized.
+
+  -- ON ENTRY :
+  --   ls        solution of the start system.
+
+  -- ON RETURN :
+  --   ls        solution at the end of the solution path;
+  --   wnd       estimated winding number;
+  --   dir       computed direction of the path;
+  --   err       error on the estimated direction;
+  --   length    measure for the length of the path;
+  --   nbstep    number of steps along the path;
+  --   nbfail    number of failures along the path;
+  --   nbiter    number of corrector iterations along the path;
+  --   nbsyst    number of linear systems solved along the path;
+  --   crash     true if some exception occurred.
+
   procedure Silent_Laurent_Path_Tracker
                ( ls : in Standard_Complex_Solutions.Link_to_Solution;
                  length : out double_float;
                  nbstep,nbfail,nbiter,nbsyst : out natural32;
-                 crash : out boolean );
+                 crash : out boolean; nbq : in integer32 := 0 );
   procedure Silent_Laurent_Path_Tracker
                ( ls : in DoblDobl_Complex_Solutions.Link_to_Solution;
                  length : out double_float;
                  nbstep,nbfail,nbiter,nbsyst : out natural32;
-                 crash : out boolean );
+                 crash : out boolean; nbq : in integer32 := 0 );
   procedure Silent_Laurent_Path_Tracker
                ( ls : in QuadDobl_Complex_Solutions.Link_to_Solution;
                  length : out double_float;
                  nbstep,nbfail,nbiter,nbsyst : out natural32;
-                 crash : out boolean );
+                 crash : out boolean; nbq : in integer32 := 0 );
+
   procedure Reporting_Laurent_Path_Tracker
                ( ls : in Standard_Complex_Solutions.Link_to_Solution;
                  length : out double_float;
                  nbstep,nbfail,nbiter,nbsyst : out natural32;
-                 crash : out boolean );
+                 crash : out boolean; nbq : in integer32 := 0 );
   procedure Reporting_Laurent_Path_Tracker
                ( ls : in DoblDobl_Complex_Solutions.Link_to_Solution;
                  length : out double_float;
                  nbstep,nbfail,nbiter,nbsyst : out natural32;
-                 crash : out boolean );
+                 crash : out boolean; nbq : in integer32 := 0 );
   procedure Reporting_Laurent_Path_Tracker
                ( ls : in QuadDobl_Complex_Solutions.Link_to_Solution;
                  length : out double_float;
                  nbstep,nbfail,nbiter,nbsyst : out natural32;
-                 crash : out boolean );
+                 crash : out boolean; nbq : in integer32 := 0 );
 
   -- DESCRIPTION :
   --   Uses the created homotopy to track one path starting at the

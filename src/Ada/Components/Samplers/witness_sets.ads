@@ -2,7 +2,9 @@ with Standard_Natural_Numbers;           use Standard_Natural_Numbers;
 with Standard_Complex_Numbers;
 with Standard_Complex_Vectors;
 with Standard_Complex_VecVecs;
+with DoblDobl_Complex_Vectors;
 with DoblDobl_Complex_VecVecs;
+with QuadDobl_Complex_Vectors;
 with QuadDobl_Complex_VecVecs;
 with Multprec_Complex_VecVecs;
 with Standard_Complex_Polynomials;
@@ -11,7 +13,9 @@ with DoblDobl_Complex_Polynomials;
 with DoblDobl_Complex_Poly_Systems;
 with QuadDobl_Complex_Polynomials;
 with QuadDobl_Complex_Poly_Systems;
-with Standard_Complex_Solutions;         use Standard_Complex_Solutions;
+with Standard_Complex_Solutions;
+with DoblDobl_Complex_Solutions;
+with QuadDobl_Complex_Solutions;
 
 package Witness_Sets is
 
@@ -46,6 +50,10 @@ package Witness_Sets is
 
   function Add_Dummy ( n,k,i : natural32 )
                      return Standard_Complex_Polynomials.Poly;
+  function Add_Dummy ( n,k,i : natural32 )
+                     return DoblDobl_Complex_Polynomials.Poly;
+  function Add_Dummy ( n,k,i : natural32 )
+                     return QuadDobl_Complex_Polynomials.Poly;
 
   -- DESCRIPTION :
   --   Returns one monomial: "zzi", where i is the number of slack
@@ -99,6 +107,12 @@ package Witness_Sets is
   function Add_Slice ( p : Standard_Complex_Poly_Systems.Poly_Sys;
                        hyp : Standard_Complex_Vectors.Vector )
                      return Standard_Complex_Poly_Systems.Poly_Sys;
+  function Add_Slice ( p : DoblDobl_Complex_Poly_Systems.Poly_Sys;
+                       hyp : DoblDobl_Complex_Vectors.Vector )
+                     return DoblDobl_Complex_Poly_Systems.Poly_Sys;
+  function Add_Slice ( p : QuadDobl_Complex_Poly_Systems.Poly_Sys;
+                       hyp : QuadDobl_Complex_Vectors.Vector )
+                     return QuadDobl_Complex_Poly_Systems.Poly_Sys;
 
   -- DESCRIPTION :
   --   Adds the hyperplane to the polynomial system p.  The coefficients of
@@ -130,31 +144,62 @@ package Witness_Sets is
 
   function Embed ( p : Standard_Complex_Poly_Systems.Poly_Sys )
                  return Standard_Complex_Poly_Systems.Poly_Sys;
+  function Embed ( p : DoblDobl_Complex_Poly_Systems.Poly_Sys )
+                 return DoblDobl_Complex_Poly_Systems.Poly_Sys;
+  function Embed ( p : QuadDobl_Complex_Poly_Systems.Poly_Sys )
+                 return QuadDobl_Complex_Poly_Systems.Poly_Sys;
 
   -- DESCRIPTION :
   --   Augments the number of variables in the polynomials with one,
+  --   in standar double, double double, and quad double precision,
   --   every monomial is multiplied with z^0.
 
   function Embed ( p : Standard_Complex_Poly_Systems.Poly_Sys;
                    gamma : Standard_Complex_Vectors.Vector )
                  return Standard_Complex_Poly_Systems.Poly_Sys;
+  function Embed ( p : DoblDobl_Complex_Poly_Systems.Poly_Sys;
+                   gamma : DoblDobl_Complex_Vectors.Vector )
+                 return DoblDobl_Complex_Poly_Systems.Poly_Sys;
+  function Embed ( p : QuadDobl_Complex_Poly_Systems.Poly_Sys;
+                   gamma : QuadDobl_Complex_Vectors.Vector )
+                 return QuadDobl_Complex_Poly_Systems.Poly_Sys;
 
   -- DESCRIPTION :
-  --   To every polynomial in p the term gamma(i)*z is added, where
-  --   z is a new variable.
+  --   To every polynomial in p the term gamma(i)*z is added,
+  --   in standard double, double double, and quad double precision,
+  --   where z is a new variable.
 
-  function Slice_and_Embed ( p : Standard_Complex_Poly_Systems.Poly_Sys;
-                             k : natural32 )
-                           return Standard_Complex_Poly_Systems.Poly_Sys;
+  function Slice_and_Embed
+              ( p : Standard_Complex_Poly_Systems.Poly_Sys;
+                k : natural32 )
+              return Standard_Complex_Poly_Systems.Poly_Sys;
+  function Slice_and_Embed
+              ( p : DoblDobl_Complex_Poly_Systems.Poly_Sys;
+                k : natural32 )
+              return DoblDobl_Complex_Poly_Systems.Poly_Sys;
+  function Slice_and_Embed
+              ( p : QuadDobl_Complex_Poly_Systems.Poly_Sys;
+                k : natural32 )
+              return QuadDobl_Complex_Poly_Systems.Poly_Sys;
 
   -- DESCRIPTION :
-  --   Adds k slices and k slack variables to the system p.
-  -- REQUIRED :
-  --   p is a square system.
+  --   Adds k slices and k slack variables to the system p,
+  --   in standard double, double double, and quad double precision.
 
-  function Embed_with_Dummies ( p : Standard_Complex_Poly_Systems.Poly_Sys;
-                                k : natural32 )
-                              return Standard_Complex_Poly_Systems.Poly_Sys;
+  -- REQUIRED : p is a square system.
+
+  function Embed_with_Dummies
+              ( p : Standard_Complex_Poly_Systems.Poly_Sys;
+                k : natural32 )
+              return Standard_Complex_Poly_Systems.Poly_Sys;
+  function Embed_with_Dummies
+              ( p : DoblDobl_Complex_Poly_Systems.Poly_Sys;
+                k : natural32 )
+              return DoblDobl_Complex_Poly_Systems.Poly_Sys;
+  function Embed_with_Dummies
+              ( p : QuadDobl_Complex_Poly_Systems.Poly_Sys;
+                k : natural32 )
+              return QuadDobl_Complex_Poly_Systems.Poly_Sys;
 
   -- DESCRIPTION :
   --   Adds k dummy slack variables with k extra equations setting those
@@ -200,6 +245,10 @@ package Witness_Sets is
 
   function Square ( p : Standard_Complex_Poly_Systems.Poly_Sys )
                   return Standard_Complex_Poly_Systems.Poly_Sys;
+  function Square ( p : DoblDobl_Complex_Poly_Systems.Poly_Sys )
+                  return DoblDobl_Complex_Poly_Systems.Poly_Sys;
+  function Square ( p : QuadDobl_Complex_Poly_Systems.Poly_Sys )
+                  return QUadDobl_Complex_Poly_Systems.Poly_Sys;
 
   -- DESCRIPTION :
   --   The system on return is square, has as many equations as unknowns.
@@ -249,6 +298,12 @@ package Witness_Sets is
   function Complete ( n,k : natural32;
                       p : Standard_Complex_Poly_Systems.Poly_Sys )
                     return Standard_Complex_Poly_Systems.Poly_Sys;
+  function Complete ( n,k : natural32;
+                      p : DoblDobl_Complex_Poly_Systems.Poly_Sys )
+                    return DoblDobl_Complex_Poly_Systems.Poly_Sys;
+  function Complete ( n,k : natural32;
+                      p : QuadDobl_Complex_Poly_Systems.Poly_Sys )
+                    return QuadDobl_Complex_Poly_Systems.Poly_Sys;
 
   -- DESCRIPTION :
   --   When p is not a complete intersection, random multiples of the
@@ -265,43 +320,116 @@ package Witness_Sets is
 
 -- OPERATIONS ON SOLUTION LISTS :
 
-  function Add_Component ( s : Solution;
-                           c : Standard_Complex_Numbers.Complex_Number )
-                         return Solution;
+  function Add_Component
+             ( s : Standard_Complex_Solutions.Solution;
+               c : Standard_Complex_Numbers.Complex_Number )
+             return Standard_Complex_Solutions.Solution;
  
   -- DESCRIPTION :
   --   Add c as last component to the solution vector.
 
-  function Add_Component ( sols : Solution_List;
-                           c : Standard_Complex_Numbers.Complex_Number )
-                         return Solution_List;
+  function Add_Component
+             ( sols : Standard_Complex_Solutions.Solution_List;
+               c : Standard_Complex_Numbers.Complex_Number )
+             return Standard_Complex_Solutions.Solution_List;
  
   -- DESCRIPTION :
   --   Add c as last component to the solution vectors in the list.
 
-  function Add_Embedding ( s : Solution; k : natural32 ) return Solution;
-  function Add_Embedding ( sols : Solution_List; k : natural32 )
-                         return Solution_List;
+  function Add_Embedding
+             ( s : Standard_Complex_Solutions.Solution; k : natural32 )
+             return Standard_Complex_Solutions.Solution;
+  function Add_Embedding
+             ( s : DoblDobl_Complex_Solutions.Solution; k : natural32 )
+             return DoblDobl_Complex_Solutions.Solution;
+  function Add_Embedding
+             ( s : QuadDobl_Complex_Solutions.Solution; k : natural32 )
+             return QuadDobl_Complex_Solutions.Solution;
 
   -- DESCRIPTION :
-  --   Adds k zeros to every solution.
+  --   Adds k zeros to every solution,
+  --   in standard double, double double, or quad double precision.
 
-  function Remove_Component ( s : Solution ) return Solution;
+  function Add_Embedding
+             ( sols : Standard_Complex_Solutions.Solution_List;
+               k : natural32 )
+             return Standard_Complex_Solutions.Solution_List;
+  function Add_Embedding
+             ( sols : DoblDobl_Complex_Solutions.Solution_List;
+               k : natural32 )
+             return DoblDobl_Complex_Solutions.Solution_List;
+  function Add_Embedding
+             ( sols : QuadDobl_Complex_Solutions.Solution_List;
+               k : natural32 )
+             return QuadDobl_Complex_Solutions.Solution_List;
+
+  -- DESCRIPTION :
+  --   Adds k zeros to every solution,
+  --   in standard double, double double, or quad double precision.
+
+  function Remove_Component
+             ( s : Standard_Complex_Solutions.Solution )
+             return Standard_Complex_Solutions.Solution;
+  function Remove_Component
+             ( s : DoblDobl_Complex_Solutions.Solution )
+             return DoblDobl_Complex_Solutions.Solution;
+  function Remove_Component
+             ( s : QuadDobl_Complex_Solutions.Solution )
+             return QuadDobl_Complex_Solutions.Solution;
  
   -- DESCRIPTION :
-  --   Removes the last component from the solution vector.
+  --   Removes the last component from the solution vector,
+  --   in standard double, double double, or quad double precision.
 
-  procedure Remove_Component ( sols : in out Solution_List );
-  function  Remove_Component ( sols : Solution_List ) return Solution_List;
+  procedure Remove_Component
+              ( sols : in out Standard_Complex_Solutions.Solution_List );
  
   -- DESCRIPTION :
   --   Removes the last component from the solution vectors in the list.
 
-  function Remove_Embedding ( s : Solution; k : natural32 ) return Solution;
-  function Remove_Embedding ( sols : Solution_List; k : natural32 )
-                            return Solution_List;
+  function Remove_Component
+              ( sols : Standard_Complex_Solutions.Solution_List )
+              return Standard_Complex_Solutions.Solution_List;
+  function Remove_Component
+              ( sols : DoblDobl_Complex_Solutions.Solution_List )
+              return DoblDobl_Complex_Solutions.Solution_List;
+  function Remove_Component
+              ( sols : QuadDobl_Complex_Solutions.Solution_List )
+              return QuadDobl_Complex_Solutions.Solution_List;
+ 
+  -- DESCRIPTION :
+  --   Removes the last component from the solution vectors in the list,
+  --   in standard double, double double, or quad double precision.
+
+  function Remove_Embedding
+             ( s : Standard_Complex_Solutions.Solution; k : natural32 )
+             return Standard_Complex_Solutions.Solution;
+  function Remove_Embedding
+             ( s : DoblDobl_Complex_Solutions.Solution; k : natural32 )
+             return DoblDobl_Complex_Solutions.Solution;
+  function Remove_Embedding
+             ( s : QuadDobl_Complex_Solutions.Solution; k : natural32 )
+             return QuadDobl_Complex_Solutions.Solution;
 
   -- DESCRIPTION :
-  --   Removes the last k components from the solution.
+  --   Removes the last k components from the solution,
+  --   in standard double, double double, or quad double precision.
+
+  function Remove_Embedding
+             ( sols : Standard_Complex_Solutions.Solution_List;
+               k : natural32 )
+             return Standard_Complex_Solutions.Solution_List;
+  function Remove_Embedding
+             ( sols : DoblDobl_Complex_Solutions.Solution_List;
+               k : natural32 )
+             return DoblDobl_Complex_Solutions.Solution_List;
+  function Remove_Embedding
+             ( sols : QuadDobl_Complex_Solutions.Solution_List;
+               k : natural32 )
+             return QuadDobl_Complex_Solutions.Solution_List;
+
+  -- DESCRIPTION :
+  --   Removes the last k components from each solution in the list,
+  --   in standard double, double double, or quad double precision.
 
 end Witness_Sets;

@@ -1,17 +1,22 @@
 with Standard_Natural_Numbers;           use Standard_Natural_Numbers;
 with Standard_Natural_Numbers_io;        use Standard_Natural_Numbers_io;
-with Standard_Floating_Numbers;          use Standard_Floating_Numbers;
-with Double_Double_Numbers;              use Double_Double_Numbers;
-with Quad_Double_Numbers;                use Quad_Double_Numbers;
-with Standard_Complex_Numbers;
-with DoblDobl_Complex_Numbers;
-with QuadDobl_Complex_Numbers;
+--with Standard_Floating_Numbers;          use Standard_Floating_Numbers;
+--with Double_Double_Numbers;              use Double_Double_Numbers;
+--with Quad_Double_Numbers;                use Quad_Double_Numbers;
+--with Standard_Complex_Numbers;
+--with DoblDobl_Complex_Numbers;
+--with QuadDobl_Complex_Numbers;
 with Standard_Integer_Vectors_io;        use Standard_Integer_Vectors_io;
-with Standard_Complex_Norms_Equals;
+with Standard_Floating_Vectors;
+with Standard_Floating_VecVecs;
+with Standard_Complex_Vectors;
 with Double_Double_Vectors;
+with DoblDobl_Complex_Vectors;
 with Quad_Double_Vectors;
-with DoblDobl_Complex_Vector_Norms;
-with QuadDobl_Complex_Vector_Norms;
+with QuadDobl_Complex_Vectors;
+--with Standard_Complex_Norms_Equals;
+--with DoblDobl_Complex_Vector_Norms;
+--with QuadDobl_Complex_Vector_Norms;
 with Standard_Integer_Matrices;
 with Standard_Integer64_Matrices;
 with Standard_Complex_Matrices;
@@ -22,19 +27,11 @@ with Standard_Integer64_Linear_Solvers;
 with Standard_Complex_Linear_Solvers;
 with DoblDobl_Complex_Linear_Solvers;
 with QuadDobl_Complex_Linear_Solvers;
-with Standard_Floating_VecVecs;
 with Lists_of_Floating_Vectors;          use Lists_of_Floating_Vectors;
 with Arrays_of_Integer_Vector_Lists;
 with Standard_Complex_Laur_Functions;
 with DoblDobl_Complex_Laur_Functions;
 with QuadDobl_Complex_Laur_Functions;
-with Continuation_Parameters;
-with Standard_Continuation_Data;
-with Standard_Path_Trackers;
-with DoblDobl_Continuation_Data;
-with DoblDobl_Path_Trackers;
-with QuadDobl_Continuation_Data;
-with QuadDobl_Path_Trackers;
 with Supports_of_Polynomial_Systems;
 with Floating_Mixed_Subdivisions_io;
 --with Mixed_Volume_Computation;
@@ -49,10 +46,12 @@ with QuadDobl_Binomial_Systems;
 with QuadDobl_Binomial_Solvers;
 with Floating_Integer_Convertors;
 with Floating_Lifting_Utilities;
-with Polyhedral_Coefficient_Homotopies;
+--with Polyhedral_Coefficient_Homotopies;
 with Multitasking,Semaphore;
+with Mixed_Cells_Queue;
 with Multitasking_Volume_Computation;    use Multitasking_Volume_Computation;
 with Polyhedral_Start_Systems;           use Polyhedral_Start_Systems;
+with Single_Polyhedral_Trackers;         use Single_Polyhedral_Trackers;
 -- added for Check_Solution :
 --with Strings_and_Numbers;                use Strings_and_Numbers;
 --with Standard_Integer64_Matrices_io;     use Standard_Integer64_Matrices_io;
@@ -74,26 +73,13 @@ package body Multitasking_Polyhedral_Trackers is
                 mf : in Standard_Complex_Laur_JacoMats.Mult_Factors;
                 sols : out Standard_Complex_Solutions.Solution_List ) is
 
-    use Standard_Complex_Numbers,Standard_Complex_Solutions;
-    use Standard_Complex_Laur_SysFun,Standard_Complex_Laur_JacoMats;
+    use Standard_Complex_Solutions;
 
     cell_ptr : Mixed_Subdivision := mcc;
-    first : boolean := true;
-    s_cell,s_sols : Semaphore.Lock;
+    s_sols : Semaphore.Lock;
     sols_ptr : Solution_List;
     dpow : Standard_Floating_VecVecs.Array_of_VecVecs(1..nt);
     dctm : Standard_Complex_VecVecs.Array_of_VecVecs(1..nt);
-    t1 : constant Complex_Number := Create(1.0);
-    tol : constant double_float := 1.0E-12;
-   -- tol_zero : constant double_float := 1.0E-8;
-    pp1 : Continuation_Parameters.Pred_Pars
-        := Continuation_Parameters.Create_for_Path;
-    pp2 : constant Continuation_Parameters.Pred_Pars
-        := Continuation_Parameters.Create_End_Game;
-    cp1 : constant Continuation_Parameters.Corr_Pars
-        := Continuation_Parameters.Create_for_Path;
-    cp2 : constant Continuation_Parameters.Corr_Pars
-        := Continuation_Parameters.Create_End_Game;
 
     procedure Next_Cell ( task_id,nb_tasks : in integer32 ) is
 
@@ -114,90 +100,9 @@ package body Multitasking_Polyhedral_Trackers is
       mysols,mysols_ptr : Solution_List;
       ls : Link_to_Solution;
 
-      procedure Call_Path_Tracker is
-
-      -- DESCRIPTION :
-      --   Calls the path tracker on the solution ls points to.
-
-        use Standard_Complex_Norms_Equals;
-        use Standard_Continuation_Data;
-        use Standard_Path_Trackers;
-        use Polyhedral_Coefficient_Homotopies;
-
-        function Eval ( x : Standard_Complex_Vectors.Vector;
-                        t : Complex_Number )
-                      return Standard_Complex_Vectors.Vector is
-        begin
-          Eval(c,REAL_PART(t),dpow(task_id).all,dctm(task_id).all);
-          return Eval(h,dctm(task_id).all,x);
-        end Eval;
-
-        function dHt ( x : Standard_Complex_Vectors.Vector;
-                       t : Standard_Complex_Numbers.Complex_Number )
-                     return Standard_Complex_Vectors.Vector is
-
-          res : Standard_Complex_Vectors.Vector(h'range);
-          xtl : constant integer32 := x'last+1;
-
-        begin
-          Eval(c,REAL_PART(t),dpow(task_id).all,dctm(task_id).all);
-          for k in wrk'range loop
-            res(k) := Eval(j(k,xtl),mf(k,xtl).all,dctm(task_id)(k).all,x);
-          end loop;
-          return res;
-        end dHt;
-
-        function dHx ( x : Standard_Complex_Vectors.Vector;
-                       t : Complex_Number )
-                     return Standard_Complex_Matrices.Matrix is
-
-          mt : Standard_Complex_Matrices.Matrix(x'range,x'range);
-
-        begin
-          Eval(c,REAL_PART(t),dpow(task_id).all,dctm(task_id).all);
-          for k in mt'range(1) loop
-            for L in mt'range(2) loop
-              mt(k,L) := Eval(j(k,L),mf(k,L).all,dctm(task_id)(k).all,x);
-            end loop;
-          end loop;
-          return mt;
-        end dHx;
-
-        procedure Track_Path_along_Path is
-          new Linear_Single_Normal_Silent_Continue(Max_Norm,Eval,dHt,dHx);
-
-        procedure Track_Path_at_End is
-           new Linear_Single_Conditioned_Silent_Continue
-                 (Max_Norm,Eval,dHt,dHx);
-
-      begin
-        Power_Transform(e,lif,mix,mic.nor.all,dpow(task_id).all);
-        Polyhedral_Coefficient_Homotopies.Scale(dpow(task_id).all);
-        ls.t := Create(0.0);
-        declare
-          s : Solu_Info := Shallow_Create(ls);
-          v : Standard_Floating_Vectors.Link_to_Vector;
-          e : double_float := 0.0;
-        begin
-          pp1.dist_target := 0.0;
-          Track_Path_along_Path(s,t1,tol,false,pp1,cp1);
-          Track_Path_at_End(s,t1,tol,false,0,v,e,pp2,cp2);
-          ls.err := s.cora; ls.rco := s.rcond; ls.res := s.resa;
-        end;
-      end Call_Path_Tracker;
-
     begin
       loop
-        Semaphore.Request(s_cell);  -- request new cell
-        if first then
-          first := false;
-        else
-          if not Is_Null(cell_ptr)
-           then cell_ptr := Tail_Of(cell_ptr);
-          end if;
-        end if;
-        mycell_ptr := cell_ptr;
-        Semaphore.Release(s_cell);  -- end of first critical section
+        mycell_ptr := Mixed_Cells_Queue.Next;
         exit when Is_Null(mycell_ptr);
         mic := Head_Of(mycell_ptr);
         if r = n then
@@ -232,7 +137,7 @@ package body Multitasking_Polyhedral_Trackers is
           Standard_Binomial_Systems.Eval(M,ls.v,wrk);
           ls.v := wrk;
           Standard_Radial_Solvers.Multiply(ls.v,e10x);
-          Call_Path_Tracker;
+          Track_Path(mix,lif,mic.nor,c,dpow(task_id),dctm(task_id),e,h,j,mf,ls);
           mysols_ptr := Tail_Of(mysols_ptr);
         end loop;
       end loop;
@@ -248,14 +153,9 @@ package body Multitasking_Polyhedral_Trackers is
       Silent_Static_Multithreaded_Mixed_Volume(nt,n,cell_ptr,vol,mixvol);
       sols := Create(n,integer32(mixvol));
       sols_ptr := sols;
-      for t in 1..nt loop
-        dpow(t) := new Standard_Floating_VecVecs.VecVec(e'range);
-        dctm(t) := new Standard_Complex_VecVecs.VecVec(c'range);
-        for k in dpow(t)'range loop
-          dpow(t)(k) := new Standard_Floating_Vectors.Vector(e(k)'range);
-          dctm(t)(k) := new Standard_Complex_Vectors.Vector(c(k)'range);
-        end loop;
-      end loop;
+      Allocate_Workspace_for_Exponents(e,dpow);
+      Allocate_Workspace_for_Coefficients(c,dctm);
+      Mixed_Cells_Queue.Initialize(mcc);
       do_jobs(nt);
       for t in 1..nt loop
         Standard_Floating_VecVecs.Deep_Clear(dpow(t));
@@ -280,26 +180,13 @@ package body Multitasking_Polyhedral_Trackers is
                 mf : in Standard_Complex_Laur_JacoMats.Mult_Factors;
                 sols : out Standard_Complex_Solutions.Solution_List ) is
 
-    use Standard_Complex_Numbers,Standard_Complex_Solutions;
-    use Standard_Complex_Laur_SysFun,Standard_Complex_Laur_JacoMats;
+    use Standard_Complex_Solutions;
 
     cell_ptr : Mixed_Subdivision := mcc;
-    cell_ind : integer32 := 0;
-    s_cell,s_sols : Semaphore.Lock;
+    s_sols : Semaphore.Lock;
     sols_ptr : Solution_List;
     dpow : Standard_Floating_VecVecs.Array_of_VecVecs(1..nt);
     dctm : Standard_Complex_VecVecs.Array_of_VecVecs(1..nt);
-    t1 : constant Complex_Number := Create(1.0);
-    tol : constant double_float := 1.0E-12;
-   -- tol_zero : constant double_float := 1.0E-8;
-    pp1 : Continuation_Parameters.Pred_Pars
-        := Continuation_Parameters.Create_for_Path;
-    pp2 : constant Continuation_Parameters.Pred_Pars
-        := Continuation_Parameters.Create_End_Game;
-    cp1 : constant Continuation_Parameters.Corr_Pars
-        := Continuation_Parameters.Create_for_Path;
-    cp2 : constant Continuation_Parameters.Corr_Pars
-        := Continuation_Parameters.Create_End_Game;
 
     procedure Next_Cell ( task_id,nb_tasks : integer32 ) is
 
@@ -320,78 +207,6 @@ package body Multitasking_Polyhedral_Trackers is
       pdetU : natural32 := 0;
       mysols,mysols_ptr : Solution_List;
       ls : Link_to_Solution;
-
-      procedure Call_Path_Tracker is
-
-      -- DESCRIPTION :
-      --   Calls the path tracker on the solution ls points to.
-
-        use Standard_Complex_Norms_Equals;
-        use Standard_Continuation_Data;
-        use Standard_Path_Trackers;
-        use Polyhedral_Coefficient_Homotopies;
-
-        function Eval ( x : Standard_Complex_Vectors.Vector;
-                        t : Complex_Number )
-                      return Standard_Complex_Vectors.Vector is
-        begin
-          Eval(c,REAL_PART(t),dpow(task_id).all,dctm(task_id).all);
-          return Eval(h,dctm(task_id).all,x);
-        end Eval;
-
-        function dHt ( x : Standard_Complex_Vectors.Vector;
-                       t : Complex_Number )
-                     return Standard_Complex_Vectors.Vector is
-
-          res : Standard_Complex_Vectors.Vector(h'range);
-          xtl : constant integer32 := x'last+1;
-
-        begin
-          Eval(c,REAL_PART(t),dpow(task_id).all,dctm(task_id).all);
-          for k in wrk'range loop
-            res(k) := Eval(j(k,xtl),mf(k,xtl).all,dctm(task_id)(k).all,x);
-          end loop;
-          return res;
-        end dHt;
-
-        function dHx ( x : Standard_Complex_Vectors.Vector;
-                       t : Complex_Number )
-                     return Standard_Complex_Matrices.Matrix is
-
-          mt : Standard_Complex_Matrices.Matrix(x'range,x'range);
-
-        begin
-          Eval(c,REAL_PART(t),dpow(task_id).all,dctm(task_id).all);
-          for k in mt'range(1) loop
-            for L in mt'range(2) loop
-              mt(k,L) := Eval(j(k,L),mf(k,L).all,dctm(task_id)(k).all,x);
-            end loop;
-          end loop;
-          return mt;
-        end dHx;
-
-        procedure Track_Path_along_Path is
-          new Linear_Single_Normal_Silent_Continue(Max_Norm,Eval,dHt,dHx);
-
-        procedure Track_Path_at_End is
-           new Linear_Single_Conditioned_Silent_Continue
-                 (Max_Norm,Eval,dHt,dHx);
-
-      begin
-        Power_Transform(e,lif,mix,mic.nor.all,dpow(task_id).all);
-        Polyhedral_Coefficient_Homotopies.Scale(dpow(task_id).all);
-        ls.t := Create(0.0);
-        declare
-          s : Solu_Info := Shallow_Create(ls);
-          v : Standard_Floating_Vectors.Link_to_Vector;
-          e : double_float := 0.0;
-        begin
-          pp1.dist_target := 0.0;
-          Track_Path_along_Path(s,t1,tol,false,pp1,cp1);
-          Track_Path_at_End(s,t1,tol,false,0,v,e,pp2,cp2);
-          ls.err := s.cora; ls.rco := s.rcond; ls.res := s.resa;
-        end;
-      end Call_Path_Tracker;
 
     --  procedure Check_Solution is
     --
@@ -419,19 +234,9 @@ package body Multitasking_Polyhedral_Trackers is
     begin
       put_line("hello from task " & Multitasking.to_string(natural32(task_id)));
       loop
-        Semaphore.Request(s_cell);   -- take next cell
-        if cell_ind = 0 then
-          cell_ind := 1;
-        else
-          cell_ind := cell_ind + 1;
-          if not Is_Null(cell_ptr)
-           then cell_ptr := Tail_Of(cell_ptr);
-          end if;
-        end if;
-        mycell_ptr := cell_ptr;
-        myjob := natural32(cell_ind);
-        Semaphore.Release(s_cell);   -- end of first critical section
+        mycell_ptr := Mixed_Cells_Queue.Next;
         exit when Is_Null(mycell_ptr);
+        myjob := natural32(Mixed_Cells_Queue.Next_Counter);
         put_line("task " & Multitasking.to_string(natural32(task_id))
                          & " computes cell "
                          & Multitasking.to_string(myjob));
@@ -470,7 +275,7 @@ package body Multitasking_Polyhedral_Trackers is
           ls.v := wrk;
           Standard_Radial_Solvers.Multiply(ls.v,e10x);
          -- Check_Solution;
-          Call_Path_Tracker;
+          Track_Path(mix,lif,mic.nor,c,dpow(task_id),dctm(task_id),e,h,j,mf,ls);
           mysols_ptr := Tail_Of(mysols_ptr);
         end loop;
         put_line("task " & Multitasking.to_string(natural32(task_id))
@@ -496,18 +301,13 @@ package body Multitasking_Polyhedral_Trackers is
       new_line;
       put_line("allocating solution lists and other data...");
       sols := Create(n,integer32(mixvol));
-      for t in 1..nt loop
-        dpow(t) := new Standard_Floating_VecVecs.VecVec(e'range);
-        dctm(t) := new Standard_Complex_VecVecs.VecVec(c'range);
-        for k in dpow(t)'range loop
-          dpow(t)(k) := new Standard_Floating_Vectors.Vector(e(k)'range);
-          dctm(t)(k) := new Standard_Complex_Vectors.Vector(c(k)'range);
-        end loop;
-      end loop;
       sols_ptr := sols;
+      Allocate_Workspace_for_Exponents(e,dpow);
+      Allocate_Workspace_for_Coefficients(c,dctm);
       new_line;
       put_line("launching tasks ...");
       new_line;
+      Mixed_Cells_Queue.Initialize(mcc);
       do_jobs(nt);
       for t in 1..nt loop
         Standard_Floating_VecVecs.Deep_Clear(dpow(t));
@@ -532,28 +332,13 @@ package body Multitasking_Polyhedral_Trackers is
                 mf : in DoblDobl_Complex_Laur_JacoMats.Mult_Factors;
                 sols : out DoblDobl_Complex_Solutions.Solution_List ) is
 
-    use DoblDobl_Complex_Numbers,DoblDobl_Complex_Solutions;
-    use DoblDobl_Complex_Laur_SysFun,DoblDobl_Complex_Laur_JacoMats;
+    use DoblDobl_Complex_Solutions;
 
     cell_ptr : Mixed_Subdivision := mcc;
-    first : boolean := true;
-    s_cell,s_sols : Semaphore.Lock;
+    s_sols : Semaphore.Lock;
     sols_ptr : Solution_List;
     dpow : Standard_Floating_VecVecs.Array_of_VecVecs(1..nt);
     dctm : DoblDobl_Complex_VecVecs.Array_of_VecVecs(1..nt);
-    zero : constant double_double := create(0.0);
-    one : constant double_double := create(1.0);
-    t1 : constant Complex_Number := Create(one);
-    tol : constant double_float := 1.0E-12;
-   -- tol_zero : constant double_float := 1.0E-8;
-    pp1 : Continuation_Parameters.Pred_Pars
-        := Continuation_Parameters.Create_for_Path;
-    pp2 : constant Continuation_Parameters.Pred_Pars
-        := Continuation_Parameters.Create_End_Game;
-    cp1 : constant Continuation_Parameters.Corr_Pars
-        := Continuation_Parameters.Create_for_Path;
-    cp2 : constant Continuation_Parameters.Corr_Pars
-        := Continuation_Parameters.Create_End_Game;
 
     procedure Next_Cell ( task_id,nb_tasks : in integer32 ) is
 
@@ -573,80 +358,6 @@ package body Multitasking_Polyhedral_Trackers is
       pdetU : natural64 := 0;
       mysols,mysols_ptr : Solution_List;
       ls : Link_to_Solution;
-
-      procedure Call_Path_Tracker is
-
-      -- DESCRIPTION :
-      --   Calls the path tracker on the solution ls points to.
-
-        use DoblDobl_Complex_Vector_Norms;
-        use DoblDobl_Continuation_Data;
-        use DoblDobl_Path_Trackers;
-        use Polyhedral_Coefficient_Homotopies;
-
-        function Eval ( x : DoblDobl_Complex_Vectors.Vector;
-                        t : Complex_Number )
-                      return DoblDobl_Complex_Vectors.Vector is
-        begin
-          Eval(c,REAL_PART(t),dpow(task_id).all,dctm(task_id).all);
-          return Eval(h,dctm(task_id).all,x);
-        end Eval;
-
-        function dHt ( x : DoblDobl_Complex_Vectors.Vector;
-                       t : DoblDobl_Complex_Numbers.Complex_Number )
-                     return DoblDobl_Complex_Vectors.Vector is
-
-          res : DoblDobl_Complex_Vectors.Vector(h'range);
-          xtl : constant integer32 := x'last+1;
-
-        begin
-          Eval(c,REAL_PART(t),dpow(task_id).all,dctm(task_id).all);
-          for k in wrk'range loop
-            res(k) := Eval(j(k,xtl),mf(k,xtl).all,dctm(task_id)(k).all,x);
-          end loop;
-          return res;
-        end dHt;
-
-        function dHx ( x : DoblDobl_Complex_Vectors.Vector;
-                       t : Complex_Number )
-                     return DoblDobl_Complex_Matrices.Matrix is
-
-          mt : DoblDobl_Complex_Matrices.Matrix(x'range,x'range);
-
-        begin
-          Eval(c,REAL_PART(t),dpow(task_id).all,dctm(task_id).all);
-          for k in mt'range(1) loop
-            for L in mt'range(2) loop
-              mt(k,L) := Eval(j(k,L),mf(k,L).all,dctm(task_id)(k).all,x);
-            end loop;
-          end loop;
-          return mt;
-        end dHx;
-
-        procedure Track_Path_along_Path is
-          new Linear_Single_Normal_Silent_Continue(Max_Norm,Eval,dHt,dHx);
-
-        procedure Track_Path_at_End is
-           new Linear_Single_Conditioned_Silent_Continue
-                 (Max_Norm,Eval,dHt,dHx);
-
-      begin
-        Power_Transform(e,lif,mix,mic.nor.all,dpow(task_id).all);
-        Polyhedral_Coefficient_Homotopies.Scale(dpow(task_id).all);
-        ls.t := Create(zero);
-        declare
-          s : Solu_Info := Shallow_Create(ls);
-          v : Double_Double_Vectors.Link_to_Vector;
-          e : double_double := zero;
-        begin
-          pp1.dist_target := 0.0;
-          Track_Path_along_Path(s,t1,tol,false,pp1,cp1);
-          Track_Path_at_End(s,t1,tol,false,0,v,e,pp2,cp2);
-          ls.err := create(s.cora);
-          ls.rco := create(s.rcond); 
-          ls.res := create(s.resa);
-        end;
-      end Call_Path_Tracker;
 
      -- procedure Check_Solution is
     
@@ -678,16 +389,7 @@ package body Multitasking_Polyhedral_Trackers is
 
     begin
       loop
-        Semaphore.Request(s_cell);  -- request new cell
-        if first then
-          first := false;
-        else
-          if not Is_Null(cell_ptr)
-           then cell_ptr := Tail_Of(cell_ptr);
-          end if;
-        end if;
-        mycell_ptr := cell_ptr;
-        Semaphore.Release(s_cell);  -- end of first critical section
+        mycell_ptr := Mixed_Cells_Queue.Next;
         exit when Is_Null(mycell_ptr);
         mic := Head_Of(mycell_ptr);
         if r = n then
@@ -722,7 +424,7 @@ package body Multitasking_Polyhedral_Trackers is
           ls.v := wrk;
           DoblDobl_Radial_Solvers.Multiply(ls.v,e10x);
          -- Check_Solution;
-          Call_Path_Tracker;
+          Track_Path(mix,lif,mic.nor,c,dpow(task_id),dctm(task_id),e,h,j,mf,ls);
           mysols_ptr := Tail_Of(mysols_ptr);
         end loop;
       end loop;
@@ -738,14 +440,9 @@ package body Multitasking_Polyhedral_Trackers is
       Silent_Static_Multithreaded_Mixed_Volume(nt,n,cell_ptr,vol,mixvol);
       sols := Create(n,integer32(mixvol));
       sols_ptr := sols;
-      for t in 1..nt loop
-        dpow(t) := new Standard_Floating_VecVecs.VecVec(e'range);
-        dctm(t) := new DoblDobl_Complex_VecVecs.VecVec(c'range);
-        for k in dpow(t)'range loop
-          dpow(t)(k) := new Standard_Floating_Vectors.Vector(e(k)'range);
-          dctm(t)(k) := new DoblDobl_Complex_Vectors.Vector(c(k)'range);
-        end loop;
-      end loop;
+      Allocate_Workspace_for_Exponents(e,dpow);
+      Allocate_Workspace_for_Coefficients(c,dctm);
+      Mixed_Cells_Queue.Initialize(mcc);
       do_jobs(nt);
       for t in 1..nt loop
         Standard_Floating_VecVecs.Deep_Clear(dpow(t));
@@ -770,28 +467,13 @@ package body Multitasking_Polyhedral_Trackers is
                 mf : in DoblDobl_Complex_Laur_JacoMats.Mult_Factors;
                 sols : out DoblDobl_Complex_Solutions.Solution_List ) is
 
-    use DoblDobl_Complex_Numbers,DoblDobl_Complex_Solutions;
-    use DoblDobl_Complex_Laur_SysFun,DoblDobl_Complex_Laur_JacoMats;
+    use DoblDobl_Complex_Solutions;
 
     cell_ptr : Mixed_Subdivision := mcc;
-    cell_ind : integer32 := 0;
-    s_cell,s_sols : Semaphore.Lock;
+    s_sols : Semaphore.Lock;
     sols_ptr : Solution_List;
     dpow : Standard_Floating_VecVecs.Array_of_VecVecs(1..nt);
     dctm : DoblDobl_Complex_VecVecs.Array_of_VecVecs(1..nt);
-    zero : constant double_double := create(0.0);
-    one : constant double_double := create(1.0);
-    t1 : constant Complex_Number := Create(one);
-    tol : constant double_float := 1.0E-12;
-   -- tol_zero : constant double_float := 1.0E-8;
-    pp1 : Continuation_Parameters.Pred_Pars
-        := Continuation_Parameters.Create_for_Path;
-    pp2 : constant Continuation_Parameters.Pred_Pars
-        := Continuation_Parameters.Create_End_Game;
-    cp1 : constant Continuation_Parameters.Corr_Pars
-        := Continuation_Parameters.Create_for_Path;
-    cp2 : constant Continuation_Parameters.Corr_Pars
-        := Continuation_Parameters.Create_End_Game;
 
     procedure Next_Cell ( task_id,nb_tasks : integer32 ) is
 
@@ -812,80 +494,6 @@ package body Multitasking_Polyhedral_Trackers is
       pdetU : natural64 := 0;
       mysols,mysols_ptr : Solution_List;
       ls : Link_to_Solution;
-
-      procedure Call_Path_Tracker is
-
-      -- DESCRIPTION :
-      --   Calls the path tracker on the solution ls points to.
-
-        use DoblDobl_Complex_Vector_Norms;
-        use DoblDobl_Continuation_Data;
-        use DoblDobl_Path_Trackers;
-        use Polyhedral_Coefficient_Homotopies;
-
-        function Eval ( x : DoblDobl_Complex_Vectors.Vector;
-                        t : Complex_Number )
-                      return DoblDobl_Complex_Vectors.Vector is
-        begin
-          Eval(c,REAL_PART(t),dpow(task_id).all,dctm(task_id).all);
-          return Eval(h,dctm(task_id).all,x);
-        end Eval;
-
-        function dHt ( x : DoblDobl_Complex_Vectors.Vector;
-                       t : Complex_Number )
-                     return DoblDobl_Complex_Vectors.Vector is
-
-          res : DoblDobl_Complex_Vectors.Vector(h'range);
-          xtl : constant integer32 := x'last+1;
-
-        begin
-          Eval(c,REAL_PART(t),dpow(task_id).all,dctm(task_id).all);
-          for k in wrk'range loop
-            res(k) := Eval(j(k,xtl),mf(k,xtl).all,dctm(task_id)(k).all,x);
-          end loop;
-          return res;
-        end dHt;
-
-        function dHx ( x : DoblDobl_Complex_Vectors.Vector;
-                       t : Complex_Number )
-                     return DoblDobl_Complex_Matrices.Matrix is
-
-          mt : DoblDobl_Complex_Matrices.Matrix(x'range,x'range);
-
-        begin
-          Eval(c,REAL_PART(t),dpow(task_id).all,dctm(task_id).all);
-          for k in mt'range(1) loop
-            for L in mt'range(2) loop
-              mt(k,L) := Eval(j(k,L),mf(k,L).all,dctm(task_id)(k).all,x);
-            end loop;
-          end loop;
-          return mt;
-        end dHx;
-
-        procedure Track_Path_along_Path is
-          new Linear_Single_Normal_Silent_Continue(Max_Norm,Eval,dHt,dHx);
-
-        procedure Track_Path_at_End is
-           new Linear_Single_Conditioned_Silent_Continue
-                 (Max_Norm,Eval,dHt,dHx);
-
-      begin
-        Power_Transform(e,lif,mix,mic.nor.all,dpow(task_id).all);
-        Polyhedral_Coefficient_Homotopies.Scale(dpow(task_id).all);
-        ls.t := Create(zero);
-        declare
-          s : Solu_Info := Shallow_Create(ls);
-          v : Double_Double_Vectors.Link_to_Vector;
-          e : double_double := zero;
-        begin
-          pp1.dist_target := 0.0;
-          Track_Path_along_Path(s,t1,tol,false,pp1,cp1);
-          Track_Path_at_End(s,t1,tol,false,0,v,e,pp2,cp2);
-          ls.err := create(s.cora);
-          ls.rco := create(s.rcond);
-          ls.res := create(s.resa);
-        end;
-      end Call_Path_Tracker;
 
      -- procedure Check_Solution is
     
@@ -913,19 +521,9 @@ package body Multitasking_Polyhedral_Trackers is
     begin
       put_line("hello from task " & Multitasking.to_string(natural32(task_id)));
       loop
-        Semaphore.Request(s_cell);   -- take next cell
-        if cell_ind = 0 then
-          cell_ind := 1;
-        else
-          cell_ind := cell_ind + 1;
-          if not Is_Null(cell_ptr)
-           then cell_ptr := Tail_Of(cell_ptr);
-          end if;
-        end if;
-        mycell_ptr := cell_ptr;
-        myjob := natural32(cell_ind);
-        Semaphore.Release(s_cell);   -- end of first critical section
+        mycell_ptr := Mixed_Cells_Queue.Next;
         exit when Is_Null(mycell_ptr);
+        myjob := natural32(Mixed_Cells_Queue.Next_Counter);
         put_line("task " & Multitasking.to_string(natural32(task_id))
                          & " computes cell "
                          & Multitasking.to_string(myjob));
@@ -962,7 +560,7 @@ package body Multitasking_Polyhedral_Trackers is
           ls.v := wrk;
           DoblDobl_Radial_Solvers.Multiply(ls.v,e10x);
          -- Check_Solution;
-          Call_Path_Tracker;
+          Track_Path(mix,lif,mic.nor,c,dpow(task_id),dctm(task_id),e,h,j,mf,ls);
           mysols_ptr := Tail_Of(mysols_ptr);
         end loop;
         put_line("task " & Multitasking.to_string(natural32(task_id))
@@ -988,18 +586,13 @@ package body Multitasking_Polyhedral_Trackers is
       new_line;
       put_line("allocating solution lists and other data...");
       sols := Create(n,integer32(mixvol));
-      for t in 1..nt loop
-        dpow(t) := new Standard_Floating_VecVecs.VecVec(e'range);
-        dctm(t) := new DoblDobl_Complex_VecVecs.VecVec(c'range);
-        for k in dpow(t)'range loop
-          dpow(t)(k) := new Standard_Floating_Vectors.Vector(e(k)'range);
-          dctm(t)(k) := new DoblDobl_Complex_Vectors.Vector(c(k)'range);
-        end loop;
-      end loop;
       sols_ptr := sols;
+      Allocate_Workspace_for_Exponents(e,dpow);
+      Allocate_Workspace_for_Coefficients(c,dctm);
       new_line;
       put_line("launching tasks ...");
       new_line;
+      Mixed_Cells_Queue.Initialize(mcc);
       do_jobs(nt);
       for t in 1..nt loop
         Standard_Floating_VecVecs.Deep_Clear(dpow(t));
@@ -1024,28 +617,13 @@ package body Multitasking_Polyhedral_Trackers is
                 mf : in QuadDobl_Complex_Laur_JacoMats.Mult_Factors;
                 sols : out QuadDobl_Complex_Solutions.Solution_List ) is
 
-    use QuadDobl_Complex_Numbers,QuadDobl_Complex_Solutions;
-    use QuadDobl_Complex_Laur_SysFun,QuadDobl_Complex_Laur_JacoMats;
+    use QuadDobl_Complex_Solutions;
 
     cell_ptr : Mixed_Subdivision := mcc;
-    first : boolean := true;
-    s_cell,s_sols : Semaphore.Lock;
+    s_sols : Semaphore.Lock;
     sols_ptr : Solution_List;
     dpow : Standard_Floating_VecVecs.Array_of_VecVecs(1..nt);
     dctm : QuadDobl_Complex_VecVecs.Array_of_VecVecs(1..nt);
-    zero : constant quad_double := create(0.0);
-    one : constant quad_double := create(1.0);
-    t1 : constant Complex_Number := Create(one);
-    tol : constant double_float := 1.0E-12;
-   -- tol_zero : constant double_float := 1.0E-8;
-    pp1 : Continuation_Parameters.Pred_Pars
-        := Continuation_Parameters.Create_for_Path;
-    pp2 : constant Continuation_Parameters.Pred_Pars
-        := Continuation_Parameters.Create_End_Game;
-    cp1 : constant Continuation_Parameters.Corr_Pars
-        := Continuation_Parameters.Create_for_Path;
-    cp2 : constant Continuation_Parameters.Corr_Pars
-        := Continuation_Parameters.Create_End_Game;
 
     procedure Next_Cell ( task_id,nb_tasks : in integer32 ) is
 
@@ -1066,92 +644,9 @@ package body Multitasking_Polyhedral_Trackers is
       mysols,mysols_ptr : Solution_List;
       ls : Link_to_Solution;
 
-      procedure Call_Path_Tracker is
-
-      -- DESCRIPTION :
-      --   Calls the path tracker on the solution ls points to.
-
-        use QuadDobl_Complex_Vector_Norms;
-        use QuadDobl_Continuation_Data;
-        use QuadDobl_Path_Trackers;
-        use Polyhedral_Coefficient_Homotopies;
-
-        function Eval ( x : QuadDobl_Complex_Vectors.Vector;
-                        t : Complex_Number )
-                      return QuadDobl_Complex_Vectors.Vector is
-        begin
-          Eval(c,REAL_PART(t),dpow(task_id).all,dctm(task_id).all);
-          return Eval(h,dctm(task_id).all,x);
-        end Eval;
-
-        function dHt ( x : QuadDobl_Complex_Vectors.Vector;
-                       t : QuadDobl_Complex_Numbers.Complex_Number )
-                     return QuadDobl_Complex_Vectors.Vector is
-
-          res : QuadDobl_Complex_Vectors.Vector(h'range);
-          xtl : constant integer32 := x'last+1;
-
-        begin
-          Eval(c,REAL_PART(t),dpow(task_id).all,dctm(task_id).all);
-          for k in wrk'range loop
-            res(k) := Eval(j(k,xtl),mf(k,xtl).all,dctm(task_id)(k).all,x);
-          end loop;
-          return res;
-        end dHt;
-
-        function dHx ( x : QuadDobl_Complex_Vectors.Vector;
-                       t : Complex_Number )
-                     return QuadDobl_Complex_Matrices.Matrix is
-
-          mt : QuadDobl_Complex_Matrices.Matrix(x'range,x'range);
-
-        begin
-          Eval(c,REAL_PART(t),dpow(task_id).all,dctm(task_id).all);
-          for k in mt'range(1) loop
-            for L in mt'range(2) loop
-              mt(k,L) := Eval(j(k,L),mf(k,L).all,dctm(task_id)(k).all,x);
-            end loop;
-          end loop;
-          return mt;
-        end dHx;
-
-        procedure Track_Path_along_Path is
-          new Linear_Single_Normal_Silent_Continue(Max_Norm,Eval,dHt,dHx);
-
-        procedure Track_Path_at_End is
-           new Linear_Single_Conditioned_Silent_Continue
-                 (Max_Norm,Eval,dHt,dHx);
-
-      begin
-        Power_Transform(e,lif,mix,mic.nor.all,dpow(task_id).all);
-        Polyhedral_Coefficient_Homotopies.Scale(dpow(task_id).all);
-        ls.t := Create(zero);
-        declare
-          s : Solu_Info := Shallow_Create(ls);
-          v : Quad_Double_Vectors.Link_to_Vector;
-          e : quad_double := zero;
-        begin
-          pp1.dist_target := 0.0;
-          Track_Path_along_Path(s,t1,tol,false,pp1,cp1);
-          Track_Path_at_End(s,t1,tol,false,0,v,e,pp2,cp2);
-          ls.err := create(s.cora);
-          ls.rco := create(s.rcond); 
-          ls.res := create(s.resa);
-        end;
-      end Call_Path_Tracker;
-
     begin
       loop
-        Semaphore.Request(s_cell);  -- request new cell
-        if first then
-          first := false;
-        else
-          if not Is_Null(cell_ptr)
-           then cell_ptr := Tail_Of(cell_ptr);
-          end if;
-        end if;
-        mycell_ptr := cell_ptr;
-        Semaphore.Release(s_cell);  -- end of first critical section
+        mycell_ptr := Mixed_Cells_Queue.Next;
         exit when Is_Null(mycell_ptr);
         mic := Head_Of(mycell_ptr);
         if r = n then
@@ -1185,7 +680,7 @@ package body Multitasking_Polyhedral_Trackers is
           QuadDobl_Binomial_Systems.Eval(M,ls.v,wrk);
           ls.v := wrk;
           QuadDobl_Radial_Solvers.Multiply(ls.v,e10x);
-          Call_Path_Tracker;
+          Track_Path(mix,lif,mic.nor,c,dpow(task_id),dctm(task_id),e,h,j,mf,ls);
           mysols_ptr := Tail_Of(mysols_ptr);
         end loop;
       end loop;
@@ -1201,14 +696,9 @@ package body Multitasking_Polyhedral_Trackers is
       Silent_Static_Multithreaded_Mixed_Volume(nt,n,cell_ptr,vol,mixvol);
       sols := Create(n,integer32(mixvol));
       sols_ptr := sols;
-      for t in 1..nt loop
-        dpow(t) := new Standard_Floating_VecVecs.VecVec(e'range);
-        dctm(t) := new QuadDobl_Complex_VecVecs.VecVec(c'range);
-        for k in dpow(t)'range loop
-          dpow(t)(k) := new Standard_Floating_Vectors.Vector(e(k)'range);
-          dctm(t)(k) := new QuadDobl_Complex_Vectors.Vector(c(k)'range);
-        end loop;
-      end loop;
+      Allocate_Workspace_for_Exponents(e,dpow);
+      Allocate_Workspace_for_Coefficients(c,dctm);
+      Mixed_Cells_Queue.Initialize(mcc);
       do_jobs(nt);
       for t in 1..nt loop
         Standard_Floating_VecVecs.Deep_Clear(dpow(t));
@@ -1233,28 +723,13 @@ package body Multitasking_Polyhedral_Trackers is
                 mf : in QuadDobl_Complex_Laur_JacoMats.Mult_Factors;
                 sols : out QuadDobl_Complex_Solutions.Solution_List ) is
 
-    use QuadDobl_Complex_Numbers,QuadDobl_Complex_Solutions;
-    use QuadDobl_Complex_Laur_SysFun,QuadDobl_Complex_Laur_JacoMats;
+    use QuadDobl_Complex_Solutions;
 
     cell_ptr : Mixed_Subdivision := mcc;
-    cell_ind : integer32 := 0;
-    s_cell,s_sols : Semaphore.Lock;
+    s_sols : Semaphore.Lock;
     sols_ptr : Solution_List;
     dpow : Standard_Floating_VecVecs.Array_of_VecVecs(1..nt);
     dctm : QuadDobl_Complex_VecVecs.Array_of_VecVecs(1..nt);
-    zero : constant quad_double := create(0.0);
-    one : constant quad_double := create(1.0);
-    t1 : constant Complex_Number := Create(one);
-    tol : constant double_float := 1.0E-12;
-   -- tol_zero : constant double_float := 1.0E-8;
-    pp1 : Continuation_Parameters.Pred_Pars
-        := Continuation_Parameters.Create_for_Path;
-    pp2 : constant Continuation_Parameters.Pred_Pars
-        := Continuation_Parameters.Create_End_Game;
-    cp1 : constant Continuation_Parameters.Corr_Pars
-        := Continuation_Parameters.Create_for_Path;
-    cp2 : constant Continuation_Parameters.Corr_Pars
-        := Continuation_Parameters.Create_End_Game;
 
     procedure Next_Cell ( task_id,nb_tasks : integer32 ) is
 
@@ -1275,80 +750,6 @@ package body Multitasking_Polyhedral_Trackers is
       pdetU : natural64 := 0;
       mysols,mysols_ptr : Solution_List;
       ls : Link_to_Solution;
-
-      procedure Call_Path_Tracker is
-
-      -- DESCRIPTION :
-      --   Calls the path tracker on the solution ls points to.
-
-        use QuadDobl_Complex_Vector_Norms;
-        use QuadDobl_Continuation_Data;
-        use QuadDobl_Path_Trackers;
-        use Polyhedral_Coefficient_Homotopies;
-
-        function Eval ( x : QuadDobl_Complex_Vectors.Vector;
-                        t : Complex_Number )
-                      return QuadDobl_Complex_Vectors.Vector is
-        begin
-          Eval(c,REAL_PART(t),dpow(task_id).all,dctm(task_id).all);
-          return Eval(h,dctm(task_id).all,x);
-        end Eval;
-
-        function dHt ( x : QuadDobl_Complex_Vectors.Vector;
-                       t : Complex_Number )
-                     return QuadDobl_Complex_Vectors.Vector is
-
-          res : QuadDobl_Complex_Vectors.Vector(h'range);
-          xtl : constant integer32 := x'last+1;
-
-        begin
-          Eval(c,REAL_PART(t),dpow(task_id).all,dctm(task_id).all);
-          for k in wrk'range loop
-            res(k) := Eval(j(k,xtl),mf(k,xtl).all,dctm(task_id)(k).all,x);
-          end loop;
-          return res;
-        end dHt;
-
-        function dHx ( x : QuadDobl_Complex_Vectors.Vector;
-                       t : Complex_Number )
-                     return QuadDobl_Complex_Matrices.Matrix is
-
-          mt : QuadDobl_Complex_Matrices.Matrix(x'range,x'range);
-
-        begin
-          Eval(c,REAL_PART(t),dpow(task_id).all,dctm(task_id).all);
-          for k in mt'range(1) loop
-            for L in mt'range(2) loop
-              mt(k,L) := Eval(j(k,L),mf(k,L).all,dctm(task_id)(k).all,x);
-            end loop;
-          end loop;
-          return mt;
-        end dHx;
-
-        procedure Track_Path_along_Path is
-          new Linear_Single_Normal_Silent_Continue(Max_Norm,Eval,dHt,dHx);
-
-        procedure Track_Path_at_End is
-           new Linear_Single_Conditioned_Silent_Continue
-                 (Max_Norm,Eval,dHt,dHx);
-
-      begin
-        Power_Transform(e,lif,mix,mic.nor.all,dpow(task_id).all);
-        Polyhedral_Coefficient_Homotopies.Scale(dpow(task_id).all);
-        ls.t := Create(zero);
-        declare
-          s : Solu_Info := Shallow_Create(ls);
-          v : Quad_Double_Vectors.Link_to_Vector;
-          e : quad_double := zero;
-        begin
-          pp1.dist_target := 0.0;
-          Track_Path_along_Path(s,t1,tol,false,pp1,cp1);
-          Track_Path_at_End(s,t1,tol,false,0,v,e,pp2,cp2);
-          ls.err := create(s.cora);
-          ls.rco := create(s.rcond);
-          ls.res := create(s.resa);
-        end;
-      end Call_Path_Tracker;
 
     --  procedure Check_Solution is
     --
@@ -1376,19 +777,9 @@ package body Multitasking_Polyhedral_Trackers is
     begin
       put_line("hello from task " & Multitasking.to_string(natural32(task_id)));
       loop
-        Semaphore.Request(s_cell);   -- take next cell
-        if cell_ind = 0 then
-          cell_ind := 1;
-        else
-          cell_ind := cell_ind + 1;
-          if not Is_Null(cell_ptr)
-           then cell_ptr := Tail_Of(cell_ptr);
-          end if;
-        end if;
-        mycell_ptr := cell_ptr;
-        myjob := natural32(cell_ind);
-        Semaphore.Release(s_cell);   -- end of first critical section
+        mycell_ptr := Mixed_Cells_Queue.Next;
         exit when Is_Null(mycell_ptr);
+        myjob := natural32(Mixed_Cells_Queue.Next_Counter);
         put_line("task " & Multitasking.to_string(natural32(task_id))
                          & " computes cell "
                          & Multitasking.to_string(myjob));
@@ -1425,7 +816,7 @@ package body Multitasking_Polyhedral_Trackers is
           ls.v := wrk;
           QuadDobl_Radial_Solvers.Multiply(ls.v,e10x);
          -- Check_Solution;
-          Call_Path_Tracker;
+          Track_Path(mix,lif,mic.nor,c,dpow(task_id),dctm(task_id),e,h,j,mf,ls);
           mysols_ptr := Tail_Of(mysols_ptr);
         end loop;
         put_line("task " & Multitasking.to_string(natural32(task_id))
@@ -1451,18 +842,13 @@ package body Multitasking_Polyhedral_Trackers is
       new_line;
       put_line("allocating solution lists and other data...");
       sols := Create(n,integer32(mixvol));
-      for t in 1..nt loop
-        dpow(t) := new Standard_Floating_VecVecs.VecVec(e'range);
-        dctm(t) := new QuadDobl_Complex_VecVecs.VecVec(c'range);
-        for k in dpow(t)'range loop
-          dpow(t)(k) := new Standard_Floating_Vectors.Vector(e(k)'range);
-          dctm(t)(k) := new QuadDobl_Complex_Vectors.Vector(c(k)'range);
-        end loop;
-      end loop;
       sols_ptr := sols;
+      Allocate_Workspace_for_Exponents(e,dpow);
+      Allocate_Workspace_for_Coefficients(c,dctm);
       new_line;
       put_line("launching tasks ...");
       new_line;
+      Mixed_Cells_Queue.Initialize(mcc);
       do_jobs(nt);
       for t in 1..nt loop
         Standard_Floating_VecVecs.Deep_Clear(dpow(t));
@@ -1487,7 +873,7 @@ package body Multitasking_Polyhedral_Trackers is
     pts : Arrays_of_Floating_Vector_Lists.Array_of_Lists(q'range);
     lif : Arrays_of_Floating_Vector_Lists.Array_of_Lists(mix'range);
     h : constant Eval_Coeff_Laur_Sys(q'range) := Create(q);
-    c : Standard_Complex_VecVecs.VecVec(h'range);
+    c : Standard_Complex_VecVecs.VecVec(q'range) := Coeff(q);
     e : Exponent_Vectors.Exponent_Vectors_Array(h'range);
     j : Eval_Coeff_Jaco_Mat(h'range,h'first..h'last+1);
     mf : Mult_Factors(j'range(1),j'range(2));
@@ -1496,17 +882,6 @@ package body Multitasking_Polyhedral_Trackers is
     sup := Supports_of_Polynomial_Systems.Create(q);
     pts := Floating_Integer_Convertors.Convert(sup);
     lif := Floating_Lifting_Utilities.Occurred_Lifting(n,mix,pts,mcc);
-    for i in c'range loop
-      declare
-        coeff_lq : constant Standard_Complex_Vectors.Vector
-                 := Standard_Complex_Laur_Functions.Coeff(q(i));
-      begin
-        c(i) := new Standard_Complex_Vectors.Vector(coeff_lq'range);
-        for k in coeff_lq'range loop
-          c(i)(k) := coeff_lq(k);
-        end loop;
-      end;
-    end loop;
     e := Exponent_Vectors.Create(q);
     Create(q,j,mf);
     Silent_Multitasking_Path_Tracker(q,nt,n,m,mix,lif,mcc,h,c,e,j,mf,sols);
@@ -1526,7 +901,7 @@ package body Multitasking_Polyhedral_Trackers is
     pts : Arrays_of_Floating_Vector_Lists.Array_of_Lists(q'range);
     lif : Arrays_of_Floating_Vector_Lists.Array_of_Lists(mix'range);
     h : constant Eval_Coeff_Laur_Sys(q'range) := Create(q);
-    c : Standard_Complex_VecVecs.VecVec(h'range);
+    c : Standard_Complex_VecVecs.VecVec(q'range) := Coeff(q);
     e : Exponent_Vectors.Exponent_Vectors_Array(h'range);
     j : Eval_Coeff_Jaco_Mat(h'range,h'first..h'last+1);
     mf : Mult_Factors(j'range(1),j'range(2));
@@ -1535,17 +910,6 @@ package body Multitasking_Polyhedral_Trackers is
     sup := Supports_of_Polynomial_Systems.Create(q);
     pts := Floating_Integer_Convertors.Convert(sup);
     lif := Floating_Lifting_Utilities.Occurred_Lifting(n,mix,pts,mcc);
-    for i in c'range loop
-      declare
-        coeff_lq : constant Standard_Complex_Vectors.Vector
-                 := Standard_Complex_Laur_Functions.Coeff(q(i));
-      begin
-        c(i) := new Standard_Complex_Vectors.Vector(coeff_lq'range);
-        for k in coeff_lq'range loop
-          c(i)(k) := coeff_lq(k);
-        end loop;
-      end;
-    end loop;
     e := Exponent_Vectors.Create(q);
     Create(q,j,mf);
     new_line(file);
@@ -1567,7 +931,7 @@ package body Multitasking_Polyhedral_Trackers is
     pts : Arrays_of_Floating_Vector_Lists.Array_of_Lists(q'range);
     lif : Arrays_of_Floating_Vector_Lists.Array_of_Lists(mix'range);
     h : constant Eval_Coeff_Laur_Sys(q'range) := Create(q);
-    c : DoblDobl_Complex_VecVecs.VecVec(h'range);
+    c : DoblDobl_Complex_VecVecs.VecVec(q'range) := Coeff(q);
     e : Exponent_Vectors.Exponent_Vectors_Array(h'range);
     j : Eval_Coeff_Jaco_Mat(h'range,h'first..h'last+1);
     mf : Mult_Factors(j'range(1),j'range(2));
@@ -1576,17 +940,6 @@ package body Multitasking_Polyhedral_Trackers is
     sup := Supports_of_Polynomial_Systems.Create(q);
     pts := Floating_Integer_Convertors.Convert(sup);
     lif := Floating_Lifting_Utilities.Occurred_Lifting(n,mix,pts,mcc);
-    for i in c'range loop
-      declare
-        coeff_lq : constant DoblDobl_Complex_Vectors.Vector
-                 := DoblDobl_Complex_Laur_Functions.Coeff(q(i));
-      begin
-        c(i) := new DoblDobl_Complex_Vectors.Vector(coeff_lq'range);
-        for k in coeff_lq'range loop
-          c(i)(k) := coeff_lq(k);
-        end loop;
-      end;
-    end loop;
     e := Exponent_Vectors.Create(q);
     Create(q,j,mf);
     Silent_Multitasking_Path_Tracker(q,nt,n,m,mix,lif,mcc,h,c,e,j,mf,sols);
@@ -1606,7 +959,7 @@ package body Multitasking_Polyhedral_Trackers is
     pts : Arrays_of_Floating_Vector_Lists.Array_of_Lists(q'range);
     lif : Arrays_of_Floating_Vector_Lists.Array_of_Lists(mix'range);
     h : constant Eval_Coeff_Laur_Sys(q'range) := Create(q);
-    c : DoblDobl_Complex_VecVecs.VecVec(h'range);
+    c : DoblDobl_Complex_VecVecs.VecVec(q'range) := Coeff(q);
     e : Exponent_Vectors.Exponent_Vectors_Array(h'range);
     j : Eval_Coeff_Jaco_Mat(h'range,h'first..h'last+1);
     mf : Mult_Factors(j'range(1),j'range(2));
@@ -1615,17 +968,6 @@ package body Multitasking_Polyhedral_Trackers is
     sup := Supports_of_Polynomial_Systems.Create(q);
     pts := Floating_Integer_Convertors.Convert(sup);
     lif := Floating_Lifting_Utilities.Occurred_Lifting(n,mix,pts,mcc);
-    for i in c'range loop
-      declare
-        coeff_lq : constant DoblDobl_Complex_Vectors.Vector
-                 := DoblDobl_Complex_Laur_Functions.Coeff(q(i));
-      begin
-        c(i) := new DoblDobl_Complex_Vectors.Vector(coeff_lq'range);
-        for k in coeff_lq'range loop
-          c(i)(k) := coeff_lq(k);
-        end loop;
-      end;
-    end loop;
     e := Exponent_Vectors.Create(q);
     Create(q,j,mf);
     new_line(file);
@@ -1647,7 +989,7 @@ package body Multitasking_Polyhedral_Trackers is
     pts : Arrays_of_Floating_Vector_Lists.Array_of_Lists(q'range);
     lif : Arrays_of_Floating_Vector_Lists.Array_of_Lists(mix'range);
     h : constant Eval_Coeff_Laur_Sys(q'range) := Create(q);
-    c : QuadDobl_Complex_VecVecs.VecVec(h'range);
+    c : QuadDobl_Complex_VecVecs.VecVec(q'range) := Coeff(q);
     e : Exponent_Vectors.Exponent_Vectors_Array(h'range);
     j : Eval_Coeff_Jaco_Mat(h'range,h'first..h'last+1);
     mf : Mult_Factors(j'range(1),j'range(2));
@@ -1656,17 +998,6 @@ package body Multitasking_Polyhedral_Trackers is
     sup := Supports_of_Polynomial_Systems.Create(q);
     pts := Floating_Integer_Convertors.Convert(sup);
     lif := Floating_Lifting_Utilities.Occurred_Lifting(n,mix,pts,mcc);
-    for i in c'range loop
-      declare
-        coeff_lq : constant QuadDobl_Complex_Vectors.Vector
-                 := QuadDobl_Complex_Laur_Functions.Coeff(q(i));
-      begin
-        c(i) := new QuadDobl_Complex_Vectors.Vector(coeff_lq'range);
-        for k in coeff_lq'range loop
-          c(i)(k) := coeff_lq(k);
-        end loop;
-      end;
-    end loop;
     e := Exponent_Vectors.Create(q);
     Create(q,j,mf);
     Silent_Multitasking_Path_Tracker(q,nt,n,m,mix,lif,mcc,h,c,e,j,mf,sols);
@@ -1686,7 +1017,7 @@ package body Multitasking_Polyhedral_Trackers is
     pts : Arrays_of_Floating_Vector_Lists.Array_of_Lists(q'range);
     lif : Arrays_of_Floating_Vector_Lists.Array_of_Lists(mix'range);
     h : constant Eval_Coeff_Laur_Sys(q'range) := Create(q);
-    c : QuadDobl_Complex_VecVecs.VecVec(h'range);
+    c : QuadDobl_Complex_VecVecs.VecVec(q'range) := Coeff(q);
     e : Exponent_Vectors.Exponent_Vectors_Array(h'range);
     j : Eval_Coeff_Jaco_Mat(h'range,h'first..h'last+1);
     mf : Mult_Factors(j'range(1),j'range(2));
@@ -1695,17 +1026,6 @@ package body Multitasking_Polyhedral_Trackers is
     sup := Supports_of_Polynomial_Systems.Create(q);
     pts := Floating_Integer_Convertors.Convert(sup);
     lif := Floating_Lifting_Utilities.Occurred_Lifting(n,mix,pts,mcc);
-    for i in c'range loop
-      declare
-        coeff_lq : constant QuadDobl_Complex_Vectors.Vector
-                 := QuadDobl_Complex_Laur_Functions.Coeff(q(i));
-      begin
-        c(i) := new QuadDobl_Complex_Vectors.Vector(coeff_lq'range);
-        for k in coeff_lq'range loop
-          c(i)(k) := coeff_lq(k);
-        end loop;
-      end;
-    end loop;
     e := Exponent_Vectors.Create(q);
     Create(q,j,mf);
     new_line(file);

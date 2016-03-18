@@ -1,3 +1,143 @@
+Wed 16 Mar 2016 : changes in phcpack_operations for Laurent systems on
+  overdetermined systems.
+
+Sat 5 Mar 2016 : more updates in phcpack_operations for overdetermined systems.
+
+Fri 4 Mar 2016 : adjusted phcpack_operations.adb to call the overdetermined
+  path trackers in the case of overdetermined polynomial systems.
+
+Sat 27 Feb 2016 : changes in phcpack_operations.adb for changes in the
+  increment-and-fix continuation in standard double precision.
+
+Mon 15 Feb 2016 : added a job to scan a string for the number of symbols
+  used as variables in the string representation for a polynomial system.
+
+Tue 9 Feb 2016 : added initialization of the numerical tropisms container
+  to phcpack_operations.adb.
+
+Thu 4 Feb 2016 : fixed error message in exception handler, in use_numbtrop.adb.
+
+Fri 29 Jan 2016 : to the numerical_tropisms_container, added functions that
+  return the dimension of the tropisms, added three jobs to use_numbtrop,
+  and to use_c2phc as well.
+
+Sat 23 Jan 2016 : fixed bug in the dimension calculation in use_numbtrop.adb
+  and improved the documentation in use_numbtrop.ads and use_c2phc.ads.
+
+Thu 21 Jan 2016 : completed the gateway procedure use_numbtrop.
+  Added 18 jobs in the range 701 to 718 to use_c2phc.
+
+Wed 20 Jan 2016 : new package numerical_tropisms_container to manage the
+  data structures for numerically computed tropisms.  The procedure
+  use_numbtrop provides a way to access the numerical_tropisms_container.
+
+Tue 19 Jan 2016 : extended the solve_by_{standard, dobldobl, quaddobl}_
+  homotopy_continuation procedures in phcpack_operations.adb with the
+  application of polyhedral end games.
+
+Mon 18 Jan 2016 : extra procedures in phcpack_operations that pass the 
+  estimated winding number, path direction, and its error from the
+  polyhedral end games.
+
+Thu 7 Jan 2016 : updates in phcpack_operations.adb and pieri_homotopy.adb 
+  for the added winding number in the polyhedral end games.
+
+Sat 26 Dec 2015 : bug fixes in use_c2mbt.adb.
+
+Fri 25 Dec 2015 : new use_c2mbt for the homotopy membership test, with three
+  new jobs in use_c2phc.
+
+Thu 24 Dec 2015 : added jobs to use_c2fac and use_c2phc to make the 
+  factorization go mute in double double and quad double precision.
+  Add jobs to use_c2fac and use_c2phc for a verbose monodromy breakup.
+
+Tue 22 Dec 2015 : improved exception handler messages in use_c2fac.adb.
+
+Fri 18 Dec 2015 : jobs added to use_c2fac and use_c2phc to store random
+  complex double double and quad double constants for the monodromy breakup.
+
+Thu 17 Dec 2015 : added two jobs to use_c2fac and use_c2phc, then some more,
+  and then still more.  Added jobs to generate random complex numbers in
+  double double and quad double precision to use_c2fac and use_c2phc.
+
+Wed 16 Dec 2015 : new packages {dobldobl,quaddobl}_monodromy_permutations
+  to manage data for monodromy breakup with double doubles and quad doubles.
+  Standardized naming of packages, added to sampling_operations and
+  monodromy_permutations.  More jobs added to use_c2fac and use_c2phc.
+
+Tue 15 Dec 2015 : documented the new job codes in use_c2phc.ads for the
+  monodromy breakup in double double and quad double precision.
+  Two new jobs for monodromy breakup in double double and quad double
+  precision in use_c2fac and use_c2phc. 
+
+Mon 14 Dec 2015 : new packages {dobldobl,quaddobl}_sampling_operations,
+  for use in use_c2fac to export the monodromy in double double and
+  quad double precision to C and Python, with added job codes in use_c2phc.
+  Added more operations to use_c2fac to assign coefficients in double
+  double and quad double precision.
+
+Sun 13 Dec 2015 : added jobs to use_c2phc to embed systems in double double
+  and quad double precision.  Added jobs to use_solcon and use_c2phc to
+  replace a solution in double double and quad double precision.
+
+Fri 20 Nov 2015 : bug fix in phcpack_operations.adb with the computation
+  of the start solutions to start the extrinsic diagonal cascade.
+
+Thu 19 Nov 2015 : use_c2phc.adb uses square_and_embed_systems instead of
+  drivers_to_cascade_filtering.
+
+Wed 11 Nov 2015 : use_track.adb changed because of the renaming of
+  hypersurface_witness_sets and its io with a new drivers package
+  standard_hypersurface_witdrivers.  Extended use_track and use_c2phc
+  with jobs to compute a witness set of a hypersurface in double double
+  and quad double precision.
+
+Tue 10 Nov 2015 : renaming some procedures in phcpack_operations and
+  extending with double double and quad double versions, made available
+  through use_track and use_c2phc.  Extended use_track and use_c2phc
+  with jobs to collapse the diagonal for double doubles and quad doubles.
+
+Mon 9 Nov 2015 : updated phcpack_operations.adb for a new package
+  standard_diagonal_solutions, factored out of extrinsic_diagional_homotopies.
+  Extended PHCpack_operations with procedures to make diagonal homotopies
+  in double double and quad double precision, called in use_{track, c2phc}.
+
+Sun 8 Nov 2015 : added to use_track and use_c2phc jobs to double the number
+  of symbols to write the target system to start the diagonal cascade.
+
+Sat 7 Nov 2015 : removed output written to screen in phcpack_operations
+  when excuting the start_diagonal_cascade_solutions operation.
+
+Thu 5 Nov 2015 : use_sweep.adb calls the proper routines to run a sweep,
+  with a silent version in case polynomials and solutions are real.
+  Add double double and quad double versions to use_sweep.adb.
+  Called the silent versions of the real sweep in use_sweep.adb,
+  for double double and quad double precision.
+
+Wed 4 Nov 2015 : provides skeleton for the real sweep in use_sweep, adding
+  a new job number that is also available in use_c2phc.
+
+Mon 2 Nov 2015 : updates in use_sweep for the bug fix that now allows to
+  store systems with a different number of variables, different from the
+  number of equations.
+
+Sun 1 Nov 2015 : some ad hoc changes in use_sweep because the systems
+  containers are not set up for underdetermined systems, and the select
+  and join of solutions use the number of variables as input parameter
+  in a different manner.
+
+Fri 30 Oct 2015 : added call to starting a complex convex continuation in
+  use_sweep and use_c2phc.
+
+Thu 29 Oct 2015 : extended parameter_homotopy_state with management of the
+  values for start and target values at various level of precision.
+  Extended use_sweep with operations to set and get the start and target
+  values for the parameters, tested by ts_use_sweep.
+  Added the ten jobs of use_sweep to use_c2phc.
+
+Wed 28 Oct 2015 : new package parameter_homotopy_state and C gateway
+  function use_sweep, tested by ts_use_sweep.
+
 Thu 22 Oct 2015 : changed use_c2lrhom.adb for the renaming of the
   intersection_solution_posets into standard_solution_posets.
   Added documentation to use_c2lrhom.ads.  Placing standard_ in front of

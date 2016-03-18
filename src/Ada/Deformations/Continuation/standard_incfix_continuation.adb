@@ -259,12 +259,14 @@ package body Standard_IncFix_Continuation is
 
   procedure Silent_Small_Continue
                ( sols : in out Solution_List; proj : in boolean;
+                 nbq : in integer32 := 0;
                  target : in Complex_Number := Create(1.0) ) is
 
     sia : Solu_Info_Array(1..integer32(Length_Of(sols))) := Deep_Create(sols);
     ppa,pen : Pred_Pars;
     cpa,cen : Corr_Pars;
     tol : constant double_float := 10.0**(-10);
+    w : integer32 := 1;
     dumv : Standard_Floating_Vectors.Link_to_Vector := null;
     err : double_float := 0.0;
 
@@ -287,7 +289,7 @@ package body Standard_IncFix_Continuation is
       Continuation_Parameters.Tune(condition);
       max_reruns := oldmax - 1;
       block_size := Length_Of(clusols);
-      Silent_Small_Continue(clusols,proj,target);
+      Silent_Small_Continue(clusols,proj,nbq,target);
       block_size := oldblk;
       Merge_Clustered(s,clusols);
       Deep_Clear(clusols);
@@ -303,8 +305,8 @@ package body Standard_IncFix_Continuation is
 
     begin
       for i in s'range loop
-        LCont1(s(i),target,tol,proj,p1,c_path);
-        LCont2(s(i),target,tol,proj,0,dumv,err,p2,c_end);
+        LCont1(s(i),target,tol,proj,p1,c_path,nbq);
+        LCont2(s(i),target,tol,proj,0,w,dumv,err,p2,c_end,nbq);
         Diagnostics(s,c_end,tol,i,proj,
                     ninfi,nregu,nsing,nclus,nfail,sols,clusols);
       end loop;
@@ -326,7 +328,7 @@ package body Standard_IncFix_Continuation is
 
     begin
       for i in s'range loop
-        LCont2(s(i),target,tol,proj,0,dumv,err,p,c);
+        LCont2(s(i),target,tol,proj,0,w,dumv,err,p,c);
       end loop;
       for i in s'range loop
         Diagnostics(s,c,tol,i,proj,ninfi,nregu,nsing,nclus,nfail,sols,clusols);
@@ -381,13 +383,15 @@ package body Standard_IncFix_Continuation is
 
   procedure Silent_Continue
                ( sols : in out Solution_List; proj : in boolean;
+                 nbq : in integer32 := 0;
                  target : in Complex_Number := Create(1.0) ) is
 
     sials : constant Solu_Info_Array_List := Create(sols,sia_size);
     tmp : Solu_Info_Array_List := sials;
     ppa,pen : Pred_Pars;
     cpa,cen : Corr_Pars;
-    tol : constant double_float := 10.0**(-10);
+    tol : constant double_float := 1.0E-10;
+    w : integer32 := 1;
     dumv : Standard_Floating_Vectors.Link_to_Vector := null;
     err : double_float := 0.0;
 
@@ -410,7 +414,7 @@ package body Standard_IncFix_Continuation is
       Continuation_Parameters.Tune(condition);
       max_reruns := oldmax - 1;
       block_size := Length_Of(clusols);
-      Silent_Continue(clusols,proj,target);
+      Silent_Continue(clusols,proj,nbq,target);
       block_size := oldblk;
       Merge_Clustered(s,clusols);
       Deep_Clear(clusols);
@@ -426,8 +430,8 @@ package body Standard_IncFix_Continuation is
 
     begin
       for i in s'range loop
-        LCont1(s(i),target,tol,proj,p1,c_path);
-        LCont2(s(i),target,tol,proj,0,dumv,err,p2,c_end);
+        LCont1(s(i),target,tol,proj,p1,c_path,nbq);
+        LCont2(s(i),target,tol,proj,0,w,dumv,err,p2,c_end,nbq);
         Diagnostics(s,c_end,tol,i,proj,
                     ninfi,nregu,nsing,nclus,nfail,sols,clusols);
       end loop;
@@ -449,7 +453,7 @@ package body Standard_IncFix_Continuation is
 
     begin
       for i in s'range loop
-        LCont2(s(i),target,tol,proj,0,dumv,err,p,c);
+        LCont2(s(i),target,tol,proj,0,w,dumv,err,p,c);
       end loop;
       for i in s'range loop
         Diagnostics(s,c,tol,i,proj,ninfi,nregu,nsing,nclus,nfail,sols,clusols);
@@ -515,12 +519,14 @@ package body Standard_IncFix_Continuation is
 
   procedure Silent_Continue_with_Stop
                ( sols : in out Solution_List; proj : in boolean;
+                 nbq : in integer32 := 0;
                  target : in Complex_Number := Create(1.0) ) is
 
     sia : Solu_Info_Array(1..integer32(Length_Of(sols))) := Deep_Create(sols);
     ppa,pen : Pred_Pars;
     cpa,cen : Corr_Pars;
-    tol : constant double_float := 10.0**(-10);
+    tol : constant double_float := 1.0E-10;
+    w : integer32 := 1;
     dumv : Standard_Floating_Vectors.Link_to_Vector := null;
     err : double_float := 0.0;
 
@@ -543,7 +549,7 @@ package body Standard_IncFix_Continuation is
       Continuation_Parameters.Tune(condition);
       max_reruns := oldmax - 1;
       block_size := Length_Of(clusols);
-      Silent_Continue_with_Stop(clusols,proj,target);
+      Silent_Continue_with_Stop(clusols,proj,nbq,target);
       block_size := oldblk;
       Merge_Clustered(s,clusols);
       Deep_Clear(clusols);
@@ -559,8 +565,8 @@ package body Standard_IncFix_Continuation is
 
     begin
       for i in s'range loop
-        LCont1(s(i),target,tol,proj,p1,c_path);
-        LCont2(s(i),target,tol,proj,0,dumv,err,p2,c_end);
+        LCont1(s(i),target,tol,proj,p1,c_path,nbq);
+        LCont2(s(i),target,tol,proj,0,w,dumv,err,p2,c_end,nbq);
         Diagnostics(s,c_end,tol,i,proj,
                     ninfi,nregu,nsing,nclus,nfail,sols,clusols);
         exit when Stop_Test(s(i).sol.all);
@@ -583,7 +589,7 @@ package body Standard_IncFix_Continuation is
 
     begin
       for i in s'range loop
-        LCont2(s(i),target,tol,proj,0,dumv,err,p,c);
+        LCont2(s(i),target,tol,proj,0,w,dumv,err,p,c);
       end loop;
       for i in s'range loop
         Diagnostics(s,c,tol,i,proj,ninfi,nregu,nsing,nclus,nfail,sols,clusols);
@@ -638,13 +644,14 @@ package body Standard_IncFix_Continuation is
 
   procedure Reporting_Small_Continue
                ( file : in file_type; sols : in out Solution_List;
-                 proj : in boolean;
+                 proj : in boolean; nbq : in integer32 := 0;
                  target : in Complex_Number := Create(1.0) ) is
 
     sia : Solu_Info_Array(1..integer32(Length_Of(sols))) := Deep_Create(sols);
     ppa,pen : Pred_Pars;
     cpa,cen : Corr_Pars;
-    tol : constant double_float := 10.0**(-10);
+    tol : constant double_float := 1.0E-10;
+    w : integer32 := 1;
     dumv : Standard_Floating_Vectors.Link_to_Vector := null;
     err : double_float := 0.0;
 
@@ -669,7 +676,7 @@ package body Standard_IncFix_Continuation is
       Continuation_Parameters.Tune(condition);
       max_reruns := oldmax - 1;
       block_size := Length_Of(clusols);
-      Reporting_Small_Continue(file,clusols,proj,target);
+      Reporting_Small_Continue(file,clusols,proj,nbq,target);
       block_size := oldblk;
       Merge_Clustered(s,clusols);
       Deep_Clear(clusols);
@@ -686,8 +693,8 @@ package body Standard_IncFix_Continuation is
     begin
       Write_Bar(file);
       for i in s'range loop
-        LCont1(file,s(i),target,tol,proj,p1,c_path);
-        LCont2(file,s(i),target,tol,proj,0,dumv,err,p2,c_end);
+        LCont1(file,s(i),target,tol,proj,p1,c_path,nbq);
+        LCont2(file,s(i),target,tol,proj,0,w,dumv,err,p2,c_end,nbq);
         Write_Statistics(file,i,s(i).nstep,s(i).nfail,s(i).niter,s(i).nsyst);
         Write_Diagnostics(file,s,c_end,tol,i,proj,
                           ninfi,nregu,nsing,nclus,nfail,sols,clusols);
@@ -709,7 +716,7 @@ package body Standard_IncFix_Continuation is
 
     begin
       for i in s'range loop
-        LCont2(file,s(i),target,tol,proj,0,dumv,err,p,c);
+        LCont2(file,s(i),target,tol,proj,0,w,dumv,err,p,c);
       end loop;
       Write_Bar(file);
       for i in s'range loop
@@ -775,7 +782,7 @@ package body Standard_IncFix_Continuation is
 
   procedure Reporting_Continue
                ( file : in file_type; sols : in out Solution_List;
-                 proj : in boolean;
+                 proj : in boolean; nbq : in integer32 := 0;
                  target : in Complex_Number := Create(1.0) ) is
 
     sials : constant Solu_Info_Array_List := Create(sols,sia_size);
@@ -783,6 +790,7 @@ package body Standard_IncFix_Continuation is
     ppa,pen : Pred_Pars;
     cpa,cen : Corr_Pars;
     tol : constant double_float := 1.0E-10;
+    w : integer32 := 1;
     dumv : Standard_Floating_Vectors.Link_to_Vector := null;
     err : double_float := 0.0;
 
@@ -807,7 +815,7 @@ package body Standard_IncFix_Continuation is
       Continuation_Parameters.Tune(condition);
       max_reruns := oldmax - 1;
       block_size := Length_Of(clusols);
-      Reporting_Continue(file,clusols,proj,target);
+      Reporting_Continue(file,clusols,proj,nbq,target);
       block_size := oldblk;
       Merge_Clustered(s,clusols);
       Deep_Clear(clusols);
@@ -824,8 +832,8 @@ package body Standard_IncFix_Continuation is
     begin
       Write_Bar(file);
       for i in s'range loop
-        LCont1(file,s(i),target,tol,proj,p1,c_path);
-        LCont2(file,s(i),target,tol,proj,0,dumv,err,p2,c_end);
+        LCont1(file,s(i),target,tol,proj,p1,c_path,nbq);
+        LCont2(file,s(i),target,tol,proj,0,w,dumv,err,p2,c_end,nbq);
         Write_Statistics(file,i,s(i).nstep,s(i).nfail,s(i).niter,s(i).nsyst);
         Write_Diagnostics(file,s,c_end,tol,i,proj,
                           ninfi,nregu,nsing,nclus,nfail,sols,clusols);
@@ -850,7 +858,7 @@ package body Standard_IncFix_Continuation is
 
     begin
       for i in s'range loop
-        LCont2(file,s(i),target,tol,proj,0,dumv,err,p,c);
+        LCont2(file,s(i),target,tol,proj,0,w,dumv,err,p,c);
       end loop;
       Write_Bar(file);
       for i in s'range loop
@@ -928,13 +936,14 @@ package body Standard_IncFix_Continuation is
 
   procedure Reporting_Continue_with_Stop
                ( file : in file_type; sols : in out Solution_List;
-                 proj : in boolean;
+                 proj : in boolean; nbq : in integer32 := 0;
                  target : in Complex_Number := Create(1.0) ) is
 
     sia : Solu_Info_Array(1..integer32(Length_Of(sols))) := Deep_Create(sols);
     ppa,pen : Pred_Pars;
     cpa,cen : Corr_Pars;
-    tol : constant double_float := 10.0**(-10);
+    tol : constant double_float := 1.0E-10;
+    w : integer32 := 1;
     dumv : Standard_Floating_Vectors.Link_to_Vector := null;
     err : double_float := 0.0;
 
@@ -959,7 +968,7 @@ package body Standard_IncFix_Continuation is
       Continuation_Parameters.Tune(condition);
       max_reruns := oldmax - 1;
       block_size := Length_Of(clusols);
-      Reporting_Continue_with_Stop(file,clusols,proj,target);
+      Reporting_Continue_with_Stop(file,clusols,proj,nbq,target);
       block_size := oldblk;
       Merge_Clustered(s,clusols);
       Deep_Clear(clusols);
@@ -977,7 +986,7 @@ package body Standard_IncFix_Continuation is
       Write_Bar(file);
       for i in s'range loop
         LCont1(file,s(i),target,tol,proj,p1,c_path);
-        LCont2(file,s(i),target,tol,proj,0,dumv,err,p2,c_end);
+        LCont2(file,s(i),target,tol,proj,0,w,dumv,err,p2,c_end);
         Write_Statistics(file,i,s(i).nstep,s(i).nfail,s(i).niter,s(i).nsyst);
         Write_Diagnostics(file,s,c_end,tol,i,proj,
                           ninfi,nregu,nsing,nclus,nfail,sols,clusols);
@@ -1000,7 +1009,7 @@ package body Standard_IncFix_Continuation is
 
     begin
       for i in s'range loop
-        LCont2(file,s(i),target,tol,proj,0,dumv,err,p,c);
+        LCont2(file,s(i),target,tol,proj,0,w,dumv,err,p,c);
       end loop;
       Write_Bar(file);
       for i in s'range loop
@@ -1068,8 +1077,10 @@ package body Standard_IncFix_Continuation is
 
   procedure Silent_Toric_Continue
                ( sols : in out Solution_List; proj : in boolean;
-                 v : in out VecVec;
+                 w : in out Standard_Integer_Vectors.Vector;
+                 v : in out Standard_Floating_VecVecs.VecVec;
                  errv : in out Standard_Floating_Vectors.Vector;
+                 nbq : in integer32 := 0;
                  target : in Complex_Number := Create(1.0) ) is
 
     rtoric : constant integer32
@@ -1098,7 +1109,7 @@ package body Standard_IncFix_Continuation is
       Continuation_Parameters.Tune(condition);
       max_reruns := oldmax - 1;
       block_size := Length_Of(clusols);
-      Silent_Toric_Continue(clusols,proj,v,errv,target);
+      Silent_Toric_Continue(clusols,proj,w,v,errv,nbq,target);
       block_size := oldblk;
       Merge_Clustered(s,clusols);
       Deep_Clear(clusols);
@@ -1114,8 +1125,8 @@ package body Standard_IncFix_Continuation is
 
     begin
       for i in s'range loop
-        LCont1(s(i),target,tol,proj,p1,c_path);
-        LCont2(s(i),target,tol,proj,rtoric,v(i),errv(i),p2,c_end);
+        LCont1(s(i),target,tol,proj,p1,c_path,nbq);
+        LCont2(s(i),target,tol,proj,rtoric,w(i),v(i),errv(i),p2,c_end,nbq);
         Diagnostics(s,c_end,tol,i,proj,
                     ninfi,nregu,nsing,nclus,nfail,sols,clusols);
       end loop;
@@ -1134,7 +1145,7 @@ package body Standard_IncFix_Continuation is
 
     begin
       for i in s'range loop
-        LCont2(s(i),target,tol,proj,rtoric,v(i),errv(i),p,c);
+        LCont2(s(i),target,tol,proj,rtoric,w(i),v(i),errv(i),p,c);
       end loop;
       for i in s'range loop
         Diagnostics(s,c,tol,i,proj,ninfi,nregu,nsing,nclus,nfail,sols,clusols);
@@ -1189,8 +1200,11 @@ package body Standard_IncFix_Continuation is
 
   procedure Reporting_Toric_Continue
                ( file : in file_type; sols : in out Solution_List;
-                 proj : in boolean; v : in out VecVec;
+                 proj : in boolean;
+                 w : in out Standard_Integer_Vectors.Vector;
+                 v : in out Standard_Floating_VecVecs.VecVec;
                  errv : in out Standard_Floating_Vectors.Vector;
+                 nbq : in integer32 := 0;
                  target : in Complex_Number := Create(1.0) ) is
 
     rtoric : constant integer32
@@ -1221,7 +1235,7 @@ package body Standard_IncFix_Continuation is
       Continuation_Parameters.Tune(condition);
       max_reruns := oldmax - 1;
       block_size := Length_Of(clusols);
-      Reporting_Toric_Continue(file,clusols,proj,v,errv,target);
+      Reporting_Toric_Continue(file,clusols,proj,w,v,errv,nbq,target);
       block_size := oldblk;
       Merge_Clustered(s,clusols);
       Deep_Clear(clusols);
@@ -1239,7 +1253,10 @@ package body Standard_IncFix_Continuation is
       Write_Bar(file);
       for i in s'range loop
         LCont1(file,s(i),target,tol,proj,p1,c_path);
-        LCont2(file,s(i),target,tol,proj,rtoric,v(i),errv(i),p2,c_end);
+        new_line(file);
+        put(file,"running polyhedral end game on path ");
+        put(file,i,1); put_line(file," :");
+        LCont2(file,s(i),target,tol,proj,rtoric,w(i),v(i),errv(i),p2,c_end);
         Write_Statistics(file,i,s(i).nstep,s(i).nfail,s(i).niter,s(i).nsyst);
         Write_Diagnostics(file,s,c_end,tol,i,proj,
                           ninfi,nregu,nsing,nclus,nfail,sols,clusols);
@@ -1261,7 +1278,7 @@ package body Standard_IncFix_Continuation is
 
     begin
       for i in s'range loop
-        LCont2(file,s(i),target,tol,proj,rtoric,v(i),errv(i),p,c);
+        LCont2(file,s(i),target,tol,proj,rtoric,w(i),v(i),errv(i),p,c);
       end loop;
       Write_Bar(file);
       for i in s'range loop

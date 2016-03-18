@@ -1,3 +1,178 @@
+Fri 4 Mar 2016 : updates in trackers.py to run the path trackers on
+  more equations than unknowns.
+
+Tue 23 Feb 2016 : added detailed installation instructions to welcome.rst
+  in PHCpy2/doc/source and PHCpy3/doc/source.
+
+Fri 19 Feb 2016 : updated setup.py, __init__.py, and conf.py for 0.4.1
+  of phcpy, both for python2 and python3.
+
+Wed 17 Feb 2016 : wrote a checkin function for the blackbox solver,
+  for both the python2 and python3 versions.
+
+Tue 16 Feb 2016 : added functions to the solver module of PHCpy2 and PHCpy3
+  to determine if a polynomial system is square or not.
+
+Fri 12 Feb 2016 : updated __init__.py and setup.py, both in PHCpy2 and
+  PHCpy3 for version 0.4.0 of phcpy.
+
+Thu 11 Feb 2016 : updated the tropisms.py in PHCpy2/phcpy for python2.
+
+Wed 10 Feb 2016 : updated test in tropisms.py for 'dd' and 'qd'.
+
+Tue 9 Feb 2016 : random_coefficient_system in solver.py had no branch for
+  the quad double precision.  Added test function to tropisms.py that runs
+  a polyhedral end game.
+
+Fri 5 Feb 2016 : testing for quaddobl versions of tropisms.py in python3.
+
+Thu 4 Feb 2016 : dobldobl and quaddobl versions of functions in tropisms,
+  tested for double double precision with python3.
+
+Tue 2 Feb 2016 : updated tropisms.py with a new function to change the values
+  of a stored tropism.
+
+Sun 31 Jan 2016 : added python 2 version of tropisms.py.
+
+Sat 30 Jan 2016 : start of code in a new module tropisms.py.
+
+Sun 17 Jan 2016 : changed setup.py and MANIFEST.in in PHCpy2, with also most
+  of the .py files in PHCpy2/phcpy.  Updated setup.py, __init__.py, and
+  conf.py for both python2 and python3 versions of phcpy to 0.3.9.
+
+Sat 16 Jan 2016 : Copied the new wrappers in tuning.py for python2,
+  in PHCpy2/phcpy.
+
+Fri 15 Jan 2016 : extended the tuning module with wrappers for the parameters
+  and settings for the predictor and the corrector in PHCpy3/phcpy.
+  Completed the wrappers in tuning.py for python3.
+
+Thu 14 Jan 2016 : new module tuning with the wrappers from trackers
+  to tune the parameters of the continuation in PHCpy2 and PHCpy3.
+  Fixed bug in trackers, caused by standard making of names.
+  Added auto documentation of the functions in the tuning module
+  as an extra section to pathtrack.rst, in PHCpy3/doc.
+
+Wed 13 Jan 2016 : started the extension of trackers in PHCpy3/phcpy with
+  wrappers to get and set values of the continuation parameters.
+  Did the same thing in the trackers module of PHCpy2/phcpy.
+
+Sat 2 Jan 2016 : renamed the directory PHCpy into PHCpy2.  Prepared setup.py,
+  __init__.py, and conf.py for version 0.3.8 of phcpy.
+
+Fri 1 Jan 2016 : minor formatting changes in solutions.py both for PHCpy/phcpy
+  and PHCpy3/phcpy.  As recommended by pylint, used ast.literal_eval() in
+  the module solutions.py.  New documentation in PHCpy/doc with sphinx-1.3.3,
+  processed with Python 3.5.
+
+Thu 31 Dec 2015 : new directory PHCpy3 with the version of phcpy for
+  Python 3.5.
+
+Mon 28 Dec 2015 : made the tolerances in the membertest in sets.py
+  explicit arguments with large default values.  Improved posdimsols.rst,
+  modified about.rst, conf.py, __init__.py, and setup.py for 0.3.7.
+
+Sun 27 Dec 2015 : added functions for membership tests to sets.py.
+  Fixed type error in the test_member() function of sets.py.
+  Started the documentation in posdimsols.rst a section on the
+  homotopy membership test.
+
+Thu 24 Dec 2015 : changes in sets.py for renamed functions in phcpy2c.
+  More changes in sets.py for muting the monodromy breakup.
+  Still more changes in sets.py for making the monodromy breakup verbose.
+  Added a paragraph to posdimsols.rst about the factor method in
+  double double and quad double precision, updated conf.py, __init__.py,
+  and setup.py for version 0.3.6 of phcpy.
+
+Wed 23 Dec 2015 : extended functionality of the monodromy breakup in sets.py
+  Made some small change for the verbosity.  Added the reporting of the
+  trace grid diagnostics in the monodromy breakup method.
+
+Tue 22 Dec 2015 : improved tests on the monodromy in sets.py.
+
+Mon 21 Dec 2015 : added functions to sets.py to run the monodromy_breakup
+  in double double and quad double precision.
+
+Sun 13 Dec 2015 : added functions to sets.py to embed systems with coefficients
+  in double double and quad double precision.
+
+Sat 12 Dec 2015 : added factor method to sets.py, which calls the
+  methods monodromy_breakup and decomposition, tested by test_factor().
+  In the phcpy documentation, added a subsection to posdimsols.rst
+
+Fri 11 Dec 2015 : for version 0.3.5, adjusted setup.py, __init__.py and
+  the conf.py in the documentation.
+
+Sat 28 Nov 2015 : adjusted the checkout function for the convex hulls of
+  polytopes in polytopes.py for points that are not vertices.
+  Added a function to collect the edges of the facets.
+  For 3-dimensional polytopes, the test computes the Euler characteristic.
+
+Thu 26 Nov 2015 : added a checkout function to polytopes.py to check the
+  correctness of the computed inner normals to the facets.
+
+Wed 25 Nov 2015 : a checkout function is added to check the correctness of
+  the planar convex hull function, in polytopes.py.  Added dim as argument
+  to the test_convex_hull().  Also added parameters for the number of points
+  and the range of the values for the coordinates.
+
+Tue 24 Nov 2015 : added a function to polytopes.py to check the input type
+  of the arguments to the convex hull function.  Fixed errors in polytopes.py
+  reported by pylint and added a function 'initial_support'.
+
+Mon 23 Nov 2015 : for version 0.3.4, updated setup.py, __init__.py and the
+  conf.py in the documentation.
+
+Sun 22 Nov 2015 : updated the documentation of positive dimensional solutions
+  with a simple illustration of diagonal homotopies.  Added a picture about
+  the design of phcpy to modphcpy2c.rst.  Documentation about the interface
+  module is moved towards the description of the module phcpy2c.
+  Integrated the documentation for the interesting example with the
+  families into one restructured text chapter.
+
+Sat 21 Nov 2015 : added an illustration of cascade_step to posdimsols.rst,
+  on the illustrative example of a sphere, twisted cubic, and a point.
+
+Fri 20 Nov 2015 : modified the diagonal solvers in sets.py to use the top
+  dimension as needed in the collapsing of the diagonal.
+
+Thu 12 Nov 2015 : updated witness_set_of_hypersurface in sets.py with an
+  extra argument to select the precision.
+
+Tue 10 Nov 2015 : extended sets.py with function to define the diagonal
+  homotopies in double double and quad double precision.
+  Versions of the diagonal solver in sets.py are available for double double
+  and quad double precision.
+
+Mon 9 Nov 2015 : modified sets.py for py2c_standard_diagonal_homotopy,
+  renamed from the old py2c_create_diagonal_homotopy.
+
+Sun 8 Nov 2015 : added the function standard_diagonal_solver to sets.py.
+
+Sat 7 Nov 2015 : fixed bugs in sets.py with the standard_double_cascade_steps
+  and started introduction of diagonal homotopies.
+
+Fri 6 Nov 2015 : updated __init__.py, setup.py, and conf.py for version 0.3.3
+  of phcpy.
+
+Thu 5 Nov 2015 : extended sweepers.py with tests on the real sweep,
+  and with double double and quad double versions for the real sweep.
+  Started writing documentation on the sweepers module, with a new
+  sweep.rst and a picture in circles.png.
+
+Wed 4 Nov 2015 : in sweepers.py adjusted the names to the calls of the 
+  functions that run the sweep, as they got changed in phcpy2c.
+  Extended sweepers.py with functions to do a real parameter sweep.
+
+Mon 2 Nov 2015 : in interface.py, added an optional argument nbvar to store
+  systems that are not square with the parameter number of variables, in case
+  that is different from the number of equations.  Adjusted sweepers.py
+  so no trick is needed when storing the family of polynomial systems.
+
+Sun 1 Nov 2015 : added skeleton for a new module sweepers.py, updating
+  setup.py, to track paths defined by a sweep homotopy.
+  Provided routines for a sweep in the module sweepers.py.
+
 Fri 23 Oct 2015 : in schubert.py, changed parameter verify into vrfcnd
   for pylint warnings; improved random_trinomials() in solver.py.
   Some small changes in trackers.py for pylint warnings.

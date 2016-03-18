@@ -1,3 +1,33 @@
+Tue 15 Mar 2016 : in drivers_for_homotopy_creation.adb, fixed setting of
+  the parameter deci when leaving the homotopy creation for Laurent systems.
+
+Mon 14 Mar 2016 : fixed bug in standard_laurent_homotopy.adb so phc -p
+  works for overdetermined Laurent homotopies in double precision.
+
+Sun 13 Mar 2016 : extended ts_homotopy.adb for overdetermined systems,
+  and also for Laurent systems.
+
+Tue 8 Mar 2016 : extended drivers_for_homotopy_creation with a driver for
+  Laurent polynomial systems.
+
+Tue 1 Mar 2016 : when parsing target system into double double or quad
+  double precision, must use the correct number of variables in the package
+  drivers_for_homotopy_creation.adb.
+
+Mon 22 Feb 2016 : updates in the homotopies for Laurent systems for nonsquare
+  systems, in {standard,dobldobl,quaddobl}_laurent_homotopy.adb.
+
+Sun 21 Feb 2016 : standard_homotopy.adb updated for nonsquare systems,
+  and made same updates in {dobldobl,quaddobl,multprec}_homotopy.adb.
+
+Tue 12 Jan 2016 : to {standard,dobldobl,quaddobl,multprec}_homotopy added
+  selectors, mainly needed in polyhedral end games, to reset k.
+
+Wed 18 Nov 2015 : updated drivers_for_homotopy_creation so the homotopy
+  construction respects preset nonzero values for the precision.
+  Clarified the use of double double if the number of decimal places is
+  in )16, 32] and the use of quad double for #decimals in )32, 64].
+
 Thu 10 Sep 2015 : new package {dobldobl,quaddobl}_linear_poly_solvers with
   added test in ts_linsol.adb, for use in the blackbox solver, to solve
   linear systems given in symbolic polynomial form with double doubles

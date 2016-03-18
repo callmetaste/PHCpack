@@ -303,6 +303,8 @@ function use_c2phc ( job : integer32;
 --                 one double double for the norm of last Newton update,
 --                 one double double for the inverse of condition# estimate,
 --                 one double double for the norm of the residual;
+--         = 345 : changes the double double solution with data in b and c,
+--                 as the double double equivalent to job 35;
 --         = 346 : appends the solution with data in b  = (n,m) and
 --                 (also see job = 344 for info) to the container;
 --         = 347 : clears all solutions from the container;
@@ -335,6 +337,8 @@ function use_c2phc ( job : integer32;
 --                 one quad double for the norm of last Newton update,
 --                 one quad double for the inverse of condition# estimate,
 --                 one quad double for the norm of the residual;
+--         = 395 : changes the quad double solution with data in b and c,
+--                 as the quad double equivalent to job 35;
 --         = 396 : appends the solution with data in b  = (n,m) and
 --                 (also see job = 394 for info) to the container;
 --         = 397 : clears all solutions from the container;
@@ -455,7 +459,7 @@ function use_c2phc ( job : integer32;
 --
 -- the operations of the monodromy factorization :
 --
---   job   =  39 : set state of monodromy permutations to silent;
+--   job    = 39 : makes the factorization with standard doubles go silent;
 --         =  40 : display the menu of all available options;
 --         =  41 : prompts the user for a witness set,
 --                 stores the system in the systems container,
@@ -464,37 +468,44 @@ function use_c2phc ( job : integer32;
 --                 and in b the following two numbers:
 --                   b[0] : dimension of the solution set;
 --                   b[1] : degree of the solution set.
---         =  42 : takes the system and the solutions from the containers
+--   job   =  42 : takes the system and the solutions from the containers
 --                 and initializes the sampling machine, on input,
 --                 the dimension of the witness set must be in a;
---         =  43 : assigns the coefficient c[0] + c[1]*I to the
+--   job   =  43 : assigns the coefficient c[0] + c[1]*I to the
 --                 b-th coefficient of the a-th slice;
---         =  44 : stores the c[0] + c[1]*I as random gamma constant
---                 for the a-th equation;
---         =  45 : compute a new witness set on the new slices;
+--   job   =  44 : stores the c[0] + c[1]*I as random gamma constant
+--                 for the a-th equation, in standard double precision;
+--   job   =  45 : compute a new witness set on the new slices;
 --         =  46 : swaps slices and solution sets to turn back;
 --         =  47 : copy embedded system from sampler to systems container;
---         =  48 : copy first solution list to container;
+--         =  48 : copy first standard solution list to container;
 --         =  49 : put solutions with index in a from monodromy grid
 --                 in the solutions container (companion to job = 11);
---         =  50 : initializes Monodromy_Permutations with two numbers:
+--   job   =  50 : initializes Standard_Monodromy_Permutations
+--                 with two numbers:
 --                   a[0] : number of monodromy loops,
 --                   b[0] : degree of the solution component to factor;
---         =  51 : store solutions in container to Monodromy_Permutations;
---         =  52 : compute permutation by last stored solution list,
+--   job   =  51 : store solutions in container in standard double precision
+--                 to Standard_Monodromy_Permutations;
+--   job   =  52 : compute permutation by last stored solution list,
+--                 in standard double precision,
 --                 and return this new permutation in b;
---         =  53 : updates decomposition with a new permutation,
+--   job   =  53 : updates decomposition with a new permutation,
+--                 computed on data in standard double precision,
 --                 a[0] must contain the dimension and b the permutation;
---         =  54 : writes the current decomposition;
---         =  55 : applies the linear trace to certify the decomposition;
---         =  56 : returns in c the diagnostics of the trace grid;
---         =  57 : returns in c difference between trace and actual sum.
---         =  58 : finds the index of a solution label in a slice,
+--   job   =  54 : writes the current standard precision decomposition;
+--         =  55 : applies the linear trace to certify the decomposition,
+--                 in standard double precision;
+--   job   =  56 : returns in c the diagnostics of the standard trace grid;
+--         =  57 : returns in c difference between trace and actual sum,
+--                 computed in standard double precision;
+--   job   =  58 : finds the index of a solution label in a slice,
+--                 in standard double precision;
 --                 on entry: a[0] is label to a solution,
 --                           a[1] is the number of a slice;
 --                 on return: b is index to solution if label occurs,
 --                            otherwise, b is zero.
---         =  59 : initialize number of slices in Sampling_Operations
+--   job   =  59 : initialize number of slices in Standard_Sampling_Operations
 --                 with the content of a;
 --         =  60 : adds a new slice to Sampling_Operations, 
 --                 where a[0] = total number of doubles in the slices;
@@ -507,7 +518,7 @@ function use_c2phc ( job : integer32;
 --                       a[2] = the ambient dimension;
 --                 the index to the slice is in b.
 --         =  62 : sets the target slices to the a-th slice stored 
---                 in Sampling_Operations.
+--                 in Standard_Sampling_Operations.
 --         =  63 : completes one loop, sampling from one solution,
 --                 where a[0] = index for the starting hyperplane sections;
 --                       a[1] = index for the target hyperplanes sections;
@@ -532,16 +543,195 @@ function use_c2phc ( job : integer32;
 --                          and number of characters in the string on return,
 --                   b : characters in the string representation of
 --                       the k-th polynomial in the container,
---                 this is the reverse of operation 76,
+--                 this is the reverse of operation 76;
 --         =  68 : returns in a the number of irreducible factors in
---                 the current irreducible decomposition.
+--                 the current irreducible decomposition;
 --         =  69 : given in a an index k to an irreducible component,
 --                 returns in a the degree of the k-th component and
 --                 in b the labels of the points that span the k-th
---                 component in the current irreducible decomposition.
+--                 component in the standard irreducible decomposition.
+--   job   = 280 : returns in c the real and imaginary parts of
+--                 a randomly generated complex number of modulus one,
+--                 generated in standard double precision;
+--   job   = 630 : makes the factorization with standard doubles go verbose.
 --
--- ON RETURN :
---   0 if the operation was successful, otherwise something went wrong,
+-- ANALOGUE OPERATIONS FOR DOUBLE DOUBLE AND QUAD DOUBLE PRECISION :
+--
+--   job   = 631 : prompts for a witness set in double double precision
+--                 stores the system in the dobldobl systems container,
+--                 and its solutions in the dobldobl solutions container,
+--                 and returns in a the dimension of the ambient space
+--                 and in b the following two numbers:
+--                   b[0] : dimension of the solution set;
+--                   b[1] : degree of the solution set.
+--   job   = 632 : takes the system and the solutions from the containers
+--                 for double double precision
+--                 and initializes the sampling machine, on input,
+--                 the dimension of the witness set must be in a;
+--   job   = 633 : assigns the double double coefficient, stored in the first
+--                 four doubles in c, the real and imaginary parts, to the
+--                 b-th coefficient of the a-th slice;
+--   job   = 634 : uses the data in c to store the random gamma constant
+--                 for the a-th equation, in double double precision;
+--   job   = 635 : compute a new dobldobl witness set on the new slices;
+--         = 636 : swaps dobldobl slices and solution sets to turn back;
+--         = 637 : copy embedded system from sampler to systems container,
+--                 for coefficients in double double precision;
+--   job   = 638 : copy first dobldobl solution list to container;
+--         = 639 : put solutions with index in a from monodromy grid
+--                 in the dobldobl solutions container (companion to job = 11);
+--   job   = 640 : init DoblDobl_Monodromy_Permutations with two numbers:
+--                   a[0] : number of monodromy loops,
+--                   b[0] : degree of the solution component to factor;
+--   job   = 641 : store solutions in container in double double
+--                 precision to DoblDobl_Monodromy_Permutations;
+--   job   = 642 : compute permutation by last stored solution list,
+--                 in double double precision,
+--                 and return this new permutation in b;
+--   job   = 643 : updates decomposition with a new permutation,
+--                 computed on data in double double precision,
+--                 a[0] must contain the dimension and b the permutation;
+--   job   = 644 : writes the double double precision decomposition;
+--         = 645 : applies the linear trace to certify the decomposition,
+--                 in double double precision;
+--   job   = 646 : returns in c the diagnostics of the dobldobl trace grid;
+--         = 647 : returns in c difference between trace and actual sum,
+--                 computed in double double precision;
+--   job   = 648 : finds the index of a solution label in a slice,
+--                 in double double precision,
+--                 on entry: a[0] is label to a solution,
+--                           a[1] is the number of a slice;
+--                 on return: b is index to solution if label occurs,
+--                            otherwise, b is zero;
+--   job   = 649 : initialize number of slices in DoblDobl_Sampling_Operations
+--                 with the content of a;
+--   job   = 652 : sets the target slices to the a-th slice stored 
+--                 in DoblDobl_Sampling_Operations.
+--   job   = 653 : completes one loop, sampling from one solution,
+--                 in double double precision,
+--                 where a[0] = index for the starting hyperplane sections;
+--                       a[1] = index for the target hyperplanes sections;
+--                   and b = label of the start solution;
+--                 on return b contains the label of the matching solution
+--                 in the list at the target hyperplane sections.
+--   job   = 654 : reads a witness set in double double precision from file,
+--                 on input in b is the file name, and in a the
+--                          number of characters in the file name,
+--                 stores the system in the systems container,
+--                 and its solutions in the solutions container,
+--                 and returns in a the dimension of the ambient space
+--                 and in b the following two numbers:
+--                   b[0] : dimension of the solution set;
+--                   b[1] : degree of the solution set;
+--   job   = 655 : writes a witness set in double double precision to file,
+--                 on input in b is the file name, and in a the
+--                          number of characters in the file name,
+--                 the system and the solutions are taken from containers.
+--   job   = 656 : returns in a the number of irreducible factors in the
+--                 the irreducible decomposition, in double double preicsion;
+--   job   = 657 : given in a an index k to an irreducible component,
+--                 returns in a the degree of the k-th component and
+--                 in b the labels of the points that span the k-th
+--                 component in the dobldobl irreducible decomposition.
+--   job   = 658 : makes the factorization with double doubles go silent;
+--   job   = 659 : returns in c the real and imaginary parts of
+--                 a randomly generated complex number of modulus one,
+--                 generated in double double precision;
+--   job   = 660 : makes the factorization with double doubles go verbose.
+--
+--   job   = 661 : prompts for a witness set in quad double precision
+--                 stores the system in the quaddobl systems container,
+--                 and its solutions in the quaddobl solutions container,
+--                 and returns in a the dimension of the ambient space
+--                 and in b the following two numbers:
+--                   b[0] : dimension of the solution set;
+--                   b[1] : degree of the solution set;
+--   job   = 662 : takes the system and the solutions from the containers
+--                 for quad double precision
+--                 and initializes the sampling machine, on input,
+--                 the dimension of the witness set must be in a.
+--   job   = 663 : assigns the quad double coefficient, stored in the first
+--                 eight doubles in c, the real and imaginary parts, to the
+--                 b-th coefficient of the a-th slice;
+--   job   = 664 : uses the data in c to store the random gamma constant
+--                 for the a-th equation, in quad double precision;
+--   job   = 665 : compute a new quaddobl witness set on the new slices;
+--         = 666 : swaps quaddobl slices and solution sets to turn back;
+--         = 667 : copy embedded system from sampler to systems container,
+--                 for coefficients in quad double precision;
+--   job   = 668 : copy first quaddobl solution list to container;
+--         = 669 : put solutions with index in a from monodromy grid
+--                 in the quaddobl solutions container (companion to job = 11);
+--   job   = 670 : init QuadDobl_Monodromy_Permutations with two numbers:
+--                   a[0] : number of monodromy loops,
+--                   b[0] : degree of the solution component to factor;
+--   job   = 671 : store solutions in container in quad double
+--                 precision to QuadDobl_Monodromy_Permutations;
+--   job   = 672 : compute permutation by last stored solution list,
+--                 in quad double precision,
+--                 and return this new permutation in b;
+--   job   = 673 : updates decomposition with a new permutation,
+--                 computed on data in quad double precision,
+--                 a[0] must contain the dimension and b the permutation;
+--   job   = 674 : writes the quad double precision decomposition;
+--   job   = 675 : applies the linear trace to certify the decomposition,
+--                 in quad double precision;
+--   job   = 676 : returns in c the diagnostics of the quaddobl trace grid;
+--         = 677 : returns in c difference between trace and actual sum,
+--                 computed in quad double precision;
+--   job   = 678 : finds the index of a solution label in a slice,
+--                 in quad double precision,
+--                 on entry: a[0] is label to a solution,
+--                           a[1] is the number of a slice;
+--                 on return: b is index to solution if label occurs,
+--                            otherwise, b is zero;
+--   job   = 679 : initialize number of slices in QuadDobl_Sampling_Operations
+--                 with the content of a;
+--   job   = 682 : sets the target slices to the a-th slice stored 
+--                 in QuadDobl_Sampling_Operations.
+--   job   = 683 : completes one loop, sampling from one solution,
+--                 in quad double precision,
+--                 where a[0] = index for the starting hyperplane sections;
+--                       a[1] = index for the target hyperplanes sections;
+--                   and b = label of the start solution;
+--                 on return b contains the label of the matching solution
+--                 in the list at the target hyperplane sections.
+--   job   = 684 : reads a witness set in quad double precision from file,
+--                 on input in b is the file name, and in a the
+--                          number of characters in the file name,
+--                 stores the system in the systems container,
+--                 and its solutions in the solutions container,
+--                 and returns in a the dimension of the ambient space
+--                 and in b the following two numbers:
+--                   b[0] : dimension of the solution set;
+--                   b[1] : degree of the solution set;
+--   job   = 685 : writes a witness set in quad double precision to file,
+--                 on input in b is the file name, and in a the
+--                          number of characters in the file name,
+--                 the system and the solutions are taken from containers.
+--   job   = 686 : returns in a the number of irreducible factors in the
+--                 the irreducible decomposition, in quad double preicsion;
+--   job   = 687 : given in a an index k to an irreducible component,
+--                 returns in a the degree of the k-th component and
+--                 in b the labels of the points that span the k-th
+--                 component in the quaddobl irreducible decomposition.
+--   job   = 688 : makes the factorization with quad doubles go silent;
+--   job   = 689 : returns in c the real and imaginary parts of
+--                 a randomly generated complex number of modulus one,
+--                 generated in quad double precision;
+--   job   = 690 : makes the factorization with quad doubles go verbose.
+--
+-- EMBEDDING A POLYNOMIAL SYSTEM :
+--
+--   job   =  66 : given in a[0] the dimension of the embedding,
+--                 replaces the system in container for systems in standard
+--                 double precision by the embedded system.
+--         = 129 : given in a[0] the dimension of the embedding,
+--                 replaces the system in container for systems in double
+--                 double precision by the embedded system.
+--         = 260 : given in a[0] the dimension of the embedding,
+--                 replaces the system in container for systems in quad
+--                 double precision by the embedded system.
 --
 -- tuning continuation parameters and setting output level :
 --
@@ -552,7 +742,7 @@ function use_c2phc ( job : integer32;
 --         = 189 : given in a[0] an integer in the range 1..34,
 --                 returns in c the value of the corresponding continuation
 --                 parameter with index equal to a[0];
---         = 190 : given in a[0] an integer in the range 1..34, and
+--   job   = 190 : given in a[0] an integer in the range 1..34, and
 --                 given in c[0] the value of the corresponding continuation
 --                 parameter with index equal to a[0], sets the value of
 --                 that continuation parameter to the value of c[0];
@@ -1002,8 +1192,17 @@ function use_c2phc ( job : integer32;
 --                 is given in b, in a is the number of characters;
 --         = 164 : create a cascade homotopy from the stored systems;
 --         = 165 : create a diagonal homotopy from the systems stored
---                 as target and start systems, the input parameters
---                 a and b are the dimensions of the witness sets;
+--                 as target and start systems in standard double precision,
+--                 the input parameters a and b are the dimensions of the
+--                 witness sets;
+--         = 289 : create a diagonal homotopy from the systems stored
+--                 as target and start systems in double double precision,
+--                 the input parameters a and b are the dimensions of 
+--                 the witness sets;
+--         = 290 : create a diagonal homotopy from the systems stored
+--                 as target and start systems in quad double precision,
+--                 the input parameters a and b are the dimensions of 
+--                 the witness sets.
 --         = 166 : reads first or second witness set from file,
 --                 depending on whether the value of a equals 1 or 2,
 --                 and returns in a the dimension of the ambient space
@@ -1025,7 +1224,18 @@ function use_c2phc ( job : integer32;
 --                   a[1] : number of characters in the string b;
 --                   b : characters of the name of the output file.
 --         = 170 : eliminates the extrinsic diagonal for the system
---                 and the solutions in the container, on entry are
+--                 and the solutions in the container,
+--                 in standard double precision, on entry are
+--                   a[0] : current number of slack variables,
+--                   a[1] : number of slack variables to be added.
+--         = 299 : eliminates the extrinsic diagonal for the system
+--                 and the solutions in the container,
+--                 in double double precision, on entry are
+--                   a[0] : current number of slack variables,
+--                   a[1] : number of slack variables to be added.
+--         = 312 : eliminates the extrinsic diagonal for the system
+--                 and the solutions in the container,
+--                 in quad double precision, on entry are
 --                   a[0] : current number of slack variables,
 --                   a[1] : number of slack variables to be added.
 --         = 171 : removes the last slack variable for the system
@@ -1273,9 +1483,38 @@ function use_c2phc ( job : integer32;
 --                       in a[1] the number of characters stored in b,
 --                 where b represents a polynomial in n variables,
 --                 places a witness set in the systems and solutions
---                 container for the polynomial stored in b.
+--                 container in standard double precision for the polynomial
+--                 stored in b;
+--         = 259 : given in a[0] the number n of variables, 
+--                       in a[1] the number of characters stored in b,
+--                 where b represents a polynomial in n variables,
+--                 places a witness set in the systems and solutions
+--                 container in double double precision for the polynomial
+--                 stored in b;
+--         = 269 : given in a[0] the number n of variables, 
+--                       in a[1] the number of characters stored in b,
+--                 where b represents a polynomial in n variables,
+--                 places a witness set in the systems and solutions
+--                 container in quad double precision for the polynomial
+--                 stored in b;
 --         = 271 : makes the solutions to start the cascade to intersect
---                 two witness sets of dimensions in a[0] and b[0].
+--                 two witness sets of dimensions in a[0] and b[0],
+--                 in standard double precision;
+--         = 230 : doubles the number of symbols in the symbol table
+--                 needed to write the target system solved to start the
+--                 cascade of diagonal homotopies in extrinsic coordinates,
+--                 given in a[0] the ambient dimension, original #variables,
+--                       in a[1] the top dimension of the set,
+--                       in a[2] the number of characters stored in b,
+--                 where b stores the names of the symbols in the first set,
+--                 on a successful return, the symbol table will contain the
+--                 suffixed symbols to write the target system properly;
+--         = 297 : makes the solutions to start the cascade to intersect
+--                 two witness sets of dimensions in a[0] and b[0],
+--                 in double double precision;
+--         = 298 : makes the solutions to start the cascade to intersect
+--                 two witness sets of dimensions in a[0] and b[0],
+--                 in quad double precision.
 --
 -- univariate root finders :
 --
@@ -1437,6 +1676,61 @@ function use_c2phc ( job : integer32;
 --                 with a gamma constant given by two doubles in c.
 --         = 524 : clear the homotopy.
 --
+-- homotopy membership test on point, given a witness set :
+--
+--   job   = 537 : runs the membership test in standard double precision,
+--                 for a witness set stored in the standard containers,
+--                 on input in a is the verbose flag:
+--                 0 for no output, or 1 for diagnostic intermediate output,
+--                 on input in b[0] is the dimension n of the test point,
+--                 which equals the number of complex coordinates,
+--                 and in b[1] is the dimension of the witness set,
+--                 on input in c are first the two tolerances:
+--                 first on the residual for the evaluation,
+--                 second on the tolerance on the membership,
+--                 followed then by the coordinates of the test point,
+--                 if a test point has dimension n, then c on input
+--                 is expected to have 2 + 2*n doubles;
+--                 on return in a is the result of the evaluation test:
+--                 0 if failure, or 1 if success,
+--                 on return in b is the result of the membership test:
+--                 0 if failure, or 1 if success;
+--   job   = 538 : runs the membership test in double double precision,
+--                 for a witness set stored in the dobldobl containers,
+--                 on input in a is the verbose flag:
+--                 0 for no output, or 1 for diagnostic intermediate output,
+--                 on input in b is the dimension n of the test point,
+--                 and in b[1] is the dimension of the witness set,
+--                 which equals the number of complex coordinates,
+--                 on input in c are first the two tolerances:
+--                 first on the residual for the evaluation,
+--                 second on the tolerance on the membership,
+--                 followed then by the coordinates of the test point,
+--                 if a test point has dimension n, then c on input
+--                 is expected to have 2 + 4*n doubles;
+--                 on return in a is the result of the evaluation test:
+--                 0 if failure, or 1 if success,
+--                 on return in b is the result of the membership test:
+--                 0 if failure, or 1 if success;
+--   job   = 538 : runs the membership test in quad double precision,
+--                 for a witness set stored in the quaddobl containers,
+--                 on input in a is the verbose flag:
+--                 0 for no output, or 1 for diagnostic intermediate output,
+--                 on input in b is the dimension n of the test point,
+--                 and in b[1] is the dimension of the witness set,
+--                 which equals the number of complex coordinates,
+--                 on input in c are first the two tolerances:
+--                 first on the residual for the evaluation,
+--                 second on the tolerance on the membership,
+--                 followed then by the coordinates of the test point,
+--                 if a test point has dimension n, then c on input
+--                 is expected to have 2 + 8*n doubles;
+--                 on return in a is the result of the evaluation test:
+--                 0 if failure, or 1 if success,
+--                 on return in b is the result of the membership test:
+--                 0 if failure, or 1 if success.
+--
+--
 -- operations on reading systems and solution with given file name :
 --
 --   job   = 540 : reads a standard system into the container where the
@@ -1569,6 +1863,167 @@ function use_c2phc ( job : integer32;
 --                 there are n doubles for use as coefficients,
 --                 note that n/8 is the dimension of the complex vector,
 --                 and n/8 is then also the dimension of the solutions;
+--
+--  Operating a sweep homotopy :
+--
+--   job =   610 : defines the indices of the variables that serve
+--                 as parameters in the sweep homotopy numerically, given 
+--                 in a[0] the number of equations,
+--                 in a[1] the total number of variables,
+--                 in a[2] the number m of parameters,
+--                 in b a list of m integers with indices
+--                 in the range 1..n defining the parameters;
+--       =   611 : defines the parameters in the sweep homotopy symbolically,
+--                 given in a[0] the number of equations,
+--                 in a[1] the total number of variables,
+--                 in a[2] the number m of parameters, and
+--                 in a[3] the number of characters stored in b,
+--                 the symbols in b are separated by one space,
+--                 and the symbol table must be initialized properly
+--                 so it contains all the symbols listed in b;
+--       =   612 : returns in a the number of equations;
+--       =   613 : returns in a the number of variables;
+--       =   614 : returns in a the number of parameters;
+--       =   615 : returns the indices of the parameters in a;
+--       =   616 : returns in b the string representations of the
+--                 parameters in the sweep homotopy, given on input in a
+--                 an upper bound on the length of the string to store
+--                 the sequence of symbols (separated by one space);
+--       =   617 : clears the definition of the parameters in the sweep.
+--       =   618 : sets the start or target values of the parameters,
+--                 in standard double, double double, or quad double
+--                 precision, on input are
+--                 in a[0] : the precision level, 0, 1, or 2 for standard
+--                 double, double double, or quad double respectively,
+--                 in a[0] : 0 or 1, for start or target respectively,
+--                 in b[0] : the number of coefficients to store the values
+--                 real and imaginary parts of the start or target,
+--                 irrespective the precision (d, dd, or qd), and
+--                 in c : the values of the start or target parameters;
+--       =   619 : gets the start or target values of the parameters,
+--                 in standard double, double double, or quad double
+--                 precision, on input are
+--                 in a[0] : the precision level, 0, 1, or 2 for standard
+--                 double, double double, or quad double respectively,
+--                 in a[0] : 0 or 1, for start or target respectively,
+--                 in b[0] : the number of coefficients to store the values
+--                 real and imaginary parts of the start or target,
+--                 irrespective the precision (d, dd, or qd), and
+--                 on return in c are the values of the start or target;
+--       =   620 : runs a complex convex-parameter sweep between the
+--                 defined values of the parameter for start and target,
+--                 with on input 
+--                 in a[0] : the precision level, 0, 1, or 2 for standard
+--                 double, double double, or quad double respectively,
+--                 in a[1] : 0, 1, or 2 for the choice of the gamma,
+--                 0: randomly generated gamma, should be the default,
+--                 1: no gamma constant, gamma = 1 (which could fail),
+--                 2: user given gamma, with real and complex part in
+--                 c[0] and c[1] respectively;
+--                 for this to work, the proper systems and solutions
+--                 containers must be initialized, on return, the new
+--                 solutions are stored in the solutions container.
+--       =   621 : runs a real natural parameter sweep between the
+--                 defined values of the parameter for start and target,
+--                 with on input 
+--                 in a : the precision level, 0, 1, or 2 for standard
+--                 double, double double, or quad double respectively,
+--                 for this to work, the proper systems and solutions
+--                 containers must be initialized, on return, the new
+--                 solutions are stored in the solutions container.
+--
+-- access to the container for numerically computed tropisms :
+--
+--   job  =  711 : initialize the tropisms in standard double precision,
+--                 on input in a[0] are the number of tropisms, and
+--                 in a[1] the length of the tropisms, in b are then
+--                 the winding numbers, as many as the value of a[0],
+--                 in c are all the floating-point coefficients,
+--                 as many as a[0]*(a[1]+1), for the coordinates of the
+--                 tropisms and the errors on the numerical tropisms; 
+--           712 : initialize the tropisms in double double precision,
+--                 on input in a[0] are the number of tropisms, and
+--                 in a[1] the length of the tropisms, in b are then
+--                 the winding numbers, as many as the value of a[0],
+--                 in c are all the floating-point coefficients,
+--                 as many as 2*a[0]*(a[1]+1), for the coordinates of the
+--                 tropisms and the errors on the numerical tropisms; 
+--           713 : initialize the tropisms in quad double precision,
+--                 on input in a[0] are the number of tropisms, and
+--                 in a[1] the length of the tropisms, in b are then
+--                 the winding numbers, as many as the value of a[0],
+--                 in c are all the floating-point coefficients,
+--                 as many as 4*a[0]*(a[1]+1), for the coordinates of the
+--                 tropisms and the errors on the numerical tropisms; 
+--           714 : store a tropism in standard double precision,
+--                 on input in a[0] is the length of the tropism, and
+--                 in a[1] the index of the tropism, 
+--                 in b is the winding number,
+--                 in c are all the floating-point coefficients,
+--                 as many as a[0] + 1, with the coordinates of the 
+--                 tropisms and the error;
+--           715 : store a tropism in double double precision,
+--                 on input in a[0] is the length of the tropism, and
+--                 in a[1] the index of the tropism, 
+--                 in b is the winding number,
+--                 in c are all the floating-point coefficients,
+--                 as many as 2*a[0] + 2, with the coordinates of the 
+--                 tropisms and the error;
+--           716 : store a tropism in quad double precision,
+--                 on input in a[0] is the length of the tropism, and
+--                 in a[1] the index of the tropism, 
+--                 in b is the winding number,
+--                 in c are all the floating-point coefficients,
+--                 as many as 4*a[0] + 4, with the coordinates of the 
+--                 tropisms and the error;
+--           717 : retrieve all tropisms in standard double precision,
+--                 on return in a[0] are the number of tropisms, and
+--                 in a[1] the length of each tropism,
+--                 in b are the winding numbers for each tropism, and
+--                 in c are all coefficients, as many as a[0]*(a[1]+1);
+--           718 : retrieve all tropisms in double double precision,
+--                 on return in a[0] are the number of tropisms, and
+--                 in a[1] the length of each tropism,
+--                 in b are the winding numbers for each tropism, and
+--                 in c are all coefficients, as many as 2*a[0]*(a[1]+1);
+--           719 : retrieve all tropisms in quad double precision,
+--                 on return in a[0] are the number of tropisms, and
+--                 in a[1] the length of each tropism,
+--                 in b are the winding numbers for each tropism, and
+--                 in c are all coefficients, as many as 4*a[0]*(a[1]+1);
+--           720 : the number of tropisms in standard double precision
+--                 is returned in a;
+--           721 : the number of tropisms in double double precision
+--                 is returned in a;
+--           722 : number of tropisms in quad double precision
+--                 is returned in a;
+--           723 : retrieve one tropism in standard double precision,
+--                 on input in a[0] is the length of the tropism, and
+--                 in a[1] is the index of the tropism,
+--                 on return in b is the winding number and in c are
+--                 the coefficiennts, as many as a[0] + 1, of the
+--                 coordinates of the tropism and the error,
+--           724 : retrieve one tropism in double double precision,
+--                 on input in a[0] is the length of the tropism, and
+--                 in a[1] is the index of the tropism,
+--                 on return in b is the winding number and in c are
+--                 the coefficiennts, as many as 2*a[0] + 2, of the
+--                 coordinates of the tropism and the error,
+--           725 : retrieve one tropism in quad double precision,
+--                 on input in a[0] is the length of the tropism, and
+--                 in a[1] is the index of the tropism,
+--                 on return in b is the winding number and in c are
+--                 the coefficiennts, as many as 4*a[0] + 4, of the
+--                 coordinates of the tropism and the error,
+--           726 : clear all tropisms in standard double precision;
+--           727 : clear all tropisms in double double precision;
+--           728 : clear all tropisms in quad double precision;
+--           729 : the length of the tropisms in standard double precision
+--                 is returned in a;
+--           730 : the length of the tropisms in double double precision
+--                 is returned in a;
+--           731 : the length of the tropisms in quad double precision
+--                 is returned in a.
 --
 -- ON RETURN :
 --   0 if the operation was successful, otherwise something went wrong,
