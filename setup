@@ -1,0 +1,16 @@
+# We setup the PHCpy dependancies to compile phypy2c3.so.
+
+echo "Installing phcpy dependancies. Run as sudo."
+read -p "Continue? y/n " yn
+case $yn in
+    [Yy]* ) apt-get install python3-dev gnat openmpi* &&
+            echo "entering Objects"
+            cd src/Objects &&
+            make phcpy2c3.so &&
+            echo "entering PHCpy3"
+            pip3 install ../Python/PHCpy3 &&
+            echo "returning to src"
+            echo "Installation complete. Try to import phcpy in python3.";;
+    * ) exit;;
+esac
+
