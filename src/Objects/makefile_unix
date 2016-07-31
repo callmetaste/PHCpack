@@ -6,7 +6,7 @@
 
 PYTHON=/usr/include/python2.7
 # PYTHON3=/usr/local/include/python3.5m
-PYTHON3=/usr/include/python3.4m
+PYTHON3=/usr/include/python3.5m
 # MPI_HOME=/usr/lib64/openmpi
 # MPI_HOME=/usr/local/mpi/gcc/openmpi-1.4.3
 MPI_HOME=/usr/lib/openmpi
